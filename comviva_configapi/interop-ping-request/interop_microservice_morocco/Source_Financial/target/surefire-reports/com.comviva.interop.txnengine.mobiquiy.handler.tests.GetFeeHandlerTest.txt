@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.comviva.interop.txnengine.mobiquiy.handler.tests.GetFeeHandlerTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.069 s - in com.comviva.interop.txnengine.mobiquiy.handler.tests.GetFeeHandlerTest

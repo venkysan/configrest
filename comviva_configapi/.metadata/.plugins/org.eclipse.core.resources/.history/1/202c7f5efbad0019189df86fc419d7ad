@@ -1,0 +1,37 @@
+package com.comviva.mfs.common;
+
+
+import lombok.Getter;
+
+@Getter
+public enum AuditLogEnum {
+
+    ADD_INI_DOM("Add domain",  "Domain Add initiation",   " "," "," "," "),
+    ADD_APP_DOM("Add domain",  "Domain Add Approval",   " "," "," "," "),
+    MOD_INI_DOM("Modify domain",  "Domain Update initiation",   " "," "," "," "),
+    MOD_APP_DOM("Modify domain",  "Domain Update Approval",   " "," "," "," "),
+    DEL_INI_DOM("Delete domain",  "Domain Delete initiation",   " "," "," "," "),
+    DEL_APP_DOM("Delete domain",  "Domain Delete Approval",   " "," "," "," "),
+    GET_DOM("Get domain",  "Get Specific Domain Details",   " "," "," "," "),
+    GET_ALL_DOM("Get All domain",  "Get All Domain Details",   " "," "," "," ");
+
+    private final String remarks;
+    private final String actionType;
+    private final String attrName1;
+    private final String attrValue1;
+    private final String attrName2;
+    private final String attrValue2;
+
+
+    AuditLogEnum(String remarks, String actionType, String attrName1, String attrValue1, String attrName2, String attrValue2) {
+        this.remarks = remarks;
+        this.actionType = actionType;
+        this.attrName1 = attrName1;
+        this.attrValue1 = attrValue1;
+        this.attrName2 = attrName2;
+        this.attrValue2 = attrValue2;
+    }
+
+
+
+}

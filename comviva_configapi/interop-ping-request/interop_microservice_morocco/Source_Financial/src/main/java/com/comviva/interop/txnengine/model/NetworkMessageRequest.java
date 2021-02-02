@@ -1,0 +1,24 @@
+package com.comviva.interop.txnengine.model;
+
+import javax.annotation.Generated;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+@Generated(value = "class io.swagger.codegen.languages.SpringCodegen", date = "2019-03-05T10:52:25.503+05:30")
+public class NetworkMessageRequest implements RequestWrapper {
+
+	private String networkAction;
+	
+	public String convertToJSON(NetworkMessageRequest networkMessageRequest) throws JsonProcessingException {
+        return new ObjectMapper().writer(new DefaultPrettyPrinter()).writeValueAsString(networkMessageRequest);
+    }
+}
