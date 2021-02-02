@@ -1,7 +1,0 @@
-package com.comviva.mfs.repository;
-
-public interface SystemDataRepository {
-
-	String getSystemPreferenceValue(String Value);
-
-}

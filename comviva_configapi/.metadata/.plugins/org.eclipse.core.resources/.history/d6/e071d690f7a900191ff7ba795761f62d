@@ -1,0 +1,105 @@
+package com.comviva.mfs.service.grade;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Service;
+
+import com.comviva.mfs.common.ApplicationException;
+import com.comviva.mfs.common.Constants;
+import com.comviva.mfs.common.MessageCodes;
+import com.comviva.mfs.common.ServiceRoleCodes;
+import com.comviva.mfs.common.ValidationException;
+import com.comviva.mfs.common.utils.CommonUtils;
+import com.comviva.mfs.entity.GradeChecker;
+import com.comviva.mfs.entity.GradeMaker;
+import com.comviva.mfs.model.BaseRequest;
+import com.comviva.mfs.model.grade.GetSingleGradeDetailsResponse;
+import com.comviva.mfs.repository.GradeCheckerRepository;
+import com.comviva.mfs.repository.GradeMakerRepository;
+import com.comviva.mfs.repository.SysMessagesRepository;
+import com.comviva.mfs.service.CommonService;
+
+@Service
+@Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class GetGradeByCodeService extends CommonService {
+
+    private String gradeCode;
+    private String initiateStatus;
+    private GradeMaker gradeMaker;
+    private GradeChecker gradeChecker;
+    private GradeMakerRepository gradeMakerRepository;
+    private GradeCheckerRepository gradeCheckerRepository;
+
+    @Autowired
+    public GetGradeByCodeService(SysMessagesRepository sysMessagesRepository,
+            GradeCheckerRepository gradeCheckerRepository, GradeMakerRepository gradeMakerRepository) {
+        this.sysMessagesRepository = sysMessagesRepository;
+        this.gradeMakerRepository = gradeMakerRepository;
+        this.gradeCheckerRepository = gradeCheckerRepository;
+    }
+
+    public GetSingleGradeDetailsResponse execute(String gradeCode, String identifierType, String identifierValue,
+            String bearerCode, String initiateStatus) {
+        List<String> params = new ArrayList<>();
+        BaseRequest request = new BaseRequest();
+        this.gradeCode = gradeCode;
+        this.initiateStatus = initiateStatus;
+        request.setIdentifierType(identifierType);
+        request.setIdentifierValue(identifierValue);
+        request.setBearerCode(bearerCode);
+        serviceRoleCode = ServiceRoleCodes.VIEW_GRADE_ROLE.getStrValue();
+        super.initiate(request, serviceRoleCode);
+        validateInputs();
+        if (initiateStatus.equals(Constants.YES.getStrValue())) {
+            gradeChecker = new GradeChecker();
+            copyObjects(gradeChecker, gradeMaker);
+        }
+        responseStatus = Constants.SUCCESS_RESPONSE.getStrValue();
+        generateReponseMessage(params);
+        return createResponse();
+    }
+
+    @Override
+    public void validateInputs() throws ApplicationException {
+        if (CommonUtils.isNullorEmpty(gradeCode)) {
+            throw new ValidationException(Constants.GRADE_CODE.getStrValue(),
+                    MessageCodes.FIELD_MANDATORY.getStrValue());
+        }
+        if (CommonUtils.isNullorEmpty(initiateStatus)) {
+            throw new ValidationException(Constants.INITIATE_STATUS.getStrValue(),
+                    MessageCodes.FIELD_MANDATORY.getStrValue());
+        }
+        if (!CommonUtils.isYesOrNo(initiateStatus)) {
+            throw new ValidationException(Constants.INITIATE_STATUS.getStrValue(),
+                    MessageCodes.FIELD_INVALID.getStrValue());
+        }
+        if (initiateStatus.equals(Constants.YES.getStrValue())) {
+            gradeMaker = gradeMakerRepository.getGradeByGradeCode(gradeCode);
+            if (gradeMaker == null) {
+                throw new ApplicationException(MessageCodes.NO_RECORDS_FOUND.getStrValue());
+            }
+        }
+        if (initiateStatus.equals(Constants.NO.getStrValue())) {
+            gradeChecker = gradeCheckerRepository.getGradeByGradeCode(Constants.YES.getStrValue(), gradeCode);
+            if (gradeChecker == null) {
+                throw new ValidationException(gradeCode, MessageCodes.NO_RECORDS_FOUND.getStrValue());
+            }
+        }
+    }
+
+    @Override
+    public GetSingleGradeDetailsResponse createResponse() {
+        GetSingleGradeDetailsResponse getSingleGradeDetailsResponse = new GetSingleGradeDetailsResponse();
+        getSingleGradeDetailsResponse.setStatus(responseStatus);
+        getSingleGradeDetailsResponse.setMessage(responseMessage);
+        getSingleGradeDetailsResponse.setGradeDetails(gradeChecker);
+        getSingleGradeDetailsResponse.setReferenceId(referenceId);
+        return getSingleGradeDetailsResponse;
+    }
+
+}

@@ -1,0 +1,120 @@
+package com.comviva.mfs.service.category;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Service;
+
+import com.comviva.mfs.common.ApplicationException;
+import com.comviva.mfs.common.Constants;
+import com.comviva.mfs.common.MessageCodes;
+import com.comviva.mfs.common.ServiceRoleCodes;
+import com.comviva.mfs.common.ValidationException;
+import com.comviva.mfs.common.utils.CommonUtils;
+import com.comviva.mfs.entity.GeographicalDomains;
+import com.comviva.mfs.model.BaseRequest;
+import com.comviva.mfs.model.category.GeoGraphicalDomainsDetail;
+import com.comviva.mfs.model.category.GetAllGeoGraphicalDomainsResponse;
+import com.comviva.mfs.repository.GeographicalDomainsRepository;
+import com.comviva.mfs.service.CommonService;
+
+@Service
+@Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class GetAllGeoGraphicalDomainsService extends CommonService {
+
+    private String identifierType;
+    private String identifierValue;
+    private String bearerCode;
+    private List<GeographicalDomains> geographicalDomainsList;
+    private GeographicalDomainsRepository geographicalDomainsRepository;
+
+    @Autowired
+    public GetAllGeoGraphicalDomainsService(GeographicalDomainsRepository geographicalDomainsRepository) {
+        this.geographicalDomainsRepository = geographicalDomainsRepository;
+    }
+
+    /**
+     * Get All GeoGraphical Domains
+     * @param identifierType
+     * @param identifierValue
+     * @param bearerCode
+     * @return GetAllGeoGraphicalDomainsResponse
+     */
+    public GetAllGeoGraphicalDomainsResponse execute(String identifierType, String identifierValue, String bearerCode) {
+        List<String> params = new ArrayList<>();
+        geographicalDomainsList = new ArrayList<>();
+        this.identifierType = identifierType;
+        this.identifierValue = identifierValue;
+        this.bearerCode = bearerCode;
+        BaseRequest request = new BaseRequest();
+        request.setIdentifierType(identifierType);
+        request.setIdentifierValue(identifierValue);
+        request.setBearerCode(bearerCode);
+        serviceRoleCode = ServiceRoleCodes.VIEW_ALL_CATEGORY_ROLE.getStrValue();
+        super.initiate(request, serviceRoleCode);
+        validateInputs();
+        responseStatus = Constants.SUCCESS_RESPONSE.getStrValue();
+        responseMessageCode = Constants.SUCCESS_RESPONSE.getStrValue();
+        generateReponseMessage(params);
+        return createResponse();
+    }
+
+    /**
+     * Input validation
+     */
+    @Override
+    public void validateInputs() {
+        if (CommonUtils.isNullorEmpty(identifierType)) {
+            throw new ValidationException(identifierType, MessageCodes.FIELD_MANDATORY.getStrValue());
+        }
+        if (CommonUtils.isNullorEmpty(identifierValue)) {
+            throw new ValidationException(identifierValue, MessageCodes.FIELD_MANDATORY.getStrValue());
+        }
+        if (CommonUtils.isNullorEmpty(bearerCode)) {
+            throw new ValidationException(bearerCode, MessageCodes.FIELD_MANDATORY.getStrValue());
+        }
+        geographicalDomainsList = geographicalDomainsRepository
+                .getGeographicalDomains(Constants.ACTIVE_STATUS.getStrValue());
+        if (CommonUtils.isNullorEmpty(geographicalDomainsList)) {
+            throw new ApplicationException(MessageCodes.NO_RECORDS_FOUND.getStrValue());
+        }
+    }
+
+    /**
+     * Create Response 
+     */
+    @Override
+    public GetAllGeoGraphicalDomainsResponse createResponse() {
+        GetAllGeoGraphicalDomainsResponse getAllGeoGraphicalDomainsResponse = new GetAllGeoGraphicalDomainsResponse();
+        getAllGeoGraphicalDomainsResponse.setStatus(responseStatus);
+        getAllGeoGraphicalDomainsResponse.setMessage(responseMessage);
+        if (!CommonUtils.isNullorEmpty(geographicalDomainsList)) {
+            getAllGeoGraphicalDomainsResponse.setGeoGraphicalDomains(getGeoGraphicalDomains());
+        }
+        getAllGeoGraphicalDomainsResponse.setReferenceId(referenceId);
+        return getAllGeoGraphicalDomainsResponse;
+    }
+
+    private List<GeoGraphicalDomainsDetail> getGeoGraphicalDomains() {
+        List<GeoGraphicalDomainsDetail> list = new ArrayList<>();
+        GeoGraphicalDomainsDetail geoGraphicalDomainsDetail;
+        for (GeographicalDomains geographicalDomains : geographicalDomainsList) {
+            geoGraphicalDomainsDetail = new GeoGraphicalDomainsDetail();
+            geoGraphicalDomainsDetail.setGrphDomainCode(geographicalDomains.getGrphDomainCode());
+            geoGraphicalDomainsDetail.setNetworkCode(geographicalDomains.getNetworkCode());
+            geoGraphicalDomainsDetail.setGrphDomainName(geographicalDomains.getGrphDomainName());
+            geoGraphicalDomainsDetail.setParentGrphDomainCode(geographicalDomains.getParentGrphDomainCode());
+            geoGraphicalDomainsDetail.setGrphDomainShortName(geographicalDomains.getGrphDomainName());
+            geoGraphicalDomainsDetail.setDescription(geographicalDomains.getDescription());
+            geoGraphicalDomainsDetail.setMessageCode(geographicalDomains.getMessageCode());
+            geoGraphicalDomainsDetail.setGrphDomainType(geographicalDomains.getGrphDomainType());
+            list.add(geoGraphicalDomainsDetail);
+        }
+        return list;
+    }
+
+}
