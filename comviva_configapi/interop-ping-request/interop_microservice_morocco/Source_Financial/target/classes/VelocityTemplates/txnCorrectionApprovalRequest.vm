@@ -1,4 +1,0 @@
-msisdn=$!msisdn&msisdn2=$!msisdn2&provider=$!provider&payid=$!payId&amount=$!amount&txnid=$!txnId&usertype=$!userType&usertype2=$!userType2&action=$!action&userid=$!userId&session_id=$!session_id&txnmode=$!txnMode
-
-
-

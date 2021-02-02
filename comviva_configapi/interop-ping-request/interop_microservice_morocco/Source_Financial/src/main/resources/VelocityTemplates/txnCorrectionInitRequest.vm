@@ -1,1 +1,0 @@
-msisdn=$!msisdn&msisdn2=$!msisdn2&amount=$!amount&txnid=$!txnId&usertype=$!userType&usertype2=$!userType2&remarks=$!remarks&screversal=$!screversal&action=$!action&userid=$!userId&session_id=$!session_id&txnmode=$!txnMode

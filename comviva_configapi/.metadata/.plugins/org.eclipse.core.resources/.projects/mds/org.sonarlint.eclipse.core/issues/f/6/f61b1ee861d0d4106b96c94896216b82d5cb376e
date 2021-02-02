@@ -1,7 +1,0 @@
-
-squid:S1192X"JDefine a constant instead of duplicating this literal "newObject" 4 times.(¢œşÿÿÿÿHì$RCRITICALZ
-CODE_SMELL
-ksquid:S3655¶"?Call "systemPreference.isPresent()" before accessing the value.(õ™ŠĞøÿÿÿÿHí$RMAJORZBUG
-ksquid:S3655"?Call "systemPreference.isPresent()" before accessing the value.(õ™ŠĞøÿÿÿÿHî$RMAJORZBUG
-¾%squid:RedundantThrowsDeclarationCheck¾"vRemove the declaration of thrown exception 'com.comviva.mfs.common.ApplicationException' which is a runtime exception.(˜–­ÔHï$RMINORZ
-CODE_SMELL

@@ -1,3 +1,0 @@
-msisdn=$!msisdn&msisdn2=$!msisdn2&amount=$!amount&provider=$!provider&provider2=$!provider2&payid=$!payId&payid2=$!payId2&CONNECTOR=$!connector&session_id=$!session_id&txnmode=$!txnMode
-
-

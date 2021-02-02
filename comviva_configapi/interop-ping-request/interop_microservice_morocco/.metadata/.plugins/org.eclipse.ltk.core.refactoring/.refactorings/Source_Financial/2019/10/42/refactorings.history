@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">
-<refactoring comment="Copy element &apos;ConfirmTransactionServiceRestAssuredTests.java&apos; to &apos;Source_Financial/src/test/java/com.comviva.interop.txnengine.service.test&apos;&#x0D;&#x0A;- Original project: &apos;Source_Financial&apos;&#x0D;&#x0A;- Destination element: &apos;Source_Financial/src/test/java/com.comviva.interop.txnengine.service.test&apos;&#x0D;&#x0A;- Original element: &apos;com.comviva.interop.txnengine.service.test.ConfirmTransactionServiceRestAssuredTests.java&apos;" description="Copy compilation unit" destination="/src\/test\/java&lt;com.comviva.interop.txnengine.service.test" element1="/src\/test\/java&lt;com.comviva.interop.txnengine.service.test{ConfirmTransactionServiceRestAssuredTests.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1571313015786" units="1" version="1.0"/>
-</session>

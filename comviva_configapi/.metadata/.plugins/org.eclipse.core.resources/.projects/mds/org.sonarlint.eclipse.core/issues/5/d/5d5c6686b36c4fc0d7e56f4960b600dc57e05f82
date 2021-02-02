@@ -1,9 +1,0 @@
-
-‡squid:S1192F"KDefine a constant instead of duplicating this literal "T_RULESAPP" 6 times.(àé×úÿÿÿÿ8ï¿—Â-H×$RCRITICALZ
-CODE_SMELL
-‚squid:S1192N"KDefine a constant instead of duplicating this literal "O2C_TRULES" 6 times.(æ¶‹©8ï¿—Â-HÙ$RCRITICALZ
-CODE_SMELL
-„squid:S1192?"HDefine a constant instead of duplicating this literal "GRP_ROL" 6 times.(ÈÜåıÿÿÿÿ8ï¿—Â-HØ$RCRITICALZ
-CODE_SMELL
-“squid:S00115³"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(¥’•ú8ÃªšÂ-Hô$RCRITICALZ
-CODE_SMELL

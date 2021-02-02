@@ -1,5 +1,0 @@
-msisdn=$!msisdn&pin=$!pin&amount=$!amount&provider=$!provider&txnid=$!txnId&status=$!status&session_id=$!session_id
-#if( $!em )
-  &em=$!em
-#end
-&txnmode=$!txnMode
