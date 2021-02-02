@@ -1,0 +1,260 @@
+package com.comviva.mfs.service;
+
+import java.text.MessageFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+
+import com.comviva.mfs.common.ApplicationException;
+import com.comviva.mfs.common.AuditLogEnum;
+import com.comviva.mfs.common.CommonServiceInterface;
+import com.comviva.mfs.common.Constants;
+import com.comviva.mfs.common.ErrorCodes;
+import com.comviva.mfs.common.MessageCodes;
+import com.comviva.mfs.common.ValidationException;
+import com.comviva.mfs.common.utils.TcpUtils;
+import com.comviva.mfs.entity.MdsRequestResponseHist;
+import com.comviva.mfs.entity.SysEnumeration;
+import com.comviva.mfs.entity.SysMessages;
+import com.comviva.mfs.entity.Users;
+import com.comviva.mfs.model.BaseRequest;
+import com.comviva.mfs.repository.MdsRequestResponseHistRepository;
+import com.comviva.mfs.repository.SysEnumerationRepository;
+import com.comviva.mfs.repository.SysMessagesRepository;
+import com.comviva.mfs.repository.SystemDataRepository;
+import com.comviva.mfs.repository.UsersRepository;
+import com.comviva.mfs.security.EncryptorInterface;
+
+public abstract class CommonService implements CommonServiceInterface {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(CommonService.class);
+	protected String responseStatus;
+	protected String responseMessage;
+	protected Integer responseLanguage;
+	protected String serviceRoleCode;
+	protected String referenceId;
+	protected String externalRefId;
+	private String bearerCode;
+	private String loginId;
+	protected Users requesterUser;
+	private String roleCode;
+	protected String responseMessageCode;
+
+	@Autowired
+	private AuditLoggerService auditLoggerService;
+	@Autowired
+	private SysEnumerationRepository sysEnumerationRepository;
+	@Autowired
+	private UsersRepository usersRepository;
+	@Autowired
+	protected SysMessagesRepository sysMessagesRepository;
+	@Autowired
+	private MdsRequestResponseHistRepository mdsRequestResponseHistRepository;
+	@Autowired
+	private EncryptorInterface encryptorInterface;
+	@Autowired
+	private IdGenerator idGenerator;
+	@Autowired
+    private SystemDataRepository systemDataRepository;
+	
+	
+	@Value("${appilication.default.language}")
+	private Integer defaultLanguage;
+
+	public void execute(BaseRequest request, String roleCode) throws ApplicationException {
+		this.bearerCode = request.getBearerCode();
+		responseLanguage = defaultLanguage;
+		if (request.getIdentifierType().equals("loginId")) {
+			this.loginId = request.getIdentifierValue();
+		}
+		this.externalRefId = request.getExternalRefId();
+		this.roleCode = roleCode;
+		referenceId = generateRefId();
+		authenticate();
+		if (requesterUser.getPrefLanguage() != null) {
+			responseLanguage = requesterUser.getPrefLanguage().intValue();
+		}
+		// authorize();
+	}
+
+	private String generateRefId() {
+		return idGenerator.generateTransactionId();
+	}
+
+	private void authenticate() throws ApplicationException {
+		SysEnumeration sysEnumeration = sysEnumerationRepository.getEnumByEnumCode(bearerCode);
+		if (null == sysEnumeration || !sysEnumeration.getEnumTypeId().equals(Constants.BEARER_CODE.getStrValue()))
+			throw new ApplicationException(ErrorCodes.WRONG_BEARER_CODE.getErrorCode());
+
+		requesterUser = usersRepository.getUserByLoginId(loginId);
+		if (null == requesterUser) {
+			throw new ApplicationException(ErrorCodes.REQUESTER_NOT_FOUND.getErrorCode());
+		}
+
+		// validateLoginCredentials(loginId, password);
+
+		boolean isAuthorisedUser = usersRepository.checkUserAuthanticationForRole(requesterUser.getUserId(), roleCode);
+		if (!isAuthorisedUser) {
+			throw new ApplicationException(MessageCodes.USER_NOT_AUTHORIZED.getStrValue());
+		}
+
+	}
+
+	public boolean validateLoginCredentials(String loginID, String passWordValue) throws ApplicationException {
+
+		Users objUserDTO = requesterUser;
+		String status;
+		String responseCode;
+
+		String strPwdFlag = objUserDTO.getPwdFlag();
+		String passWord = objUserDTO.getPassword();
+
+		status = objUserDTO.getStatus();
+
+		responseCode = validatePasswordForAuthentication(passWordValue, passWord, loginID, strPwdFlag, status);
+		if (!responseCode.equals(ErrorCodes.SUCCESS.getErrorCode())) {
+			throw new ApplicationException(responseCode);
+		}
+		objUserDTO.setInvalidPasswordCount(0L);
+		return true;
+
+	}
+
+	public String validatePasswordForAuthentication(String passWordValue, String dbPassword, String loginID,
+			String pwdFlag, String status) throws ApplicationException {
+		String strEncryptedPasssWord = null;
+		String responseCode = null;
+		if (Constants.ACTIVE_STATUS.getStrValue().equalsIgnoreCase(pwdFlag))
+			strEncryptedPasssWord = encryptorInterface.newEncryptTextSHA2(passWordValue, loginID);
+		else
+			strEncryptedPasssWord = encryptorInterface.encrypt(passWordValue);
+
+		if (!dbPassword.equals(strEncryptedPasssWord)) {
+			responseCode = ErrorCodes.INVALID_PASSWORD.getErrorCode();
+		} else {
+			if ((Constants.SUSPENDED.getStrValue()).equalsIgnoreCase(status)) {
+				responseCode = ErrorCodes.USER_SUSPENDED.getErrorCode();
+				throw new ApplicationException(responseCode);
+			} else {
+				responseCode = ErrorCodes.SUCCESS.getErrorCode();
+			}
+		}
+		return responseCode;
+	}
+
+	public void generateReponseMessage(List<String> params) {
+		SysMessages sysMessages = sysMessagesRepository.loadMessageByMessageCodeAndLangCode(responseMessageCode, responseLanguage);
+		if (null != sysMessages) {
+			responseMessage = sysMessages.getMessage();
+			MessageFormat messageFormat = new MessageFormat(responseMessage);
+			responseMessage = messageFormat.format(params.toArray());
+		}
+	}
+
+	public void createRequestResponseHistObject() {
+		MdsRequestResponseHist mdsRequestResponseHist = new MdsRequestResponseHist();
+		mdsRequestResponseHist.setReferenceId(referenceId);
+		mdsRequestResponseHist.setExternalRefId(externalRefId);
+		mdsRequestResponseHist.setServiceType(serviceRoleCode);
+		mdsRequestResponseHist.setRequestedOn(new Date());
+		mdsRequestResponseHist.setRequestedBy(loginId);
+		mdsRequestResponseHist.setBearerCode(bearerCode);
+		mdsRequestResponseHist.setStatus(responseStatus);
+		mdsRequestResponseHistRepository.save(mdsRequestResponseHist);
+	}
+
+	public void createAuditLogMap(Map<String, Object> constructAdminMap) {
+
+		try {
+			if (null != requesterUser) {
+				constructAdminMap.put("createdBy", requesterUser.getLoginId());
+				constructAdminMap.put("loggedIn", new Date());
+				constructAdminMap.put("categoryCode", requesterUser.getCategoryCode());
+				constructAdminMap.put("custId", requesterUser.getUserId());
+				constructAdminMap.put("partyId", requesterUser.getUserId());
+				constructAdminMap.put("partyAcessId", requesterUser.getUserId());
+			}
+			if (null != AuditLogEnum.valueOf(serviceRoleCode)) {
+				constructAdminMap.put("remarks", AuditLogEnum.valueOf(serviceRoleCode).getRemarks());
+
+				constructAdminMap.put("actionType", AuditLogEnum.valueOf(serviceRoleCode).getActionType());
+				constructAdminMap.put("attrName1", AuditLogEnum.valueOf(serviceRoleCode).getAttrName1());
+				constructAdminMap.put("attrValue1", AuditLogEnum.valueOf(serviceRoleCode).getAttrValue1());
+				constructAdminMap.put("attrName2", AuditLogEnum.valueOf(serviceRoleCode).getAttrName2());
+				constructAdminMap.put("attrValue2", AuditLogEnum.valueOf(serviceRoleCode).getAttrValue2());
+			}
+		} catch (Exception e) {
+			LOGGER.error("error in creating constructAdminMap {}",  e);
+		}
+		auditLoggerService.saveAuditLog(constructAdminMap);
+	}
+	
+	public void handleException (Exception ex,List<String> params,String className)
+	{ 
+	    if (ex instanceof ValidationException)
+	    {
+	    	ValidationException e= (ValidationException) ex;
+	    	LOGGER.error("ValidationException in {}: {}", className ,e);
+			params.add(e.getField());
+			responseStatus = ErrorCodes.BAD_REQUEST.getErrorCode();
+			responseMessageCode = e.getErrorCode();
+	    }
+	    else if (ex instanceof ApplicationException)
+	    {
+	    	ApplicationException e= (ApplicationException)ex;
+	    	LOGGER.error("ApplicationException in {}: {}",className, e);
+			responseStatus = e.getErrorCode();
+			responseMessageCode = e.getErrorCode();
+	    }
+	    else 
+	    {
+	    	LOGGER.error("Exception in {}: {}",className, ex);
+			responseStatus = ErrorCodes.GENERIC_ERROR.getErrorCode();
+			responseMessageCode = ErrorCodes.GENERIC_ERROR.getErrorCode();
+	    }
+	}
+	
+	
+	 public String getControlProfileID(String networkCode, Date transferDate) {
+	        String returnStr = null;
+	        try {
+	            int defaultFinancialYear = Integer.parseInt(
+	                    systemDataRepository.getSystemPreferenceValue(TcpUtils.FINANCIAL_YEAR_START_INDEX).toString());
+	            long newTransferID = systemDataRepository.getNextID(TcpUtils.ID_GEN_TCPROFILE,
+	                    TcpUtils.getFinancialYearLastDigits(4, defaultFinancialYear), networkCode, transferDate);
+	            String paddedTransferIDStr = TcpUtils.padZeroesToLeft(String.valueOf(newTransferID), 6);
+	            returnStr = TcpUtils.ID_GEN_TCPROFILE + TcpUtils.currentDateTimeFormatString(transferDate)
+	                    + TcpUtils.currentTimeFormatString(transferDate) + "." + paddedTransferIDStr;
+	        } catch (Exception e) {
+	            LOGGER.error("{}", e);
+	            returnStr = null;
+	        }
+	        LOGGER.info("networkCode=" + networkCode + " transferDate=" + transferDate + " returnStr=" + returnStr);
+	        return returnStr;
+	    }
+
+	    public String getControlThreshDetailsID(String networkCode, Date transferDate) {
+	        String returnStr = null;
+	        try {
+	            int defaultFinancialYear = Integer.parseInt(
+	                    systemDataRepository.getSystemPreferenceValue(TcpUtils.FINANCIAL_YEAR_START_INDEX).toString());
+	            long newTransferID = systemDataRepository.getNextID(TcpUtils.ID_GEN_TCTHRESHDET,
+	                    TcpUtils.getFinancialYearLastDigits(4, defaultFinancialYear), networkCode, transferDate);
+	            String paddedTransferIDStr = TcpUtils.padZeroesToLeft(String.valueOf(newTransferID), 6);
+	            returnStr = TcpUtils.ID_GEN_TCTHRESHDET + TcpUtils.currentDateTimeFormatString(transferDate)
+	                    + TcpUtils.currentTimeFormatString(transferDate) + paddedTransferIDStr;
+	        } catch (Exception e) {
+	            LOGGER.error("{}", e);
+	            returnStr = null;
+	        }
+	        LOGGER.info("networkCode=" + networkCode + " transferDate=" + transferDate + " returnStr=" + returnStr);
+	        return returnStr;
+	    }
+
+
+}

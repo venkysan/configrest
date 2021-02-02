@@ -1,0 +1,42 @@
+package com.comviva.mfs.model.grouprole;
+
+import java.util.Arrays;
+
+import com.comviva.mfs.model.BaseRequest;
+
+import io.swagger.annotations.ApiModelProperty;
+
+public class UpdateGroupRoleInitiateRequest extends BaseRequest {
+
+	@ApiModelProperty(notes = "Is approval required Y/N", position = 5, example = "Y")
+	private String isApprovalRequired;
+
+	@ApiModelProperty(notes = "Service Request", position = 6)
+	private ServiceRole[] allServiceList;
+
+	public String getIsApprovalRequired() {
+		return isApprovalRequired;
+	}
+	
+	public void setAllServiceList(ServiceRole[] allServiceList) {
+		this.allServiceList = allServiceList;
+	}
+
+	public void setIsApprovalRequired(String isApprovalRequired) {
+		this.isApprovalRequired = isApprovalRequired;
+	}
+	public ServiceRole[] getAllServiceList() {
+		return allServiceList;
+	}
+
+	
+
+	@Override
+	public String toString() {
+		return "UpdateGroupRoleInitiateRequest [identifierType=" + identifierType + ", identifierValue="
+				+ identifierValue + ", bearerCode=" + bearerCode + ", externalRefId=" + externalRefId
+				+ ", isApprovalRequired='" + isApprovalRequired + "allServiceList='" + Arrays.toString(allServiceList)
+				+ ']';
+	}
+
+}

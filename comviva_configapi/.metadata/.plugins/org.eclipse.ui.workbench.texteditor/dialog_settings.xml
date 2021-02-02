@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item key="selection" value="TRANSFER_TYPE_SALE"/>
+		<item key="wrap" value="true"/>
+		<item key="casesensitive" value="false"/>
+		<item key="wholeword" value="false"/>
+		<item key="incremental" value="false"/>
+		<item key="isRegEx" value="false"/>
+		<list key="findhistory">
+			<item value="TRANSFER_TYPE_SALE"/>
+			<item value="getNetworkCode"/>
+			<item value="DELETE_O2C_TRANSFER_RULE_INIT_ROLE"/>
+			<item value="TRANSFER_RULE_APPROVE_REQ"/>
+			<item value="TRANSFER_RULE_ADD_APPR_SUCCESS"/>
+			<item value="ADD_O2C_TRANSFER_RULES_APPR_ROLE"/>
+			<item value="GetCategoriesRelationByCategoryCode"/>
+			<item value="GetDomainBy"/>
+			<item value="GetDomainByCode"/>
+			<item value="getDomainsBy"/>
+			<item value="NO_RECORDS_FOUND"/>
+			<item value="deleteDomainApp"/>
+			<item value="ACTION_REJECT"/>
+			<item value="deleteDomainApprovalRe"/>
+			<item value="updateDomainRejectUrl"/>
+		</list>
+		<list key="replacehistory">
+		</list>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item key="DIALOG_X_ORIGIN" value="756"/>
+		<item key="DIALOG_Y_ORIGIN" value="8"/>
+		<item key="DIALOG_WIDTH" value="470"/>
+		<item key="DIALOG_HEIGHT" value="728"/>
+		<item key="DIALOG_FONT_NAME" value="1|Segoe UI|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|Segoe UI"/>
+	</section>
+</section>

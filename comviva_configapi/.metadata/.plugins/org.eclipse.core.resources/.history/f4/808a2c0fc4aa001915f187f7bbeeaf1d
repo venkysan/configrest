@@ -1,0 +1,155 @@
+/** 
+ * COPYRIGHT: Comviva Technologies Pvt. Ltd.
+ * This software is the sole property of Comviva
+ * and is protected by copyright law and international
+ * treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of
+ * it may result in severe civil and criminal penalties
+ * and will be prosecuted to the maximum extent possible
+ * under the law. Comviva reserves all rights not
+ * expressly granted. You may not reverse engineer, decompile,
+ * or disassemble the software, except and only to the
+ * extent that such activity is expressly permitted
+ * by applicable law notwithstanding this limitation.
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT
+ * WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY
+ * AND THE USE OF THIS SOFTWARE. Comviva SHALL NOT BE LIABLE FOR
+ * ANY DAMAGES WHATSOEVER ARISING OUT OF THE USE OF OR INABILITY TO
+ * USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ **/
+package com.comviva.mfs.service.domain;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+
+import com.comviva.mfs.common.Constants;
+import com.comviva.mfs.common.MessageCodes;
+import com.comviva.mfs.common.ServiceRoleCodes;
+import com.comviva.mfs.common.ValidationException;
+import com.comviva.mfs.common.utils.CommonUtils;
+import com.comviva.mfs.entity.DomainChecker;
+import com.comviva.mfs.entity.DomainMaker;
+import com.comviva.mfs.model.domain.AddDomainApproveRequest;
+import com.comviva.mfs.model.domain.AddDomainApproveResponse;
+import com.comviva.mfs.repository.DomainCheckerRepository;
+import com.comviva.mfs.repository.DomainMakerRepository;
+import com.comviva.mfs.service.CommonService;
+
+/**
+ * @author radhakrishnab
+ *
+ */
+@Service
+@Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class AddDomainApproveService extends CommonService {
+
+    private String domainCode;
+    private DomainMaker domainMaker;
+    private DomainMakerRepository domainMakerRepository;
+    private DomainCheckerRepository domainCheckerRepository;
+    private AddDomainApproveRequest addApproveDomainRequest;
+
+    @Autowired
+    private KafkaTemplate<String, Object> kafkaTemplate;
+
+    /**
+     * @param domainMakerRepository
+     * @param domainCheckerRepository
+     */
+    @Autowired
+    public AddDomainApproveService(DomainMakerRepository domainMakerRepository,
+            DomainCheckerRepository domainCheckerRepository) {
+        this.domainMakerRepository = domainMakerRepository;
+        this.domainCheckerRepository = domainCheckerRepository;
+    }
+
+    /**
+     * Add DomainApprove
+     * 
+     * @param domainCode
+     * @param action
+     * @param addApproveDomainRequest
+     * @return AddDomainApproveResponse
+     */
+    public AddDomainApproveResponse execute(String domainCode, String action,
+            AddDomainApproveRequest addApproveDomainRequest) {
+        Map<String, Object> constructAdminMap = new HashMap<>();
+        List<String> params = new ArrayList<>();
+        this.domainCode = domainCode;
+        this.addApproveDomainRequest = addApproveDomainRequest;
+        serviceRoleCode = ServiceRoleCodes.ADD_DOMAIN_APPR_ROLE.getStrValue();
+        super.initiate(addApproveDomainRequest, serviceRoleCode);
+        validateInputs();
+        DomainChecker domainChecker = new DomainChecker();
+        copyObjects(domainChecker, domainMaker);
+        if (Constants.ACTION.getStrValue().equals(action)) {
+            domainChecker.setStatus(Constants.ACTIVE_STATUS.getStrValue());
+            domainCheckerRepository.save(domainChecker);
+            params.add(domainChecker.getDomainName());
+            responseMessageCode = MessageCodes.DOMAIN_APPROVE_SUCCESS.getStrValue();
+
+        } else {
+            domainChecker.setStatus(MessageCodes.DOMAIN_REJECT_SUCCESS.getStrValue());
+            responseMessageCode = MessageCodes.DOMAIN_REJECT_SUCCESS.getStrValue();
+        }
+        domainMakerRepository.delete(domainMaker);
+        responseStatus = Constants.SUCCESS_RESPONSE.getStrValue();
+        createRequestResponseHistObject();
+        constructAdminMap.put(NEW_OBJECT, domainChecker);
+        createAuditLogMap(constructAdminMap);
+        kafkaTemplate.send("domainChecker", domainChecker);
+        generateReponseMessage(params);
+        return createResponse();
+    }
+
+    /**
+     * Validate the request parameters
+     */
+    @Override
+    public void validateInputs() {
+        if (CommonUtils.isNullorEmpty(domainCode)) {
+            throw new ValidationException(Constants.DOMAIN_CODE.getStrValue(), MessageCodes.FIELD_MANDATORY.getStrValue());
+        }else if (!CommonUtils.isAlphaNumericAndLenghtCheck(domainCode,domainCode.length(), Constants.DOMAIN_CODE_LENGTH.getIntValue())) {
+            throw new ValidationException(Constants.DOMAIN_CODE.getStrValue(),
+                    MessageCodes.FIELD_ALPHANUMERIC.getStrValue());
+        }
+        domainMaker = domainMakerRepository.getDomainByDomainCode(Constants.ADD_INITIATE_STATUS.getStrValue(),
+                domainCode);
+        if (null == domainMaker) {
+            throw new ValidationException(Constants.DOMAIN_CODE.getStrValue(),
+                    MessageCodes.NO_APPROVAL_PENDING.getStrValue());
+        }
+        if (!Constants.ADD_INITIATE_STATUS.getStrValue().equals(domainMaker.getStatus())) {
+            throw new ValidationException(Constants.DOMAIN_CODE.getStrValue(),
+                    MessageCodes.NO_APPROVAL_PENDING.getStrValue());
+        }
+    }
+
+    /**
+     * Construct the AddDomainApproveResponse
+     * 
+     * return AddDomainApproveResponse
+     */
+    @Override
+    public AddDomainApproveResponse createResponse() {
+        AddDomainApproveResponse addApproveDomainResponse = new AddDomainApproveResponse();
+        addApproveDomainResponse.setStatus(responseStatus);
+        addApproveDomainResponse.setExternalRefId(addApproveDomainRequest.getExternalRefId());
+        addApproveDomainResponse.setReferenceId(referenceId);
+        addApproveDomainResponse.setMessage(responseMessage);
+        return addApproveDomainResponse;
+    }
+
+}

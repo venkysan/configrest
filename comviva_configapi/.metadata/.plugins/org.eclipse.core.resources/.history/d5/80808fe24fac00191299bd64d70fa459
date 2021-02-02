@@ -1,0 +1,162 @@
+/** 
+ * COPYRIGHT: Comviva Technologies Pvt. Ltd.
+ * This software is the sole property of Comviva
+ * and is protected by copyright law and international
+ * treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of
+ * it may result in severe civil and criminal penalties
+ * and will be prosecuted to the maximum extent possible
+ * under the law. Comviva reserves all rights not
+ * expressly granted. You may not reverse engineer, decompile,
+ * or disassemble the software, except and only to the
+ * extent that such activity is expressly permitted
+ * by applicable law notwithstanding this limitation.
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT
+ * WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY
+ * AND THE USE OF THIS SOFTWARE. Comviva SHALL NOT BE LIABLE FOR
+ * ANY DAMAGES WHATSOEVER ARISING OUT OF THE USE OF OR INABILITY TO
+ * USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ **/
+package com.comviva.mfs.service.grouprole;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Service;
+
+import com.comviva.mfs.common.ApplicationException;
+import com.comviva.mfs.common.Constants;
+import com.comviva.mfs.common.ErrorCodes;
+import com.comviva.mfs.common.MessageCodes;
+import com.comviva.mfs.common.ServiceRoleCodes;
+import com.comviva.mfs.common.ValidationException;
+import com.comviva.mfs.common.utils.CommonUtils;
+import com.comviva.mfs.entity.SysGroupRoleChecker;
+import com.comviva.mfs.model.BaseRequest;
+import com.comviva.mfs.model.grouprole.GetAllGroupRoleResponse;
+import com.comviva.mfs.repository.SysGroupRoleCheckerRepository;
+import com.comviva.mfs.repository.SysMessagesRepository;
+import com.comviva.mfs.service.CommonService;
+
+/**
+ * This method used for get group role based on group role code.
+ *
+ * @author sudharshans
+ */
+@Service
+@Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class GetAllGroupRoleService extends CommonService {
+
+    private String categoryCode;
+    private String gradeCode;
+    private String roleType;
+    private List<SysGroupRoleChecker> sysGroupRoleCheckerList;
+    private SysGroupRoleCheckerRepository sysGroupRoleCheckerRepository;
+
+    /**
+     * Construct GetAllGroupRoleService
+     * 
+     * @param sysMessagesRepository
+     *            - sysMessagesRepository
+     * @param sysGroupRoleCheckerRepository
+     *            - sysGroupRoleCheckerRepository
+     */
+    @Autowired
+    public GetAllGroupRoleService(SysMessagesRepository sysMessagesRepository,
+            SysGroupRoleCheckerRepository sysGroupRoleCheckerRepository) {
+        this.sysMessagesRepository = sysMessagesRepository;
+        this.sysGroupRoleCheckerRepository = sysGroupRoleCheckerRepository;
+    }
+
+    /**
+     * Process of GetAllGroupRole
+     * 
+     * @param categoryCode
+     *            - String
+     * @param gradeCode
+     *            - String
+     * @param roleType
+     *            - String
+     * @param identifierType
+     *            - String
+     * @param identifierValue
+     *            - String
+     * @param bearerCode
+     *            - String
+     * @return GetAllGroupRoleResponse
+     */
+    public GetAllGroupRoleResponse execute(String categoryCode, String gradeCode, String roleType,
+            String identifierType, String identifierValue, String bearerCode) {
+        List<String> params = new ArrayList<>();
+        sysGroupRoleCheckerList = new ArrayList<>();
+        BaseRequest request = new BaseRequest();
+        this.serviceRoleCode = ServiceRoleCodes.GROUP_ROLE_VIEW_ROLE.getStrValue();
+        
+        this.roleType = roleType;
+        this.gradeCode = gradeCode;
+        request.setIdentifierType(identifierType);
+        request.setIdentifierValue(identifierValue);
+        request.setBearerCode(bearerCode);
+        super.initiate(request, serviceRoleCode);
+        validateInputs();
+        this.categoryCode = categoryCode.toUpperCase(Locale.ENGLISH);
+        responseStatus = ErrorCodes.SUCCESS.getErrorCode();
+        responseMessageCode = MessageCodes.SUCCESS.getStrValue();
+        generateReponseMessage(params);
+        return createResponse();
+    }
+
+    /**
+     * Validate the request parameters
+     */
+    public void validateInputs() {
+        if (CommonUtils.isNullorEmpty(roleType)) {
+            throw new ValidationException(Constants.ROLE_TYPE.getStrValue(),
+                    MessageCodes.FIELD_MANDATORY.getStrValue());
+        }
+        if (!CommonUtils.isRoleType(roleType)) {
+            throw new ValidationException(Constants.ROLE_TYPE.getStrValue(), MessageCodes.FIELD_INVALID.getStrValue());
+        }
+        if (CommonUtils.isNullorEmpty(categoryCode)) {
+            throw new ValidationException(Constants.CATEGORY_CODE.getStrValue(),
+                    MessageCodes.FIELD_MANDATORY.getStrValue());
+        }
+        if (roleType.equals(Constants.WALLET.getStrValue()) && CommonUtils.isNullorEmpty(gradeCode)) {
+            throw new ValidationException(Constants.GRADE_CODE.getStrValue(),
+                    MessageCodes.FIELD_MANDATORY.getStrValue());
+        }
+        if (roleType.equals(Constants.WEB.getStrValue())) {
+            sysGroupRoleCheckerList = sysGroupRoleCheckerRepository.loadWebGroupRoles(categoryCode);
+        } else {
+            sysGroupRoleCheckerList = sysGroupRoleCheckerRepository.loadWalletGroupRoles(categoryCode, gradeCode);
+        }
+
+        if (CommonUtils.isNullorEmpty(sysGroupRoleCheckerList)) {
+            throw new ApplicationException(MessageCodes.NO_RECORDS_FOUND.getStrValue());
+        }
+    }
+
+    /**
+     * Construct the GetAllGroupRoleResponse
+     * 
+     * @return GetAllGroupRoleResponse
+     */
+    @Override
+    public GetAllGroupRoleResponse createResponse() {
+        GetAllGroupRoleResponse responseObj = new GetAllGroupRoleResponse();
+        responseObj.setStatus(responseStatus);
+        responseObj.setMessage(responseMessage);
+        responseObj.setAllGroupRoleList(sysGroupRoleCheckerList);
+        responseObj.setReferenceId(referenceId);
+        return responseObj;
+    }
+
+}

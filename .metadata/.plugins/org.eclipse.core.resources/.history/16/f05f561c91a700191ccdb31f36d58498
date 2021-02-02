@@ -1,0 +1,212 @@
+package com.comviva.mfs.controller.test;
+
+import static io.restassured.RestAssured.with;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import com.comviva.mfs.MdsApplication;
+import com.comviva.mfs.common.ErrorCodes;
+import com.comviva.mfs.common.MessageCodes;
+import com.comviva.mfs.constant.test.TestBaseConstants;
+import com.comviva.mfs.repository.CategoryCheckerRepository;
+import com.comviva.mfs.repository.CategoryMakerRepository;
+import com.comviva.mfs.repository.CategoryRelationsCheckerRepository;
+import com.comviva.mfs.util.CategoryDataPreparationUtil;
+
+import io.restassured.http.ContentType;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = MdsApplication.class)
+@WebAppConfiguration
+public class CategoryControllerTest {
+
+	private MockMvc mockMvc;
+	@Autowired
+    private WebApplicationContext wac;
+	@MockBean
+	private CategoryCheckerRepository categoryCheckerRepository;
+	@MockBean
+	private CategoryRelationsCheckerRepository categoryRelationsCheckerRepository;
+	@MockBean
+	private CategoryMakerRepository categoryMakerRepository;
+	
+	
+	@Before
+    public void setup () {
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+    }
+	
+	@Test
+	public void addCategoriesInitiateTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.post(CategoryDataPreparationUtil.addCategoriesInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(CategoryDataPreparationUtil.addCategoryInitialRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue()).value(TestBaseConstants.SUCCESS_STATUS.getValue()));
+	}
+
+	@Test
+	public void addCategoriesInitiateNoApprovalTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.post(CategoryDataPreparationUtil.addCategoriesInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(CategoryDataPreparationUtil.addCategoryInitialNoApprovalRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue()).value(TestBaseConstants.SUCCESS_STATUS.getValue()));
+	}
+
+	@Test
+	public void addCategoriesApprovalTest() throws Exception {
+		when(categoryMakerRepository.getCategoryByCategoryCode(Mockito.anyString()))
+				.thenReturn(CategoryDataPreparationUtil.getCategoryMaker());
+		
+		mockMvc.perform(MockMvcRequestBuilders.post(CategoryDataPreparationUtil.addCategoriesApprovalUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(CategoryDataPreparationUtil.addCategoryApproveRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue()).value(TestBaseConstants.SUCCESS_STATUS.getValue()));
+	}
+
+	@Test
+	public void updateCategoriesInitiateTest() throws Exception {
+		when(categoryCheckerRepository.getCategoryByCategoryCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(CategoryDataPreparationUtil.getCategoryChecker());
+		
+		mockMvc.perform(MockMvcRequestBuilders.put(CategoryDataPreparationUtil.updateCategoriesInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(CategoryDataPreparationUtil.updateCategoryInitialRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue()).value(TestBaseConstants.SUCCESS_STATUS.getValue()));
+	}
+
+	@Test
+	public void updateCategoriesInitiateNoApprovalTest() {
+		when(categoryMakerRepository.getCategoryByCategoryCode(Mockito.anyString())).thenReturn(null);
+		when(categoryCheckerRepository.getCategoryByCategoryCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(CategoryDataPreparationUtil.getCategoryChecker());
+
+		with().contentType(ContentType.JSON).accept(ContentType.JSON)
+				.body(CategoryDataPreparationUtil.updateCategoryInitialNoApprovalRequest()).given().when()
+				.put(CategoryDataPreparationUtil.updateCategoriesInitiateUrl()).then().assertThat()
+				.statusCode(HttpStatus.OK.value()).assertThat()
+				.body(TestBaseConstants.STATUS.getValue(), equalTo(TestBaseConstants.SUCCESS_STATUS.getValue()));
+	}
+
+	@Test
+	public void updateCategoriesApprovalTest() {
+		when(categoryMakerRepository.getCategoryByCategoryCode(Mockito.anyString()))
+				.thenReturn(CategoryDataPreparationUtil.getCategoryMaker());
+
+		with().contentType(ContentType.JSON).accept(ContentType.JSON)
+				.body(CategoryDataPreparationUtil.updateCategoryApproveRequest()).given().when()
+				.put(CategoryDataPreparationUtil.updateCategoriesApprovalUrl()).then().assertThat()
+				.statusCode(HttpStatus.OK.value()).assertThat()
+				.body(TestBaseConstants.STATUS.getValue(), equalTo(TestBaseConstants.SUCCESS_STATUS.getValue()));
+	}
+
+	@Test
+	public void deleteCategoriesInitiateTest() {
+		when(categoryMakerRepository.getCategoryByCategoryCode(Mockito.anyString())).thenReturn(null);
+		when(categoryCheckerRepository.getCategoryByCategoryCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(CategoryDataPreparationUtil.getCategoryChecker());
+
+		with().contentType(ContentType.JSON).accept(ContentType.JSON)
+				.body(CategoryDataPreparationUtil.deleteCategoryInitialRequest()).given().when()
+				.delete(CategoryDataPreparationUtil.deleteCategoriesInitiateUrl()).then().assertThat()
+				.statusCode(HttpStatus.OK.value()).assertThat()
+				.body(TestBaseConstants.STATUS.getValue(), equalTo(TestBaseConstants.SUCCESS_STATUS.getValue()));
+	}
+
+	@Test
+	public void deleteCategoriesInitiateNoApprovalTest() {
+		when(categoryMakerRepository.getCategoryByCategoryCode(Mockito.anyString())).thenReturn(null);
+		when(categoryCheckerRepository.getCategoryByCategoryCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(CategoryDataPreparationUtil.getCategoryChecker());
+
+		with().contentType(ContentType.JSON).accept(ContentType.JSON)
+				.body(CategoryDataPreparationUtil.deleteCategoryInitialNoApprovalRequest()).given().when()
+				.delete(CategoryDataPreparationUtil.deleteCategoriesInitiateUrl()).then().assertThat()
+				.statusCode(HttpStatus.OK.value()).assertThat()
+				.body(TestBaseConstants.STATUS.getValue(), equalTo(TestBaseConstants.SUCCESS_STATUS.getValue()));
+	}
+
+	@Test
+	public void deleteCategoriesApprovalTest() {
+		when(categoryMakerRepository.getCategoryByCategoryCode(Mockito.anyString()))
+				.thenReturn(CategoryDataPreparationUtil.getCategoryMaker());
+
+		with().contentType(ContentType.JSON).accept(ContentType.JSON)
+				.body(CategoryDataPreparationUtil.deleteCategoryApproveRequest()).given().when()
+				.delete(CategoryDataPreparationUtil.deleteCategoriesApprovalUrl()).then().assertThat()
+				.statusCode(HttpStatus.OK.value()).assertThat()
+				.body(TestBaseConstants.STATUS.getValue(), equalTo(TestBaseConstants.SUCCESS_STATUS.getValue()));
+	}
+
+	@Test
+	public void getAllCategoriesTest() {
+		when(categoryCheckerRepository.getAllActiveCategories(Mockito.anyString()))
+				.thenReturn(CategoryDataPreparationUtil.getCategories());
+		with().accept(ContentType.JSON).given().when().get(CategoryDataPreparationUtil.getAllCategoriesUrl()).then()
+				.assertThat().statusCode(HttpStatus.OK.value()).assertThat()
+				.body(TestBaseConstants.STATUS.getValue(), equalTo(TestBaseConstants.SUCCESS_STATUS.getValue()));
+	}
+
+	@Test
+	public void getAllCategoriesEmptyCaseTest() {
+		when(categoryCheckerRepository.getAllActiveCategories(Mockito.anyString())).thenReturn(null);
+		with().accept(ContentType.JSON).given().when().get(CategoryDataPreparationUtil.getAllCategoriesUrl()).then()
+				.assertThat().statusCode(HttpStatus.OK.value()).assertThat()
+				.body(TestBaseConstants.STATUS.getValue(), equalTo(ErrorCodes.NO_ACTIVE_CATEGORY_FOUND.getErrorCode()));
+	}
+
+	@Test
+	public void getSingleCategoryCategoriesTest() {
+		when(categoryCheckerRepository.getCategoryByCategoryCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(CategoryDataPreparationUtil.getCategoryChecker());
+		with().accept(ContentType.JSON).given().when().get(CategoryDataPreparationUtil.getSingleCategoriesUrl()).then()
+				.assertThat().statusCode(HttpStatus.OK.value()).assertThat()
+				.body(TestBaseConstants.STATUS.getValue(), equalTo(TestBaseConstants.SUCCESS_STATUS.getValue()));
+	}
+
+	@Test
+	public void getSingleCategoryCategoriesEmptyCaseTest() {
+		when(categoryCheckerRepository.getCategoryByCategoryCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(null);
+		with().accept(ContentType.JSON).given().when().get(CategoryDataPreparationUtil.getSingleCategoriesUrl()).then()
+				.assertThat().statusCode(HttpStatus.OK.value()).assertThat()
+				.body(TestBaseConstants.STATUS.getValue(), equalTo(MessageCodes.NO_RECORDS_FOUND.getStrValue()));
+	}
+
+	@Test
+	public void getCategoriesByDomainCodeTest() {
+		with().accept(ContentType.JSON).given().when().get(CategoryDataPreparationUtil.getCategoriesByDomainCodeUrl())
+				.then().assertThat().statusCode(HttpStatus.OK.value()).assertThat()
+				.body(TestBaseConstants.STATUS.getValue(), equalTo(TestBaseConstants.SUCCESS_STATUS.getValue()));
+	}
+
+	@Test
+	public void getCategoriesRelationByCategoryCodeTest() {
+		when(categoryRelationsCheckerRepository.getCategoryRelationByCategoryCode(Mockito.anyString()))
+				.thenReturn(CategoryDataPreparationUtil.getCategoryRelationChecker());
+		with().accept(ContentType.JSON).given().when()
+				.get(CategoryDataPreparationUtil.getCategoriesRelationByCategoryCodeUrl()).then().assertThat()
+				.statusCode(HttpStatus.OK.value());
+	}
+}

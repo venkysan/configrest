@@ -1,0 +1,428 @@
+package com.comviva.mfs.datadrive.test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.comviva.mfs.common.Constants;
+import com.comviva.mfs.common.ServiceRoleCodes;
+import com.comviva.mfs.common.test.CommonUtilTest;
+import com.comviva.mfs.constant.test.DomainTestConstants;
+import com.comviva.mfs.constant.test.TestBaseConstants;
+import com.comviva.mfs.entity.DomainChecker;
+import com.comviva.mfs.entity.DomainMaker;
+import com.comviva.mfs.model.domain.AddDomainApproveRequest;
+import com.comviva.mfs.model.domain.AddDomainInitiateRequest;
+import com.comviva.mfs.model.domain.DeleteDomainApproveRequest;
+import com.comviva.mfs.model.domain.DeleteDomainInitiateRequest;
+import com.comviva.mfs.model.domain.UpdateDomainApproveRequest;
+import com.comviva.mfs.model.domain.UpdateDomainInitiateRequest;
+
+public class DomainDataPreparationUtil {
+
+	public static String addDomainInitiateRequest() {
+		return CommonUtilTest.convertObjectToJson(getAddDomainInitiateRequest()); 	
+	}
+		
+	public static String addDomainInitiateDomainCodeEmptyRequest() {
+		AddDomainInitiateRequest addInitiateDomain =  getAddDomainInitiateRequest();
+		addInitiateDomain.setDomainCode(null);
+		return CommonUtilTest.convertObjectToJson(addInitiateDomain);
+	}	
+	
+	public static String addDomainInitiateDomainNameEmptyRequest() {
+		AddDomainInitiateRequest addInitiateDomain =  getAddDomainInitiateRequest();
+		addInitiateDomain.setDomainName(null);
+		return CommonUtilTest.convertObjectToJson(addInitiateDomain);
+	}
+	
+	public static String addDomainInitiateNumOfCatEmptyRequest() {
+		AddDomainInitiateRequest addInitiateDomain =  getAddDomainInitiateRequest();
+		addInitiateDomain.setNumOfCat(null);
+		return CommonUtilTest.convertObjectToJson(addInitiateDomain);
+	}
+	
+	public static String addDomainInitiateDomainCodeAlphaNumericRequest() {
+		AddDomainInitiateRequest addInitiateDomain =  getAddDomainInitiateRequest();
+		addInitiateDomain.setDomainCode("retailer???");
+		return CommonUtilTest.convertObjectToJson(addInitiateDomain);
+	}
+	
+	public static String addDomainInitiateDomainNameAlphaNumericRequest() {
+		AddDomainInitiateRequest addInitiateDomain =  getAddDomainInitiateRequest();
+		addInitiateDomain.setDomainName("retailer??");
+		return CommonUtilTest.convertObjectToJson(addInitiateDomain);
+	}
+	
+	public static String addDomainInitiateNumOfCatAlphaNumericRequest() {
+		AddDomainInitiateRequest addInitiateDomain =  getAddDomainInitiateRequest();
+		addInitiateDomain.setNumOfCat("s?");
+		return CommonUtilTest.convertObjectToJson(addInitiateDomain);
+	}
+	
+	public static String addDomainInitiateNoApprovalRequest() {
+		AddDomainInitiateRequest addInitiateDomain =  getAddDomainInitiateRequest();
+		addInitiateDomain.setIsApprovalRequired(Constants.NO.getStrValue());
+		return CommonUtilTest.convertObjectToJson(addInitiateDomain);
+	}
+	
+	private static AddDomainInitiateRequest getAddDomainInitiateRequest() {		
+		AddDomainInitiateRequest addInitiateDomain = new AddDomainInitiateRequest();
+		addInitiateDomain.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		addInitiateDomain.setExternalRefId(DomainTestConstants.EXTERNAL_REF_ID.getValue());
+		addInitiateDomain.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		addInitiateDomain.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+		addInitiateDomain.setDomainName(DomainTestConstants.DOMAIN_NAME.getValue());
+		addInitiateDomain.setDomainCode(DomainTestConstants.DOMAIN_CODE.getValue());
+		addInitiateDomain.setNumOfCat(DomainTestConstants.NUM_OF_CAT.getValue());
+		addInitiateDomain.setIsApprovalRequired(DomainTestConstants.IS_APPROVAL_REQUIRED.getValue());
+		return addInitiateDomain;
+	}	
+	
+	public static String addDomainApproveRequest() {
+		return CommonUtilTest.convertObjectToJson(getAddDomainApproveRequest());
+	}
+	
+	
+	
+	public static AddDomainApproveRequest getAddDomainApproveRequest() {
+			AddDomainApproveRequest addApproveDomain = new AddDomainApproveRequest();
+			addApproveDomain.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+			addApproveDomain.setExternalRefId(DomainTestConstants.EXTERNAL_REF_ID.getValue());
+			addApproveDomain.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+			addApproveDomain.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());			
+			return addApproveDomain;
+	}
+	
+	
+	
+	public static String updateDomainInitiateRequest() {		
+		return CommonUtilTest.convertObjectToJson(getUpdateDomainInitiateRequest());
+	}
+	
+	public static String updateDomainInitiateDomainNameEmptyRequest() {
+		UpdateDomainInitiateRequest UpdateDomainRequest = getUpdateDomainInitiateRequest();
+		UpdateDomainRequest.setDomainName(null);
+		return CommonUtilTest.convertObjectToJson(UpdateDomainRequest);
+	}
+	
+	public static String updateDomainInitiateNumOfCatZeroRequest() {
+		UpdateDomainInitiateRequest UpdateDomainRequest = getUpdateDomainInitiateRequest();
+		UpdateDomainRequest.setNumOfCat("0");
+		return CommonUtilTest.convertObjectToJson(UpdateDomainRequest);
+	}
+	
+	public static String updateDomainInitiateNumOfCatNotvalidRequest() {
+		UpdateDomainInitiateRequest UpdateDomainRequest = getUpdateDomainInitiateRequest();
+		UpdateDomainRequest.setNumOfCat("3???");
+		return CommonUtilTest.convertObjectToJson(UpdateDomainRequest);
+	}
+	
+	public static String updateDomainInitiateDomainNameAlphaNumericRequest() {
+		UpdateDomainInitiateRequest UpdateDomainRequest =  getUpdateDomainInitiateRequest();
+		UpdateDomainRequest.setDomainName("retailer555355343???");
+		return CommonUtilTest.convertObjectToJson(UpdateDomainRequest);
+	}
+		
+	public static String updateDomainInitiateDomainNameMorethanlengthRequest() {
+		UpdateDomainInitiateRequest UpdateDomainRequest =  getUpdateDomainInitiateRequest();
+		UpdateDomainRequest.setDomainName("retailersgsdgsggsdgcbcfgfsdggsggsgsgsdgsdgsdgsdgsgdsdgsdgsdgsgsgsgsdgsdhjmhhmghmhhhhmghmghmhghmmmgmgmmgghmmghm");
+		return CommonUtilTest.convertObjectToJson(UpdateDomainRequest);
+	}
+	
+		
+	public static String updateDomainInitiateNoApprovalRequest() {
+		UpdateDomainInitiateRequest updateInitiateDomain =  getUpdateDomainInitiateRequest();
+		updateInitiateDomain.setIsApprovalRequired(null);
+		return CommonUtilTest.convertObjectToJson(updateInitiateDomain);
+	}
+	
+	private static UpdateDomainInitiateRequest getUpdateDomainInitiateRequest() {
+		UpdateDomainInitiateRequest updateInitiateDomain = new UpdateDomainInitiateRequest();		
+		updateInitiateDomain.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		updateInitiateDomain.setExternalRefId(DomainTestConstants.EXTERNAL_REF_ID.getValue());
+		updateInitiateDomain.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		updateInitiateDomain.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+		updateInitiateDomain.setDomainName(DomainTestConstants.DOMAIN_NAME_UPDATED.getValue());
+		updateInitiateDomain.setNumOfCat(DomainTestConstants.NUM_OF_CAT.getValue());
+		updateInitiateDomain.setIsApprovalRequired(DomainTestConstants.IS_APPROVAL_REQUIRED.getValue());		
+		return updateInitiateDomain;
+	}
+	
+	public static String updateDomainApproveRequest() {
+			UpdateDomainApproveRequest updateApproveDomain = new UpdateDomainApproveRequest();
+			updateApproveDomain.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+			updateApproveDomain.setExternalRefId(DomainTestConstants.EXTERNAL_REF_ID.getValue());
+			updateApproveDomain.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+			updateApproveDomain.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());			
+			return CommonUtilTest.convertObjectToJson(updateApproveDomain);
+	}
+	
+	
+	public static String deleteDomainInitiateRequest() {		
+		return CommonUtilTest.convertObjectToJson(getDeleteDomainInitiateRequest());		
+	}
+	
+	
+	public static String deleteDomainInitiateNoApprovalRequest() {
+		DeleteDomainInitiateRequest deleteInitiateDomain =  getDeleteDomainInitiateRequest();
+		deleteInitiateDomain.setIsApprovalRequired(Constants.NO.getStrValue());
+		return CommonUtilTest.convertObjectToJson(deleteInitiateDomain);	
+	}	
+	
+	private static DeleteDomainInitiateRequest getDeleteDomainInitiateRequest() {
+		DeleteDomainInitiateRequest deleteInitiateDomain = new DeleteDomainInitiateRequest();
+		deleteInitiateDomain.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		deleteInitiateDomain.setExternalRefId(DomainTestConstants.EXTERNAL_REF_ID.getValue());
+		deleteInitiateDomain.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		deleteInitiateDomain.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+		deleteInitiateDomain.setIsApprovalRequired(DomainTestConstants.IS_APPROVAL_REQUIRED.getValue());		
+		return deleteInitiateDomain;
+	}		
+	
+	public static String deleteDomainApproveRequest() {
+			DeleteDomainApproveRequest deleteApproveDomain = new DeleteDomainApproveRequest();
+			deleteApproveDomain.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+			deleteApproveDomain.setExternalRefId(DomainTestConstants.EXTERNAL_REF_ID.getValue());
+			deleteApproveDomain.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+			deleteApproveDomain.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+			return CommonUtilTest.convertObjectToJson(deleteApproveDomain);
+	}
+	
+	public static String getAllDomainsUrl() {
+		return getDomainBasicUrl(DomainTestConstants.GET_DOMAIN.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+		+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.NO.getValue();
+	}
+	
+	public static String getAllDomainsInitiateStatusYesUrl() {
+		return getDomainBasicUrl(DomainTestConstants.GET_DOMAIN.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+		+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.YES.getValue();
+	}
+	
+	public static String getAllDomainsInitiateStatusNullUrl() {
+		return getDomainBasicUrl(DomainTestConstants.GET_DOMAIN.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+		+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+DomainTestConstants.NULL_VALUE.getValue();
+	}
+	
+	public static String getAllDomainsInitiateStatusCheckYesOrNoUrl() {
+		return getDomainBasicUrl(DomainTestConstants.GET_DOMAIN.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+		+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+DomainTestConstants.ACTION.getValue();
+	}
+	
+	public static String addDomainInitiateUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+DomainTestConstants.ADD_DOMAIN.getValue();
+	}
+	
+	public static String addDomainApprovalUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+DomainTestConstants.ADD_DOMAIN.getValue()
+		+DomainTestConstants.DOMAIN_CODE.getValue()+"/"+DomainTestConstants.ACTION.getValue();
+	}
+	
+	public static String addDomainApprovalRejectUrl() {
+        return TestBaseConstants.BASE_URL.getValue()+DomainTestConstants.ADD_DOMAIN.getValue()
+        +DomainTestConstants.DOMAIN_CODE.getValue()+"/"+DomainTestConstants.ACTION.getValue();
+    }
+	
+	public static String addDomainApprovalDomainCodeNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+DomainTestConstants.ADD_DOMAIN.getValue()
+		+TestBaseConstants.NULL.getValue()+"/"+DomainTestConstants.ACTION.getValue();
+	}
+	
+	public static String addDomainApprovalDomainCodeisAlphaNumericAndLenghtCheckUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+DomainTestConstants.ADD_DOMAIN.getValue()
+		+DomainTestConstants.DOMAIN_CODE_LENGTH_CHECK.getValue()+"/"+DomainTestConstants.ACTION.getValue();
+	}
+	
+	public static String addDomainApprovalActionNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+DomainTestConstants.ADD_DOMAIN.getValue()
+		+DomainTestConstants.DOMAIN_CODE.getValue()+"/"+TestBaseConstants.NULL.getValue();
+	}
+	
+	public static String updateDomainInitiateUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+DomainTestConstants.ADD_DOMAIN.getValue()
+		+DomainTestConstants.DOMAIN_CODE.getValue();
+	}
+	
+	public static String updateDomainInitiateDomainCodeNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+DomainTestConstants.ADD_DOMAIN.getValue()
+		+TestBaseConstants.NULL.getValue();
+	}
+	
+	public static String updateDomainApprovalUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+DomainTestConstants.ADD_DOMAIN.getValue()
+		+DomainTestConstants.DOMAIN_CODE.getValue()+"/"+DomainTestConstants.ACTION.getValue();
+	}
+	
+	public static String updateDomainRejectUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+DomainTestConstants.ADD_DOMAIN.getValue()
+		+DomainTestConstants.DOMAIN_CODE.getValue()+"/"+DomainTestConstants.ACTION_REJECT.getValue();
+	}
+	
+	public static String updateDomainApprovalDomainCodeNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+DomainTestConstants.ADD_DOMAIN.getValue()
+		+TestBaseConstants.NULL.getValue()+"/"+DomainTestConstants.ACTION.getValue();
+	}
+	
+	public static String updateDomainApprovalActionNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+DomainTestConstants.ADD_DOMAIN.getValue()
+		+DomainTestConstants.DOMAIN_CODE.getValue()+"/"+TestBaseConstants.NULL.getValue();
+	}
+	
+	public static String deleteDomainInitiateUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+DomainTestConstants.ADD_DOMAIN.getValue()
+		+DomainTestConstants.DOMAIN_CODE.getValue();
+	}
+	
+	public static String deleteDomainInitiateDomainCodeNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+DomainTestConstants.ADD_DOMAIN.getValue()
+		+TestBaseConstants.NULL.getValue();
+	}
+	
+	public static String deleteDomainApprovalUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+DomainTestConstants.ADD_DOMAIN.getValue()
+		+DomainTestConstants.DOMAIN_CODE.getValue()+"/"+DomainTestConstants.ACTION.getValue();
+	}
+	
+	public static String getSingleDomainUrl() {
+		return getDomainBasicUrl(DomainTestConstants.GET_SINGLE_DOMAIN.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+		+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.NO.getValue();
+	}
+	
+	public static String getDomainsByAppCodeUrl() {		
+		return getDomainBasicUrl(DomainTestConstants.GET_DOMAIN_APPLICATION.getValue()+DomainTestConstants.APPLICATION_CODE.getValue())
+		+TestBaseConstants.AND_SYMBOL.getValue()+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.YES.getValue();
+	}
+	
+	public static String getDomainsByAppCodeNOUrl() {		
+		return getDomainBasicUrl(DomainTestConstants.GET_DOMAIN_APPLICATION.getValue()+DomainTestConstants.APPLICATION_CODE.getValue())
+		+TestBaseConstants.AND_SYMBOL.getValue()+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.NO.getValue();
+	}
+	
+	public static String getDomainsByAppCodeInitiateStatusNullUrl() {		
+		return getDomainBasicUrl(DomainTestConstants.GET_DOMAIN_APPLICATION.getValue()+DomainTestConstants.APPLICATION_CODE.getValue())
+		+TestBaseConstants.AND_SYMBOL.getValue()+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+DomainTestConstants.NULL_VALUE.getValue();
+	}
+	
+	public static String getDomainsByAppCodeInitiateStatusNoYeOrNoUrl() {		
+		return getDomainBasicUrl(DomainTestConstants.GET_DOMAIN_APPLICATION.getValue()+DomainTestConstants.APPLICATION_CODE.getValue())
+		+TestBaseConstants.AND_SYMBOL.getValue()+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+DomainTestConstants.DOMAIN_NAME_UPDATED.getValue();
+	}
+	
+	public static String getDomainsByAppCodeAppCodeNullCaseUrl() {		
+		return getDomainBasicUrl(DomainTestConstants.GET_DOMAIN_APPLICATION.getValue()+DomainTestConstants.VALUE_NULL.getValue())
+		+TestBaseConstants.AND_SYMBOL.getValue()+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.YES.getValue();
+	}
+	
+	public static String getSingleDomainInitiateStatusYesUrl() {
+		return getDomainBasicUrl(DomainTestConstants.GET_SINGLE_DOMAIN.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+		+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.YES.getValue();
+	}
+	
+	public static String getSingleDomainInitiateStatusNullUrl() {
+		return getDomainBasicUrl(DomainTestConstants.GET_SINGLE_DOMAIN.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+		+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+DomainTestConstants.NULL_VALUE.getValue();
+	}
+	
+	public static String getSingleDomainInitiateStatusCheckYesOrNoUrl() {
+		return getDomainBasicUrl(DomainTestConstants.GET_SINGLE_DOMAIN.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+		+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+DomainTestConstants.ACTION.getValue();
+	}
+		
+	private static String getDomainBasicUrl(String type) {
+		StringBuilder sb=new StringBuilder();
+		sb.append(TestBaseConstants.BASE_URL.getValue());
+		sb.append(type);
+		sb.append(TestBaseConstants.QUESTION_MARK_SYMBOL.getValue());
+		sb.append(TestBaseConstants.IDENTIFIER_TYPE.getValue());
+		sb.append(TestBaseConstants.EQUAL_SYMBOL.getValue());
+		sb.append(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		sb.append(TestBaseConstants.AND_SYMBOL.getValue());
+		sb.append(TestBaseConstants.IDENTIFIER_VALUE.getValue());
+		sb.append(TestBaseConstants.EQUAL_SYMBOL.getValue());
+		sb.append(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+		sb.append(TestBaseConstants.AND_SYMBOL.getValue());
+		sb.append(TestBaseConstants.BEARER_CODE.getValue());
+		sb.append(TestBaseConstants.EQUAL_SYMBOL.getValue());
+		sb.append(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		return sb.toString();
+	}
+	
+	
+	public static List<DomainChecker> getDomains(){
+		List<DomainChecker> list = new ArrayList<DomainChecker>();
+		list.add(getDomainChecker());
+		return list;
+	}
+	
+	public static DomainMaker getDomainMakerForDelete() {
+		DomainMaker domainMaker = new DomainMaker();
+		domainMaker.setDomainCode("retailer");
+		domainMaker.setDomainName("wholesaler");
+		domainMaker.setStatus(Constants.DELETE_INITIATE_STATUS.getStrValue());
+		domainMaker.setNumOfCat(5);
+		return domainMaker;
+	}
+	
+	
+	public static DomainMaker getDomainMakerForApprove() {
+		DomainMaker domainMaker = new DomainMaker();
+		domainMaker.setDomainCode("retailer");
+		domainMaker.setDomainName("wholesaler");
+		domainMaker.setStatus(ServiceRoleCodes.DELETE_DOMAIN_APPR_ROLE.getStrValue());
+		domainMaker.setNumOfCat(5);
+		return domainMaker;
+	}
+	
+	public static DomainMaker getDomainMakerForUpdate() {
+		DomainMaker domainMaker = new DomainMaker();
+		domainMaker.setDomainCode("retailer");
+		domainMaker.setDomainName("wholesaler");
+		domainMaker.setStatus(Constants.UPDATE_INITIATE_STATUS.getStrValue());
+		domainMaker.setNumOfCat(5);
+		return domainMaker;
+	}
+
+	public static DomainMaker getDomainMaker() {
+		DomainMaker domainMaker = new DomainMaker();
+		domainMaker.setDomainCode(DomainTestConstants.DOMAIN_CODE.getValue());
+		domainMaker.setDomainName(DomainTestConstants.DOMAIN_NAME.getValue());
+		domainMaker.setNumOfCat(Integer.parseInt(DomainTestConstants.NUM_OF_CAT.getValue()));
+		domainMaker.setDomainTypeCode(DomainTestConstants.DOMAIN_TYPE_CODE.getValue());
+		domainMaker.setStatus(DomainTestConstants.STATUS.getValue());
+		domainMaker.setApplicationCode(DomainTestConstants.APPLICATION_CODE.getValue());
+		domainMaker.setDomainSeqNo(Integer.parseInt(DomainTestConstants.DOMAIN_SEQ_NUM.getValue()));
+		return domainMaker;
+	}
+
+	public static DomainChecker getDomainChecker() {
+		DomainChecker domainChecker = new DomainChecker();
+		domainChecker.setDomainCode(DomainTestConstants.DOMAIN_CODE.getValue());
+		domainChecker.setDomainName(DomainTestConstants.DOMAIN_NAME.getValue());
+		domainChecker.setNumOfCat(Integer.parseInt(DomainTestConstants.NUM_OF_CAT.getValue()));
+		domainChecker.setDomainTypeCode(DomainTestConstants.DOMAIN_TYPE_CODE.getValue());
+		domainChecker.setStatus(DomainTestConstants.SUCCESS_STATUS.getValue());
+		domainChecker.setApplicationCode(DomainTestConstants.APPLICATION_CODE.getValue());
+		domainChecker.setDomainSeqNo(Integer.parseInt(DomainTestConstants.DOMAIN_SEQ_NUM.getValue()));
+		return domainChecker;
+	}
+
+	public static DomainMaker getDomainMakerForNullApprove() {
+		DomainMaker domainMaker = new DomainMaker();
+		domainMaker.setDomainCode("retailer");
+		domainMaker.setDomainName("wholesaler");
+		domainMaker.setStatus(TestBaseConstants.NULL.getValue());
+		domainMaker.setNumOfCat(5);
+		return domainMaker;
+	}
+
+	public static DomainMaker getDomainApprovalDomainMaker() {
+		DomainMaker domainMaker = new DomainMaker();
+		getDomainMaker().setStatus(Constants.UPDATE_INITIATE_STATUS.getStrValue());
+		return domainMaker;
+	}
+	
+	public static String getSingleDomainDeailsBycodeWithNullDomainCodeUrl() {
+		return getDomainBasicUrl(DomainTestConstants.ADD_DOMAIN.getValue()+TestBaseConstants.NULL.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+		+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+DomainTestConstants.NULL_VALUE.getValue();
+	}
+	
+}

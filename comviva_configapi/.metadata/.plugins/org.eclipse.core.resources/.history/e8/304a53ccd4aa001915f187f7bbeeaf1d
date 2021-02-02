@@ -1,0 +1,392 @@
+package com.comviva.mfs.util;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import com.comviva.mfs.common.Constants;
+import com.comviva.mfs.constant.test.CategoryTestConstants;
+import com.comviva.mfs.constant.test.GradeTestConstants;
+import com.comviva.mfs.constant.test.TestBaseConstants;
+import com.comviva.mfs.entity.GradeChecker;
+import com.comviva.mfs.entity.DomainChecker;
+import com.comviva.mfs.entity.GradeMaker;
+import com.comviva.mfs.model.grade.AddGradeApproveRequest;
+import com.comviva.mfs.model.grade.AddGradeInitiateRequest;
+import com.comviva.mfs.model.grade.DeleteGradeApproveRequest;
+import com.comviva.mfs.model.grade.DeleteGradeInitiateRequest;
+import com.comviva.mfs.model.grade.UpdateGradeApproveRequest;
+import com.comviva.mfs.model.grade.UpdateGradeInitiateRequest;
+
+public class GradeDataPreparationUtil {
+
+	public static String addGradeInitialRequest() {
+		return CommonUtilTest.convertObjectToJson(getAddGradeInitiateRequest());
+	}
+
+	public static String addGradeInitialNoApprovalRequest() {
+		AddGradeInitiateRequest addInitiateGrade = getAddGradeInitiateRequest();
+		addInitiateGrade.setIsApprovalRequired(null);
+		return CommonUtilTest.convertObjectToJson(addInitiateGrade);
+	}
+
+	private static AddGradeInitiateRequest getAddGradeInitiateRequest() {
+		AddGradeInitiateRequest addInitiateGrade = new AddGradeInitiateRequest();
+		addInitiateGrade.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		addInitiateGrade.setExternalRefId(GradeTestConstants.EXTERNAL_REF_ID.getValue());
+		addInitiateGrade.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		addInitiateGrade.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_SUPER_ADMIN_VALUE.getValue());
+		addInitiateGrade.setGradeCode(GradeTestConstants.GRADE_CODE.getValue());
+		addInitiateGrade.setGradeName(GradeTestConstants.GRADE_NAME.getValue());
+		addInitiateGrade.setDomainCode(GradeTestConstants.DOMAIN_CODE.getValue());
+		addInitiateGrade.setDomainName(GradeTestConstants.DOMAIN_NAME.getValue());
+		addInitiateGrade.setCategoryName(GradeTestConstants.CATEGORY_NAME.getValue());
+		addInitiateGrade.setCategoryCode(GradeTestConstants.CATEGORY_CODE.getValue());
+		addInitiateGrade.setIsApprovalRequired(GradeTestConstants.IS_APPROVAL_REQUIRED.getValue());
+		return addInitiateGrade;
+	}
+
+	public static String addGradeApproveRequest() {
+			return CommonUtilTest.convertObjectToJson(getAddGradeApproveRequest());
+
+	}
+
+	private static AddGradeApproveRequest getAddGradeApproveRequest() {
+		AddGradeApproveRequest addApproveGrade = new AddGradeApproveRequest();
+		addApproveGrade.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		addApproveGrade.setExternalRefId(GradeTestConstants.EXTERNAL_REF_ID.getValue());
+		addApproveGrade.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		addApproveGrade.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_SUPER_ADMIN_VALUE.getValue());
+		return addApproveGrade;
+	}
+
+	public static String updateGradeInitialRequest() {
+		return CommonUtilTest.convertObjectToJson(getUpdateGradeInitialRequest());
+	}
+
+	public static String updateGradeInitialNoApprovalRequest() {
+		UpdateGradeInitiateRequest updateInitiateGrade = getUpdateGradeInitialRequest();
+		updateInitiateGrade.setIsApprovalRequired(null);
+		return CommonUtilTest.convertObjectToJson(updateInitiateGrade);
+	}
+
+	public static String addGradeInitiateUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue();
+	}
+
+	public static String addGradeApprovalUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ GradeTestConstants.GRADE_CODE.getValue() + "/" + GradeTestConstants.ACTION.getValue();
+	}
+
+	public static String addGradeApprovalGradeCodeNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ TestBaseConstants.NULL.getValue() + "/" + GradeTestConstants.ACTION.getValue();
+	}
+
+	public static String addGradeApprovalGradeCodeAlphaNumUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ GradeTestConstants.GRADE_CODE_ALPHANUMERIC.getValue() + "/" + GradeTestConstants.ACTION.getValue();
+	}
+
+	public static String addGradeApprovalActionNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ GradeTestConstants.GRADE_CODE.getValue() + "/" + TestBaseConstants.NULL.getValue();
+	}
+
+	public static String updateGradeRejectUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ GradeTestConstants.GRADE_CODE.getValue() + "/" + CategoryTestConstants.ACTION_REJECT.getValue();
+	}
+
+	public static String updateGradeApprovalCategoryCodeNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ TestBaseConstants.NULL.getValue() + "/" + CategoryTestConstants.ACTION.getValue();
+	}
+
+	public static String updateGradeApprovalActionNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ GradeTestConstants.GRADE_CODE.getValue() + "/" + TestBaseConstants.NULL.getValue();
+	}
+
+	public static String updateGradeApprovalGradeCodeAlphaNumUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ GradeTestConstants.GRADE_CODE_ALPHANUMERIC.getValue() + "/" + GradeTestConstants.ACTION.getValue();
+	}
+
+	public static String deleteGradeApprovalUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ GradeTestConstants.GRADE_CODE.getValue() + "/" + GradeTestConstants.ACTION.getValue();
+	}
+
+	public static String deleteGradeApprovalGradeCodeNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ TestBaseConstants.NULL.getValue() + "/" + GradeTestConstants.ACTION.getValue();
+	}
+
+	public static String deleteGradeApprovalActionNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ GradeTestConstants.GRADE_CODE.getValue() + "/" + TestBaseConstants.NULL.getValue();
+	}
+
+	public static String updateGradesInitiateUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ GradeTestConstants.GRADE_CODE.getValue();
+	}
+
+	public static String deleteGradeApprovalGradeCodeAlphaNumUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ GradeTestConstants.GRADE_CODE_ALPHANUMERIC.getValue() + "/" + GradeTestConstants.ACTION.getValue();
+	}
+
+	
+
+	public static List<GradeChecker> getGradeCheckerList() {
+		List<GradeChecker> listGradeChecker = new ArrayList<GradeChecker>();
+		listGradeChecker.add(getGradeChecker());
+		return listGradeChecker;
+	}
+
+	public static String addGradesInitialGradeCodeEmptyRequest() {
+		AddGradeInitiateRequest addInitiateGrade = getAddGradeInitiateRequest();
+		addInitiateGrade.setGradeCode(null);
+		return CommonUtilTest.convertObjectToJson(addInitiateGrade);
+	}
+
+	public static String addGradesInitialGradeCodeAlphaNumericRequest() {
+		AddGradeInitiateRequest addInitiateGrade = getAddGradeInitiateRequest();
+		addInitiateGrade.setGradeCode("wholes???");
+		return CommonUtilTest.convertObjectToJson(addInitiateGrade);
+	}
+
+	public static String addGradesInitialGradeNameEmptyRequest() {
+		AddGradeInitiateRequest addInitiateGrade = getAddGradeInitiateRequest();
+		addInitiateGrade.setGradeName(null);
+		return CommonUtilTest.convertObjectToJson(addInitiateGrade);
+	}
+
+	public static String addGradesInitialGradeNameAlphaNumericRequest() {
+		AddGradeInitiateRequest addInitiateGrade = getAddGradeInitiateRequest();
+
+		addInitiateGrade.setGradeName("retailer?");
+		return CommonUtilTest.convertObjectToJson(addInitiateGrade);
+	}
+
+	public static String addGradesInitialCategoryCodeEmptyRequest() {
+		AddGradeInitiateRequest addInitiateGrade = getAddGradeInitiateRequest();
+		addInitiateGrade.setCategoryCode(null);
+		return CommonUtilTest.convertObjectToJson(addInitiateGrade);
+	}
+
+	public static String addGradesInitialCategoryCodeAlphaNumericRequest() {
+		AddGradeInitiateRequest addInitiateGrade = getAddGradeInitiateRequest();
+		addInitiateGrade.setCategoryCode("wholesale?");
+		return CommonUtilTest.convertObjectToJson(addInitiateGrade);
+	}
+
+	private static UpdateGradeInitiateRequest getUpdateGradeInitialRequest() {
+		UpdateGradeInitiateRequest updateInitiateGrade = new UpdateGradeInitiateRequest();
+		updateInitiateGrade.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		updateInitiateGrade.setExternalRefId(GradeTestConstants.EXTERNAL_REF_ID.getValue());
+		updateInitiateGrade.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		updateInitiateGrade.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_SUPER_ADMIN_VALUE.getValue());
+		updateInitiateGrade.setGradeName(GradeTestConstants.GRADE_NAME.getValue());
+		updateInitiateGrade.setIsApprovalRequired(GradeTestConstants.IS_APPROVAL_REQUIRED.getValue());
+		return updateInitiateGrade;
+	}
+
+	public static String updateGradeApproveRequest() {
+		UpdateGradeApproveRequest updateApproveGrade = new UpdateGradeApproveRequest();
+		updateApproveGrade.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		updateApproveGrade.setExternalRefId(GradeTestConstants.EXTERNAL_REF_ID.getValue());
+		updateApproveGrade.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		updateApproveGrade.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_SUPER_ADMIN_VALUE.getValue());
+		return CommonUtilTest.convertObjectToJson(updateApproveGrade);
+	}
+
+	public static String deleteGradeInitialRequest() {
+		return CommonUtilTest.convertObjectToJson(getDeleteGradeInitialRequest());
+	}
+
+	public static String deleteGradeInitialNoApprovalRequest() {
+		DeleteGradeInitiateRequest deleteInitiateGrade = getDeleteGradeInitialRequest();
+		deleteInitiateGrade.setIsApprovalRequired(null);
+		return CommonUtilTest.convertObjectToJson(deleteInitiateGrade);
+	}
+
+	private static DeleteGradeInitiateRequest getDeleteGradeInitialRequest() {
+		DeleteGradeInitiateRequest deleteInitiateGrade = new DeleteGradeInitiateRequest();
+		deleteInitiateGrade.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		deleteInitiateGrade.setExternalRefId(GradeTestConstants.EXTERNAL_REF_ID.getValue());
+		deleteInitiateGrade.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		deleteInitiateGrade.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_SUPER_ADMIN_VALUE.getValue());
+		deleteInitiateGrade.setIsApprovalRequired(GradeTestConstants.IS_APPROVAL_REQUIRED.getValue());
+		return deleteInitiateGrade;
+	}
+
+	public static String deleteGradeApproveRequest() {
+		DeleteGradeApproveRequest deleteApproveGrade = new DeleteGradeApproveRequest();
+		deleteApproveGrade.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		deleteApproveGrade.setExternalRefId(GradeTestConstants.EXTERNAL_REF_ID.getValue());
+		deleteApproveGrade.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		deleteApproveGrade.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_SUPER_ADMIN_VALUE.getValue());
+		return CommonUtilTest.convertObjectToJson(deleteApproveGrade);
+	}
+
+	
+	private static String getGradeBasicUrl(String type) {
+		StringBuilder sb=new StringBuilder();
+		sb.append(TestBaseConstants.BASE_URL.getValue());
+		sb.append(type);
+		sb.append(TestBaseConstants.QUESTION_MARK_SYMBOL.getValue());
+		sb.append(TestBaseConstants.IDENTIFIER_TYPE.getValue());
+		sb.append(TestBaseConstants.EQUAL_SYMBOL.getValue());
+		sb.append(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		sb.append(TestBaseConstants.AND_SYMBOL.getValue());
+		sb.append(TestBaseConstants.IDENTIFIER_VALUE.getValue());
+		sb.append(TestBaseConstants.EQUAL_SYMBOL.getValue());
+		sb.append(TestBaseConstants.IDENTIFIER_VALUE_SUPER_ADMIN_VALUE.getValue());
+		sb.append(TestBaseConstants.AND_SYMBOL.getValue());
+		sb.append(TestBaseConstants.BEARER_CODE.getValue());
+		sb.append(TestBaseConstants.EQUAL_SYMBOL.getValue());
+		sb.append(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		return sb.toString();
+	}
+	
+	public static String getGradeByCodeServiceUrl() {
+		String url = getGradeBasicUrl(GradeTestConstants.ADD_GRADE.getValue()+GradeTestConstants.GRADE_CODE.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+				+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.NO.getValue();
+		return url;
+	}
+	
+	public static String getGradeByCodeServiceInitiateStatusYesUrl() {
+        String url = getGradeBasicUrl(GradeTestConstants.ADD_GRADE.getValue()+GradeTestConstants.GRADE_CODE.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+                +TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.YES.getValue();
+        return url;
+    }
+	
+	public static String getGradeByCodeServiceEmptyCaseUrl() {
+        String url = getGradeBasicUrl(GradeTestConstants.ADD_GRADE.getValue()+GradeTestConstants.VALUE_NULL.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+                +TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.YES.getValue();
+        return url;
+    }
+	
+	public static String getGradeByCodeServiceInitiateStatusEmptyCaseUrl() {
+        String url = getGradeBasicUrl(GradeTestConstants.GET_SINGLE_GARDE.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+                +TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+GradeTestConstants.VALUE_NULL.getValue();
+        return url;
+    }
+	
+	public static String getGradeByCodeServiceInitiateStatusNoYesOrNoUrl() {
+        String url = getGradeBasicUrl(GradeTestConstants.GET_SINGLE_GARDE.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+                +TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+GradeTestConstants.ACTION.getValue();
+        return url;
+    }
+	
+	public static String updateGradeApprovalUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+GradeTestConstants.ADD_GRADE.getValue()
+		+GradeTestConstants.GRADE_CODE.getValue()+"/"+GradeTestConstants.ACTION.getValue();
+	}
+	
+	public static String getAllGradesUrl() {
+		return getGradeBasicUrl(GradeTestConstants.GET_GRADES.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+		+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.NO.getValue();
+	}
+	
+	public static String getAllGradesYesUrl() {
+        return getGradeBasicUrl(GradeTestConstants.GET_GRADES.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+        +TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.YES.getValue();
+    }
+	
+	public static String getAllGradesInitiateStatusEmptyCaseUrl() {
+        return getGradeBasicUrl(GradeTestConstants.GET_GRADES.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+        +TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+GradeTestConstants.VALUE_NULL.getValue();
+    }
+	
+	public static String getAllGradesInitiateStatusNoYesOrNoUrl() {
+        return getGradeBasicUrl(GradeTestConstants.GET_GRADES.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+        +TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+GradeTestConstants.ACTION.getValue();
+    }
+	
+	public static String updateGradeInitiateUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+GradeTestConstants.ADD_GRADE.getValue()
+		+ GradeTestConstants.GRADE_CODE.getValue();
+	}
+	
+	public static String updateGradeInitiateGradeCodeNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ TestBaseConstants.NULL.getValue() + "/" + CategoryTestConstants.ACTION.getValue();
+	}
+	
+	public static String updateGradeInitiateActionNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ GradeTestConstants.GRADE_CODE.getValue() + "/" + TestBaseConstants.NULL.getValue();
+	}
+	
+	public static String updateGradeInitiateGradeCodeAlphaNumUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ GradeTestConstants.GRADE_CODE_ALPHANUMERIC.getValue() + "/" + CategoryTestConstants.ACTION.getValue();
+	}
+	
+	public static String deleteGradeInitiateUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ GradeTestConstants.GRADE_CODE.getValue();
+	}
+	public static String deleteGradeInitiateGradeCodeNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GradeTestConstants.ADD_GRADE.getValue()
+				+ TestBaseConstants.NULL.getValue();
+	}
+	
+	public static String getGradesByCategoryCodeUrl() {
+		return getGradeBasicUrl(GradeTestConstants.GET_GARDE_CATEGORY_CODE.getValue());
+	}
+	
+	public static String getGradesByEmpytyCategoryCodeUrl() {
+        return getGradeBasicUrl(GradeTestConstants.GET_GARDE_CATEGORY_URL.getValue()+GradeTestConstants.VALUE_NULL.getValue());
+    }
+	
+	public static List<GradeChecker> getGrades(){
+		List<GradeChecker> list = new ArrayList<GradeChecker>();
+		list.add(getGradeChecker());
+		return list;
+	}
+	public static List<GradeMaker> getMakerGrades(){
+        List<GradeMaker> list = new ArrayList<GradeMaker>();
+        list.add(getGradeMaker());
+        return list;
+    }
+	
+	public static GradeMaker getGradeMaker() {
+		GradeMaker gradeMaker = new GradeMaker();
+		gradeMaker.setCategoryCode(GradeTestConstants.CATEGORY_CODE.getValue());
+		gradeMaker.setGradeName(GradeTestConstants.GRADE_NAME.getValue());
+		gradeMaker.setGradeCode(GradeTestConstants.GRADE_CODE.getValue());
+		gradeMaker.setCreatedBy(TestBaseConstants.IDENTIFIER_VALUE_SUPER_ADMIN_VALUE.getValue());
+		gradeMaker.setModifiedBy(TestBaseConstants.IDENTIFIER_VALUE_SUPER_ADMIN_VALUE.getValue());
+		gradeMaker.setStatus(Constants.ADD_INITIATE_STATUS.getStrValue());
+		gradeMaker.setCreatedOn(new Date());
+		gradeMaker.setModifiedOn(new Date());
+		return gradeMaker;
+	}
+	
+	public static GradeChecker getGradeChecker() {
+		GradeChecker gradeChecker = new GradeChecker();
+		gradeChecker.setCategoryCode(GradeTestConstants.CATEGORY_CODE.getValue());
+		gradeChecker.setGradeName(GradeTestConstants.GRADE_NAME.getValue());
+		gradeChecker.setGradeCode(GradeTestConstants.GRADE_CODE.getValue());
+		gradeChecker.setCreatedBy(TestBaseConstants.IDENTIFIER_VALUE_SUPER_ADMIN_VALUE.getValue());
+		gradeChecker.setModifiedBy(TestBaseConstants.IDENTIFIER_VALUE_SUPER_ADMIN_VALUE.getValue());
+		gradeChecker.setCreatedOn(new Date());
+		gradeChecker.setModifiedOn(new Date());
+		return gradeChecker;
+	}
+	
+	public static DomainChecker getDomainChecker() {
+	    DomainChecker domainChecker = new DomainChecker();
+       
+        return domainChecker;
+    }
+	
+	
+	
+}

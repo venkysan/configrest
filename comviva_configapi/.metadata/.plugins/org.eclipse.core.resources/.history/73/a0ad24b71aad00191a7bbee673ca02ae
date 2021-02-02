@@ -1,0 +1,750 @@
+package com.comviva.mfs.datadrive.test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.comviva.mfs.common.Constants;
+import com.comviva.mfs.common.test.CommonUtilTest;
+import com.comviva.mfs.constant.test.CategoryTestConstants;
+import com.comviva.mfs.constant.test.TestBaseConstants;
+import com.comviva.mfs.entity.CategoryChecker;
+import com.comviva.mfs.entity.CategoryMaker;
+import com.comviva.mfs.entity.CategoryRelationsChecker;
+import com.comviva.mfs.entity.CategoryRelationsMaker;
+import com.comviva.mfs.entity.GeographicalDomains;
+import com.comviva.mfs.entity.SysServicePymtMap;
+import com.comviva.mfs.model.category.AddCategoryApproveRequest;
+import com.comviva.mfs.model.category.AddCategoryInitiateRequest;
+import com.comviva.mfs.model.category.CategoryService;
+import com.comviva.mfs.model.category.DeleteCategoryApproveRequest;
+import com.comviva.mfs.model.category.DeleteCategoryInitiateRequest;
+import com.comviva.mfs.model.category.UpdateCategoryApproveRequest;
+import com.comviva.mfs.model.category.UpdateCategoryInitiateRequest;
+import com.comviva.mfs.model.category.WalletAndBankServiceForCategory;
+
+
+public class CategoryDataPreparationUtil {
+
+	public static String addCategoryInitialRequest() {
+		return CommonUtilTest.convertObjectToJson(getAddCategoryInitialRequest());
+	}
+	
+	public static String addCategoryInitialCategoryCodeEmptyRequest() {
+		AddCategoryInitiateRequest addInitiateCategory =  getAddCategoryInitialRequest();
+		addInitiateCategory.setCategoryCode(null);
+		return CommonUtilTest.convertObjectToJson(addInitiateCategory);
+	}
+	
+	public static String addCategoryInitialCategoryCodeAlphaNumericRequest() {
+		AddCategoryInitiateRequest addInitiateCategory =  getAddCategoryInitialRequest();
+		addInitiateCategory.setCategoryCode("retailer??");
+		return CommonUtilTest.convertObjectToJson(addInitiateCategory);
+	}
+	
+	public static String addCategoryInitialIsApprovalRequiredEmptyRequest() {
+        AddCategoryInitiateRequest addInitiateCategory =  getAddCategoryInitialRequest();
+        addInitiateCategory.setIsApprovalRequired(null);
+        return CommonUtilTest.convertObjectToJson(addInitiateCategory);
+    }
+	
+	public static String addCategoryInitialIsApprovalRequiredNotYesOrNoRequest() {
+        AddCategoryInitiateRequest addInitiateCategory =  getAddCategoryInitialRequest();
+        addInitiateCategory.setIsApprovalRequired("retailer??");
+        return CommonUtilTest.convertObjectToJson(addInitiateCategory);
+    }
+	
+	public static String addCategoryInitialCategoryNameEmptyRequest() {
+		AddCategoryInitiateRequest addInitiateCategory =  getAddCategoryInitialRequest();
+		addInitiateCategory.setCategoryName(null);
+		return CommonUtilTest.convertObjectToJson(addInitiateCategory);
+	}
+	
+	public static String addCategoryInitialCategoryNameAlphaNumericRequest() {
+		AddCategoryInitiateRequest addInitiateCategory =  getAddCategoryInitialRequest();
+		addInitiateCategory.setCategoryName("retailer??");
+		return CommonUtilTest.convertObjectToJson(addInitiateCategory);
+	}
+	
+	public static String addCategoryInitialNoApprovalRequest() {
+		AddCategoryInitiateRequest addInitiateCategory =  getAddCategoryInitialRequest();
+		addInitiateCategory.setIsApprovalRequired(Constants.NO.getStrValue());
+		return CommonUtilTest.convertObjectToJson(addInitiateCategory);
+	}
+
+	public static AddCategoryInitiateRequest getAddCategoryInitialRequest() {
+			AddCategoryInitiateRequest addInitiateCategory = new AddCategoryInitiateRequest();
+			addInitiateCategory.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+			addInitiateCategory.setExternalRefId(CategoryTestConstants.EXTERNAL_REF_ID.getValue());
+			addInitiateCategory.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+			addInitiateCategory.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_CHANNELADMIN_VALUE.getValue());
+			addInitiateCategory.setCategoryCode(CategoryTestConstants.CATEGORY_CODE.getValue());
+			addInitiateCategory.setCategoryName(CategoryTestConstants.CATEGORY_NAME.getValue());
+			addInitiateCategory.setDomainCode(CategoryTestConstants.DOMAIN_CODE.getValue());
+			addInitiateCategory.setParentCategoryCode(CategoryTestConstants.PARENT_CATEGORY_CODE.getValue());
+			addInitiateCategory.setCategoryType(CategoryTestConstants.CATEGORY_TYPE.getValue());
+			addInitiateCategory.setGraphDomainType(CategoryTestConstants.GRAPH_DOMAIN_TYPE.getValue());
+			addInitiateCategory.setIsApprovalRequired(CategoryTestConstants.IS_APPROVAL_REQUIRED.getValue());
+			return addInitiateCategory;
+	}
+	
+	public static String addCategoryApproveRequest() {
+		return CommonUtilTest.convertObjectToJson(getAddCategoryApproveRequest());
+	}
+	
+	public static AddCategoryApproveRequest getAddCategoryApproveRequest() {
+		AddCategoryApproveRequest addApproveCategory = new AddCategoryApproveRequest();
+		addApproveCategory.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		addApproveCategory.setExternalRefId(CategoryTestConstants.EXTERNAL_REF_ID.getValue());
+		addApproveCategory.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		addApproveCategory.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+		addApproveCategory.setCategoryDetails(populateWalletAndBankForCategory());
+		return addApproveCategory;
+	}
+	
+	private static WalletAndBankServiceForCategory populateWalletAndBankForCategory() {
+		WalletAndBankServiceForCategory categoryDetails = new WalletAndBankServiceForCategory();
+		List<CategoryService> payerWalServiceList = new ArrayList<>();
+		List<CategoryService> payeeWalServiceList = new ArrayList<>(); 
+		List<CategoryService> initiatorWalServiceList = new ArrayList<>();
+		List<CategoryService> payerBankServiceList = new ArrayList<>();
+		List<CategoryService> payeeBankServiceList = new ArrayList<>();
+		List<CategoryService> initiatorBankServiceList = new ArrayList<>();
+		CategoryService catService = new CategoryService();
+		catService.setServicePymtId(1140000117l);
+		catService.setDescription("TVBILLPAY Pay Bill");
+		catService.setServiceType("TVBILLPAY");
+		catService.setPayerDomainCode("DISTWS");
+		catService.setPayeeDomainCode("MERCHANT");
+		catService.setInitiatorDomainCode("DISTWS");
+		catService.setInitiatorPaymentInstrument("WALLET");
+		catService.setBearerCode("J2ME");
+		catService.setSelected("Y");
+		payerWalServiceList.add(catService);
+		categoryDetails.setPayerWalServiceList(payerWalServiceList);
+		catService = new CategoryService();
+		catService.setServicePymtId(11l);
+		catService.setDescription("Collection Service");
+		catService.setServiceType("COLLECT");
+		catService.setPayerDomainCode("MER");
+		catService.setPayeeDomainCode("DISTWS");
+		catService.setInitiatorDomainCode("OPT");
+		catService.setInitiatorPaymentInstrument("WALLET");
+		catService.setBearerCode("USSD");
+		catService.setSelected("Y");
+		payeeWalServiceList.add(catService);
+		categoryDetails.setPayeeWalServiceList(payeeWalServiceList);
+		catService = new CategoryService();
+		catService.setServicePymtId(45l);
+		catService.setDescription("C2C Sender");
+		catService.setServiceType("C2C");
+		catService.setPayerDomainCode("DISTWS");
+		catService.setPayeeDomainCode("DISTWS");
+		catService.setInitiatorDomainCode("DISTWS");
+		catService.setInitiatorPaymentInstrument("WALLET");
+		catService.setBearerCode("USSD");
+		catService.setSelected("Y");
+		initiatorWalServiceList.add(catService);
+		categoryDetails.setInitiatorWalServiceList(initiatorWalServiceList);
+		catService = new CategoryService();
+		catService.setServicePymtId(188l);
+		catService.setDescription("Bank Cash In");
+		catService.setServiceType("RBCIREQ");
+		catService.setPayerDomainCode("DISTWS");
+		catService.setPayeeDomainCode("SUBS");
+		catService.setInitiatorDomainCode("DISTWS");
+		catService.setInitiatorPaymentInstrument("BANK");
+		catService.setBearerCode("USSD");
+		catService.setSelected("Y");
+		payerBankServiceList.add(catService);
+		categoryDetails.setPayerBankServiceList(payerBankServiceList);
+		catService = new CategoryService();
+		catService.setServicePymtId(156l);
+		catService.setDescription("Bank Cash Out");
+		catService.setServiceType("RBCOREQ");
+		catService.setPayerDomainCode("SUBS");
+		catService.setPayeeDomainCode("DISTWS");
+		catService.setInitiatorDomainCode("DISTWS");
+		catService.setInitiatorPaymentInstrument("BANK");
+		catService.setBearerCode("USSD");
+		catService.setSelected("Y");
+		payeeBankServiceList.add(catService);
+		categoryDetails.setPayeeBankServiceList(payeeBankServiceList);
+		catService = new CategoryService();
+		catService.setServicePymtId(68L);
+		catService.setDescription("Retailer Bank Balance Enquiry");
+		catService.setServiceType("RBALREQ");
+		catService.setPayerDomainCode("NONE");
+		catService.setPayeeDomainCode("NONE");
+		catService.setInitiatorDomainCode("DISTWS");
+		catService.setInitiatorPaymentInstrument("BANK");
+		catService.setBearerCode("USSD");
+		catService.setSelected("Y");
+		initiatorBankServiceList.add(catService);
+		categoryDetails.setInitiatorBankServiceList(initiatorBankServiceList);
+		return categoryDetails;
+	}
+	
+	public static String updateCategoryInitialRequest() {
+			return CommonUtilTest.convertObjectToJson(getUpdateCategoryInitialRequest());
+	}
+	
+	public static String updateCategoryInitialCategoryNameEmptyRequest() {
+		UpdateCategoryInitiateRequest request = getUpdateCategoryInitialRequest();
+		request.setCategoryName(null);
+		return CommonUtilTest.convertObjectToJson(getUpdateCategoryInitialRequest());
+	}
+	
+	public static String updateCategoryInitialIsApprovalRequiredEmptyRequest() {
+        UpdateCategoryInitiateRequest request = getUpdateCategoryInitialRequest();
+        request.setCategoryName(null);
+        return CommonUtilTest.convertObjectToJson(getUpdateCategoryInitialRequest());
+    }
+	
+	public static String updateCategoryInitialParentCategoryCodeEmptyRequest() {
+		UpdateCategoryInitiateRequest request = getUpdateCategoryInitialRequest();
+		request.setParentCategoryCode(null);
+		return CommonUtilTest.convertObjectToJson(getUpdateCategoryInitialRequest());
+	}
+	
+	public static String updateCategoryInitialNoApprovalRequest() {
+		UpdateCategoryInitiateRequest updateInitiateCategory =  getUpdateCategoryInitialRequest();
+		updateInitiateCategory.setIsApprovalRequired(null);
+			return CommonUtilTest.convertObjectToJson(updateInitiateCategory);
+	}
+	
+	private static UpdateCategoryInitiateRequest getUpdateCategoryInitialRequest() {
+		UpdateCategoryInitiateRequest updateInitiateCategory = new UpdateCategoryInitiateRequest();
+		updateInitiateCategory.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		updateInitiateCategory.setExternalRefId(CategoryTestConstants.EXTERNAL_REF_ID.getValue());
+		updateInitiateCategory.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		updateInitiateCategory.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_CHANNELADMIN_VALUE.getValue());
+		updateInitiateCategory.setCategoryName(CategoryTestConstants.CATEGORY_NAME.getValue());
+		updateInitiateCategory.setParentCategoryCode(CategoryTestConstants.CATEGORY_CODE.getValue());
+		updateInitiateCategory.setIsApprovalRequired(CategoryTestConstants.IS_APPROVAL_REQUIRED.getValue());
+		return updateInitiateCategory;
+	}
+	
+	public static String updateCategoryApproveRequest() {
+			UpdateCategoryApproveRequest updateApproveCategory = new UpdateCategoryApproveRequest();
+			updateApproveCategory.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+			updateApproveCategory.setExternalRefId(CategoryTestConstants.EXTERNAL_REF_ID.getValue());
+			updateApproveCategory.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+			updateApproveCategory.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+			updateApproveCategory.setCategoryDetails(populateWalletAndBankForCategory());
+			return CommonUtilTest.convertObjectToJson(updateApproveCategory);
+	}
+	
+	public static String deleteCategoryInitialRequest() {
+			return CommonUtilTest.convertObjectToJson(getDeleteCategoryInitialRequest());
+	}
+	
+	public static String deleteCategoryInitialNoApprovalRequest() {
+		DeleteCategoryInitiateRequest deleteInitiateCategory =  getDeleteCategoryInitialRequest();
+		deleteInitiateCategory.setIsApprovalRequired(TestBaseConstants.NO.getValue());
+			return CommonUtilTest.convertObjectToJson(deleteInitiateCategory);
+	}
+	
+	public static String deleteCategoryInitialIsApprovalEmptyRequest() {
+        DeleteCategoryInitiateRequest deleteInitiateCategory =  getDeleteCategoryInitialRequest();
+        deleteInitiateCategory.setIsApprovalRequired(null);
+            return CommonUtilTest.convertObjectToJson(deleteInitiateCategory);
+    }
+	
+	public static String deleteCategoryInitialIsApprovalNotYesOrNoRequest() {
+        DeleteCategoryInitiateRequest deleteInitiateCategory =  getDeleteCategoryInitialRequest();
+        deleteInitiateCategory.setIsApprovalRequired("Retail");
+            return CommonUtilTest.convertObjectToJson(deleteInitiateCategory);
+    }
+	
+	private static DeleteCategoryInitiateRequest getDeleteCategoryInitialRequest() {
+		DeleteCategoryInitiateRequest deleteInitiateCategory = new DeleteCategoryInitiateRequest();
+		deleteInitiateCategory.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		deleteInitiateCategory.setExternalRefId(CategoryTestConstants.EXTERNAL_REF_ID.getValue());
+		deleteInitiateCategory.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		deleteInitiateCategory.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_CHANNELADMIN_VALUE.getValue());
+		deleteInitiateCategory.setIsApprovalRequired(CategoryTestConstants.IS_APPROVAL_REQUIRED.getValue());
+		return deleteInitiateCategory;
+	}
+	
+	public static String deleteCategoryApproveRequest() {
+			DeleteCategoryApproveRequest deleteApproveCategory = new DeleteCategoryApproveRequest();
+			deleteApproveCategory.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+			deleteApproveCategory.setExternalRefId(CategoryTestConstants.EXTERNAL_REF_ID.getValue());
+			deleteApproveCategory.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+			deleteApproveCategory.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+			return CommonUtilTest.convertObjectToJson(deleteApproveCategory);
+	}
+	
+	public static String getAllCategoriesUrl() {
+		return getCategoriesBasicUrl(CategoryTestConstants.GET_CATEGORIES.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+		+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.NO.getValue();
+	}
+	
+	public static String getAllCategoriesInitiatedSatusNullUrl() {
+        return getCategoriesBasicUrl(CategoryTestConstants.GET_CATEGORIES.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+        +TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.NULL.getValue();
+    }
+	
+	public static String getAllCategoriesInitiatedSatusNoYesOrNoUrl() {
+        return getCategoriesBasicUrl(CategoryTestConstants.GET_CATEGORIES.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+        +TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+CategoryTestConstants.ACTION.getValue();
+    }
+	
+	public static String getAllCategoriesInitiatedSatusYesUrl() {
+        return getCategoriesBasicUrl(CategoryTestConstants.GET_CATEGORIES.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+        +TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.YES.getValue();
+    }
+	
+	public static String addCategoriesInitiateUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+CategoryTestConstants.ADD_CATEGORIES.getValue();
+	}
+	
+	public static String addCategoriesApprovalUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+CategoryTestConstants.ADD_CATEGORIES.getValue()
+		+CategoryTestConstants.CATEGORY_CODE.getValue()+"/"+CategoryTestConstants.ACTION.getValue();
+	}
+	
+	public static String addCategoriesApprovalCategoryCodeNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+CategoryTestConstants.ADD_CATEGORIES.getValue()
+		+TestBaseConstants.NULL.getValue()+"/"+CategoryTestConstants.ACTION.getValue();
+	}
+	
+	public static String addCategoriesApprovalActionNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+CategoryTestConstants.ADD_CATEGORIES.getValue()
+		+CategoryTestConstants.CATEGORY_CODE.getValue()+"/"+TestBaseConstants.NULL.getValue();
+	}
+	
+	public static String updateCategoriesInitiateUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+CategoryTestConstants.ADD_CATEGORIES.getValue()
+		+CategoryTestConstants.CATEGORY_CODE.getValue();
+	}
+	
+	public static String updateCategoriesInitiateCategoryCodeNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+CategoryTestConstants.ADD_CATEGORIES.getValue()
+		+TestBaseConstants.NULL.getValue();
+	}
+	
+	public static String updateCategoriesApprovalUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+CategoryTestConstants.ADD_CATEGORIES.getValue()
+		+CategoryTestConstants.CATEGORY_CODE.getValue()+"/"+CategoryTestConstants.ACTION.getValue();
+	}
+	
+	public static String updateCategoriesRejectUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+CategoryTestConstants.ADD_CATEGORIES.getValue()
+		+CategoryTestConstants.CATEGORY_CODE.getValue()+"/"+CategoryTestConstants.ACTION_REJECT.getValue();
+	}
+	
+	public static String updateCategoriesApprovalCategoryCodeNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+CategoryTestConstants.ADD_CATEGORIES.getValue()
+		+TestBaseConstants.NULL.getValue()+"/"+CategoryTestConstants.ACTION.getValue();
+	}
+	
+	public static String updateCategoriesApprovalActionNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+CategoryTestConstants.ADD_CATEGORIES.getValue()
+		+CategoryTestConstants.CATEGORY_CODE.getValue()+"/"+TestBaseConstants.NULL.getValue();
+	}
+	
+	public static String deleteCategoriesInitiateUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+CategoryTestConstants.ADD_CATEGORIES.getValue()
+		+CategoryTestConstants.CATEGORY_CODE.getValue();
+	}
+	
+	public static String deleteCategoriesInitiateCategoryCodeNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+CategoryTestConstants.ADD_CATEGORIES.getValue()
+		+TestBaseConstants.NULL.getValue();
+	}
+	
+	public static String deleteCategoriesApprovalUrl() {
+		return TestBaseConstants.BASE_URL.getValue()+CategoryTestConstants.ADD_CATEGORIES.getValue()
+		+CategoryTestConstants.CATEGORY_CODE.getValue()+"/"+CategoryTestConstants.ACTION.getValue();
+	}
+	
+	public static String getSingleCategoriesUrl() {
+		return getCategoriesBasicUrl(CategoryTestConstants.GET_SINGLE_CATEGORIE.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+		+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.NO.getValue();
+	}
+	
+	public static String getCategoriesByDomainCodeUrl() {
+		return getCategoriesBasicUrl(CategoryTestConstants.GET_CATEGORIES_BY_DOMAINS.getValue()+CategoryTestConstants.DOMAIN_CODE.getValue());
+	}
+	
+	public static String getCategoriesRelationByCategoryCodeUrl() {
+		return getCategoriesBasicUrl(CategoryTestConstants.GET_CATEGORYRELATIONS.getValue()+CategoryTestConstants.CATEGORY_CODE.getValue());
+	}
+	
+	private static String getCategoriesBasicUrl(String type) {
+		StringBuilder sb=new StringBuilder();
+		sb.append(TestBaseConstants.BASE_URL.getValue());
+		sb.append(type);
+		sb.append(TestBaseConstants.QUESTION_MARK_SYMBOL.getValue());
+		sb.append(TestBaseConstants.IDENTIFIER_TYPE.getValue());
+		sb.append(TestBaseConstants.EQUAL_SYMBOL.getValue());
+		sb.append(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		sb.append(TestBaseConstants.AND_SYMBOL.getValue());
+		sb.append(TestBaseConstants.IDENTIFIER_VALUE.getValue());
+		sb.append(TestBaseConstants.EQUAL_SYMBOL.getValue());
+		sb.append(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+		sb.append(TestBaseConstants.AND_SYMBOL.getValue());
+		sb.append(TestBaseConstants.BEARER_CODE.getValue());
+		sb.append(TestBaseConstants.EQUAL_SYMBOL.getValue());
+		sb.append(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		return sb.toString();
+	}
+	
+	public static List<CategoryChecker> getCategories(){
+		List<CategoryChecker> list = new ArrayList<CategoryChecker>();
+		list.add(getCategoryChecker());
+		return list;
+	}
+	
+	public static List<CategoryMaker> getCategoriesMaker(){
+        List<CategoryMaker> list = new ArrayList<>();
+        list.add(getCategoryMaker());
+        return list;
+    }
+	
+	public static CategoryMaker getCategoryMaker() {
+		CategoryMaker categoryMaker = new CategoryMaker();
+		categoryMaker.setCategoryCode(CategoryTestConstants.CATEGORY_CODE.getValue());
+		categoryMaker.setCategoryName("wholesaler");
+		categoryMaker.setDomainCode("DISTWS");
+		return categoryMaker;
+	}
+	
+	public static SysServicePymtMap getSysServicePymtMap() {
+		SysServicePymtMap sysServicePymtMap = new SysServicePymtMap();
+		sysServicePymtMap.setServicePymtId(58l);
+		return sysServicePymtMap;
+	}
+	
+	public static CategoryChecker getCategoryChecker() {
+		CategoryChecker categoryChecker = new CategoryChecker();
+		categoryChecker.setCategoryCode(CategoryTestConstants.CATEGORY_CODE.getValue());
+		categoryChecker.setCategoryName("wholesaler");
+		categoryChecker.setDomainCode("DISTWS");
+		return categoryChecker;
+	}
+	
+	public static List<CategoryChecker> getAllCategoryCheckers(){
+		List<CategoryChecker> list = new ArrayList<>();
+		list.add(getCategoryChecker());
+		return list;
+	}
+	
+	public static CategoryRelationsMaker getCategoryRelationMaker() {
+		CategoryRelationsMaker categoryRelationMaker = new CategoryRelationsMaker();
+		categoryRelationMaker.setId(1l);
+		categoryRelationMaker.setFromCategory("SSA");
+		categoryRelationMaker.setToCategory("RT");
+		categoryRelationMaker.setRelationType("PARENT");
+		categoryRelationMaker.setStatus("Y");
+		categoryRelationMaker.setApplicationId("2");
+		//categoryRelationMaker.setCreatedOn(new Date());
+		categoryRelationMaker.setCreatedBy("SN");
+		return categoryRelationMaker;
+	}
+	
+	
+	public static CategoryRelationsChecker getCategoryRelationChecker() {
+		CategoryRelationsChecker categoryRelationChecker = new CategoryRelationsChecker();
+		categoryRelationChecker.setId(1l);
+		categoryRelationChecker.setFromCategory("SSA");
+		categoryRelationChecker.setToCategory("RT");
+		categoryRelationChecker.setRelationType("PARENT");
+		categoryRelationChecker.setStatus("Y");
+		categoryRelationChecker.setApplicationId("2");
+		//categoryRelationChecker.setCreatedOn(new Date());
+		categoryRelationChecker.setCreatedBy("SN");
+		return categoryRelationChecker;
+	}
+
+	public static UpdateCategoryApproveRequest getUpdateCategoryApproveRequest() {
+		UpdateCategoryApproveRequest updateApproveCategory = new UpdateCategoryApproveRequest();
+		updateApproveCategory.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		updateApproveCategory.setExternalRefId(CategoryTestConstants.EXTERNAL_REF_ID.getValue());
+		updateApproveCategory.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		updateApproveCategory.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+		updateApproveCategory.setCategoryDetails(populateWalletAndBankForCategory());
+		return updateApproveCategory;
+	}
+
+	public static String updateCategoryApproveWithNullPayeeWalServiceRequest() {
+		UpdateCategoryApproveRequest updateApproveCategory = getUpdateCategoryApproveRequest();
+		WalletAndBankServiceForCategory walletAndBankServiceForCategory = populateWalletAndBankForCategory();
+		walletAndBankServiceForCategory.setPayeeWalServiceList(null);
+		updateApproveCategory.setCategoryDetails(walletAndBankServiceForCategory);
+		return CommonUtilTest.convertObjectToJson(updateApproveCategory);
+	}
+
+	public static String updateCategoryApproveWithNullPayerWalServiceRequest() {
+		UpdateCategoryApproveRequest updateApproveCategory = getUpdateCategoryApproveRequest();
+		WalletAndBankServiceForCategory walletAndBankServiceForCategory = populateWalletAndBankForCategory();
+		walletAndBankServiceForCategory.setPayerWalServiceList(null);
+		updateApproveCategory.setCategoryDetails(walletAndBankServiceForCategory);
+		return CommonUtilTest.convertObjectToJson(updateApproveCategory);
+	}
+
+	public static String updateCategoryApproveWithNullInitiatorWalServiceRequest() {
+		UpdateCategoryApproveRequest updateApproveCategory = getUpdateCategoryApproveRequest();
+		WalletAndBankServiceForCategory walletAndBankServiceForCategory = populateWalletAndBankForCategory();
+		walletAndBankServiceForCategory.setInitiatorWalServiceList(null);
+		updateApproveCategory.setCategoryDetails(walletAndBankServiceForCategory);
+		return CommonUtilTest.convertObjectToJson(updateApproveCategory);
+	}
+
+	public static String updateCategoryApproveWithNullPayerBankServiceRequest() {
+		UpdateCategoryApproveRequest updateApproveCategory = getUpdateCategoryApproveRequest();
+		WalletAndBankServiceForCategory walletAndBankServiceForCategory = populateWalletAndBankForCategory();
+		walletAndBankServiceForCategory.setPayerBankServiceList(null);
+		updateApproveCategory.setCategoryDetails(walletAndBankServiceForCategory);
+		return CommonUtilTest.convertObjectToJson(updateApproveCategory);
+	}
+
+	public static String updateCategoryApproveWithNullPayeeBankServiceRequest() {
+		UpdateCategoryApproveRequest updateApproveCategory = getUpdateCategoryApproveRequest();
+		WalletAndBankServiceForCategory walletAndBankServiceForCategory = populateWalletAndBankForCategory();
+		walletAndBankServiceForCategory.setPayeeBankServiceList(null);
+		updateApproveCategory.setCategoryDetails(walletAndBankServiceForCategory);
+		return CommonUtilTest.convertObjectToJson(updateApproveCategory);
+	}
+
+	public static String updateCategoryApproveWithNullInitiatorBankServiceRequest() {
+		UpdateCategoryApproveRequest updateApproveCategory = getUpdateCategoryApproveRequest();
+		WalletAndBankServiceForCategory walletAndBankServiceForCategory = populateWalletAndBankForCategory();
+		walletAndBankServiceForCategory.setInitiatorBankServiceList(null);
+		updateApproveCategory.setCategoryDetails(walletAndBankServiceForCategory);
+		return CommonUtilTest.convertObjectToJson(updateApproveCategory);
+	}
+
+	public static String updateCategoryApproveWithNullNonFinancialServiceRequest() {
+		UpdateCategoryApproveRequest updateApproveCategory = getUpdateCategoryApproveRequest();
+		WalletAndBankServiceForCategory walletAndBankServiceForCategory = populateWalletAndBankForCategory();
+		walletAndBankServiceForCategory.setNonFinancialList(null);
+		updateApproveCategory.setCategoryDetails(walletAndBankServiceForCategory);
+		return CommonUtilTest.convertObjectToJson(updateApproveCategory);
+	}
+
+	public static String addCategoryApproveWithNullPayeeWalServiceRequest() {
+		AddCategoryApproveRequest addCategoryApproveRequest = getAddCategoryApproveRequest();
+		WalletAndBankServiceForCategory walletAndBankServiceForCategory = populateWalletAndBankForCategory();
+		walletAndBankServiceForCategory.setPayeeWalServiceList(null);
+		addCategoryApproveRequest.setCategoryDetails(walletAndBankServiceForCategory);
+		return CommonUtilTest.convertObjectToJson(addCategoryApproveRequest);
+	}
+
+	public static String addCategoryApproveWithNullPayerWalServiceRequest() {
+		AddCategoryApproveRequest addCategoryApproveRequest = getAddCategoryApproveRequest();
+		WalletAndBankServiceForCategory walletAndBankServiceForCategory = populateWalletAndBankForCategory();
+		walletAndBankServiceForCategory.setPayerWalServiceList(null);
+		addCategoryApproveRequest.setCategoryDetails(walletAndBankServiceForCategory);
+		return CommonUtilTest.convertObjectToJson(addCategoryApproveRequest);
+	}
+
+	public static String addCategoryApproveWithNullInitiatorWalServiceRequest() {
+		AddCategoryApproveRequest addCategoryApproveRequest = getAddCategoryApproveRequest();
+		WalletAndBankServiceForCategory walletAndBankServiceForCategory = populateWalletAndBankForCategory();
+		walletAndBankServiceForCategory.setInitiatorWalServiceList(null);
+		addCategoryApproveRequest.setCategoryDetails(walletAndBankServiceForCategory);
+		return CommonUtilTest.convertObjectToJson(addCategoryApproveRequest);
+	}
+
+	public static String addCategoryApproveWithNullPayerBankServiceRequest() {
+		AddCategoryApproveRequest addCategoryApproveRequest = getAddCategoryApproveRequest();
+		WalletAndBankServiceForCategory walletAndBankServiceForCategory = populateWalletAndBankForCategory();
+		walletAndBankServiceForCategory.setPayerBankServiceList(null);
+		addCategoryApproveRequest.setCategoryDetails(walletAndBankServiceForCategory);
+		return CommonUtilTest.convertObjectToJson(addCategoryApproveRequest);
+	}
+
+	public static String addCategoryApproveWithNullPayeeBankServiceRequest() {
+		AddCategoryApproveRequest addCategoryApproveRequest = getAddCategoryApproveRequest();
+		WalletAndBankServiceForCategory walletAndBankServiceForCategory = populateWalletAndBankForCategory();
+		walletAndBankServiceForCategory.setPayeeBankServiceList(null);
+		addCategoryApproveRequest.setCategoryDetails(walletAndBankServiceForCategory);
+		return CommonUtilTest.convertObjectToJson(addCategoryApproveRequest);
+	}
+
+	public static String addCategoryApproveWithNullInitiatorBankServiceRequest() {
+		AddCategoryApproveRequest addCategoryApproveRequest = getAddCategoryApproveRequest();
+		WalletAndBankServiceForCategory walletAndBankServiceForCategory = populateWalletAndBankForCategory();
+		walletAndBankServiceForCategory.setInitiatorBankServiceList(null);
+		addCategoryApproveRequest.setCategoryDetails(walletAndBankServiceForCategory);
+		return CommonUtilTest.convertObjectToJson(addCategoryApproveRequest);
+	}
+
+	public static String addCategoryApproveWithNullNonFinancialServiceRequest() {
+		AddCategoryApproveRequest addCategoryApproveRequest = getAddCategoryApproveRequest();
+		WalletAndBankServiceForCategory walletAndBankServiceForCategory = populateWalletAndBankForCategory();
+		walletAndBankServiceForCategory.setNonFinancialList(null);
+		addCategoryApproveRequest.setCategoryDetails(walletAndBankServiceForCategory);
+		return CommonUtilTest.convertObjectToJson(addCategoryApproveRequest);
+	}
+
+	public static String getAllGeographicalDomainsRequest() {
+		return CommonUtilTest.convertObjectToJson(getAddCategoryInitialRequest());
+	}
+	
+	public static String getGeographicalDomainsUrl() {
+		return getCategoriesBasicUrl(CategoryTestConstants.GEOGRAPHICAL_DOMAINS.getValue());		
+	}
+	
+	public static GeographicalDomains getGeographicalDomains() {
+		GeographicalDomains geographicalDomains = new GeographicalDomains();
+		geographicalDomains.setGrphDomainCode("AUTqkSm");
+		geographicalDomains.setGrphDomainName("AUTqkSm");
+		geographicalDomains.setNetworkCode("SN");
+		geographicalDomains.setDescription("AUTqkSm");
+		return geographicalDomains;
+	}
+		
+	public static List<GeographicalDomains> getAllGeographicalDomains(){
+		List<GeographicalDomains> list = new ArrayList<>();
+		list.add(getGeographicalDomains());
+		return list;
+	}
+	
+	public static String getWalletAndBankServicesUrl() {
+		return getCategoriesBasicUrl(CategoryTestConstants.WALLET_DBANK_SERVICES.getValue()+CategoryTestConstants.DOMAIN_CODE.getValue());		
+	}
+	
+	public static String getWalletAndBankServicesWithNullDoaminCodeUrl() {
+		return getCategoriesBasicUrl(CategoryTestConstants.WALLET_DBANK_SERVICES.getValue()+TestBaseConstants.NULL.getValue());		
+	}
+	
+	public static String getWalletAndBankServicesRequest() {
+		return CommonUtilTest.convertObjectToJson(getAddCategoryInitialRequest());
+	}
+		
+	public static CategoryService getPayerWalService() {
+		CategoryService categoryService = new CategoryService();
+		categoryService.setDescription("Payer Wal serv");
+		return categoryService;
+		}
+	
+	public static List<CategoryService> getPayerWalServiceList(){
+		List<CategoryService> list = new ArrayList<>();
+		list.add(getPayerWalService());
+		return list;
+	}
+		
+	public static CategoryService getPayeeWalService() {
+		CategoryService categoryService = new CategoryService();
+		categoryService.setDescription("Payee Wal serv");
+		return categoryService;
+		}
+	
+	public static List<CategoryService> getPayeeWalServiceList(){
+		List<CategoryService> list = new ArrayList<>();
+		list.add(getPayerWalService());
+		return list;
+	}
+	
+	public static CategoryService getWalServicesForInitiatorBlock() {
+		CategoryService categoryService = new CategoryService();
+		categoryService.setDescription("Wal Services For Initiator Block");
+		return categoryService;
+		}
+	
+	public static List<CategoryService> getWalServicesForInitiatorBlockList(){
+		List<CategoryService> list = new ArrayList<>();
+		list.add(getPayerWalService());
+		return list;
+	}
+	
+	public static CategoryService getPayerBankService() {
+		CategoryService categoryService = new CategoryService();
+		categoryService.setDescription("Payer bank serv");
+		return categoryService;
+		}
+	
+	public static List<CategoryService> getPayerBankServiceList(){
+		List<CategoryService> list = new ArrayList<>();
+		list.add(getPayerWalService());
+		return list;
+	}
+	
+	public static CategoryService getPayeeBankService() {
+		CategoryService categoryService = new CategoryService();
+		categoryService.setDescription("Payer bank serv");
+		return categoryService;
+		}
+	
+	public static List<CategoryService> getPayeeBankServiceList(){
+		List<CategoryService> list = new ArrayList<>();
+		list.add(getPayerWalService());
+		return list;
+	}
+	
+	public static CategoryService getBankServicesForInitiatorBlock() {
+		CategoryService categoryService = new CategoryService();
+		categoryService.setDescription("Bank Services For Initiator Block");
+		return categoryService;
+		}
+	
+	public static List<CategoryService> getBankServicesForInitiatorBlockList(){
+		List<CategoryService> list = new ArrayList<>();
+		list.add(getPayerWalService());
+		return list;
+	}
+
+	public static String getCategoryByDomainCatCodeServiceUrl() {
+		return getCategoriesBasicUrl(CategoryTestConstants.GET_CATEGORIES_BY_DOMAINS.getValue()+CategoryTestConstants.DOMAIN_CODE.getValue()+"/"
+		+CategoryTestConstants.CATEGORY_CODE.getValue());		
+	}
+	
+	public static String getCategoryByDomainCatCodeServiceRequest() {
+		return CommonUtilTest.convertObjectToJson(getAddCategoryInitialRequest());
+	}
+	
+	public static String getCategoryByDomainCatCodeServiceWithNullCatCodeUrl() {
+		return getCategoriesBasicUrl(CategoryTestConstants.GET_CATEGORIES_BY_DOMAINS.getValue()+CategoryTestConstants.DOMAIN_CODE.getValue()+"/"
+		+TestBaseConstants.NULL.getValue());		
+	}
+	
+	public static String getCategoryByDomainCatCodeServiceWithNullDomainCodeUrl() {
+		return getCategoriesBasicUrl(CategoryTestConstants.GET_CATEGORIES_BY_DOMAINS.getValue()+TestBaseConstants.NULL.getValue()+"/"
+		+CategoryTestConstants.CATEGORY_CODE.getValue());		
+	}
+
+	public static String deleteCategoriesApproveWithNullCatCodeUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + CategoryTestConstants.ADD_CATEGORIES.getValue()
+				+ TestBaseConstants.NULL.getValue() + "/" + CategoryTestConstants.ACTION.getValue();
+	}
+
+	public static String deleteCategoriesApproveWithNullActionUrl() { 
+		return TestBaseConstants.BASE_URL.getValue() + CategoryTestConstants.ADD_CATEGORIES.getValue()
+				+ CategoryTestConstants.CATEGORY_CODE.getValue() + "/" + TestBaseConstants.NULL.getValue();
+	}
+	
+	public static String getSingleCategoryWithNullCatCodeUrl() {
+		return getCategoriesBasicUrl(CategoryTestConstants.ADD_CATEGORIES.getValue()+"/"+TestBaseConstants.NULL.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+		+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.NO.getValue();
+	}
+	public static String getSingleCategoryWithNullInitiatedTypeUrl() {
+		return getCategoriesBasicUrl(CategoryTestConstants.ADD_CATEGORIES.getValue()+"/"+CategoryTestConstants.CATEGORY_CODE.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+		+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.NULL.getValue();
+	}
+	public static String getSingleCategoryWithInvalidInitiatedTypeUrl() {
+		return getCategoriesBasicUrl(CategoryTestConstants.ADD_CATEGORIES.getValue()+"/"+CategoryTestConstants.CATEGORY_CODE.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+		+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+CategoryTestConstants.INVALID_INITIATED_TYPE_VAL.getValue();
+	}
+	public static String getSingleCategoryWithYesInitiatedTypeUrl() {
+		return getCategoriesBasicUrl(CategoryTestConstants.ADD_CATEGORIES.getValue()+"/"+CategoryTestConstants.CATEGORY_CODE.getValue())+TestBaseConstants.AND_SYMBOL.getValue()
+		+TestBaseConstants.INITIATEDTYPE.getValue()+TestBaseConstants.EQUAL_SYMBOL.getValue()+TestBaseConstants.YES.getValue();
+	}
+
+	public static String getCategoryByDomainCodeServiceWithNullDomainCodeUrl() {
+		return getCategoriesBasicUrl(
+				CategoryTestConstants.GET_CATEGORIES_BY_DOMAINS.getValue() + TestBaseConstants.NULL.getValue());
+	}
+
+	public static String getCategoryByDomainCodeServiceRequest() {
+		return CommonUtilTest.convertObjectToJson(getAddCategoryApproveRequest());
+	}
+
+	public static String deleteCategoriesApproveActionUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + CategoryTestConstants.ADD_CATEGORIES.getValue()
+				+ CategoryTestConstants.CATEGORY_CODE.getValue() + "/" + CategoryTestConstants.ACTION.getValue();
+	}
+
+}

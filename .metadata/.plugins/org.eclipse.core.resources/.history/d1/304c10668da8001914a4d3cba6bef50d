@@ -1,0 +1,95 @@
+package com.comviva.mfs.service.category;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Service;
+
+import com.comviva.mfs.common.Constants;
+import com.comviva.mfs.common.MessageCodes;
+import com.comviva.mfs.common.ServiceRoleCodes;
+import com.comviva.mfs.common.ValidationException;
+import com.comviva.mfs.common.utils.CommonUtils;
+import com.comviva.mfs.entity.CategoryChecker;
+import com.comviva.mfs.model.BaseRequest;
+import com.comviva.mfs.model.category.GetCategoryDetailsbyDomainResponse;
+import com.comviva.mfs.repository.CategoryCheckerRepository;
+import com.comviva.mfs.service.CommonService;
+
+/**
+ * @author radhakrishnab
+ *
+ */
+@Service
+@Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class GetCategoryByDomainCodeService extends CommonService {
+
+	private String domainCode;
+	private List<CategoryChecker> categoryList;
+	private CategoryCheckerRepository categoryCheckerRepository;
+
+	/**
+	 * @param categoryCheckerRepository
+	 */
+	@Autowired
+	public GetCategoryByDomainCodeService(CategoryCheckerRepository categoryCheckerRepository) {
+		this.categoryCheckerRepository = categoryCheckerRepository;
+	}
+
+	/**
+	 * @param domainCode
+	 * @param identifierType
+	 * @param identifierValue
+	 * @param bearerCode
+	 * @return
+	 */
+	public GetCategoryDetailsbyDomainResponse execute(String domainCode, String identifierType, String identifierValue,
+			String bearerCode) {
+		List<String> params = new ArrayList<>();
+		try {
+			this.domainCode = domainCode;
+			BaseRequest request = new BaseRequest();
+			request.setIdentifierType(identifierType);
+			request.setIdentifierValue(identifierValue);
+			request.setBearerCode(bearerCode);
+			serviceRoleCode = ServiceRoleCodes.GET_CATEGORY_BY_DOMAIN_CODE.getStrValue();
+			super.initiate(request, serviceRoleCode);
+			params.add(domainCode);
+			validateInputs();
+			categoryList = categoryCheckerRepository.findCategoryListByDomainCode(Constants.YES.getStrValue(), domainCode);
+			if (CommonUtils.isNullorEmpty(categoryList)) {
+				responseMessageCode = MessageCodes.NO_RECORDS_FOUND.getStrValue();
+			} else {
+				responseMessageCode = MessageCodes.SUCCESS.getStrValue();
+			}
+			responseStatus = Constants.SUCCESS_RESPONSE.getStrValue();
+			createRequestResponseHistObject();
+		} catch (Exception e) {
+			handleException(e, params, this.getClass().getSimpleName());
+		}
+		generateReponseMessage(params);
+		return createResponse();
+	}
+
+	@Override
+	public void validateInputs() {
+		if (CommonUtils.isNullorEmpty(domainCode)) {
+			throw new ValidationException("Domain Code", MessageCodes.FIELD_MANDATORY.getStrValue());
+		}
+	}
+
+	@Override
+	public GetCategoryDetailsbyDomainResponse createResponse() {
+		GetCategoryDetailsbyDomainResponse categoryDetailsbyDomainResponse = new GetCategoryDetailsbyDomainResponse();
+		categoryDetailsbyDomainResponse.setStatus(responseStatus);
+		categoryDetailsbyDomainResponse.setMessage(responseMessage);
+		categoryDetailsbyDomainResponse.setAllCategoryList(categoryList);
+		categoryDetailsbyDomainResponse.setReferenceId(referenceId);
+		return categoryDetailsbyDomainResponse;
+	}
+
+}

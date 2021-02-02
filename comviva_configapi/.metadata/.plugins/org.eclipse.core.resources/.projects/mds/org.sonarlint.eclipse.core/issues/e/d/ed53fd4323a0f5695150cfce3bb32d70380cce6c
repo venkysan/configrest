@@ -1,0 +1,17 @@
+
+„squid:S1192#"HDefine a constant instead of duplicating this literal "GRP_ROL" 6 times.(ÈÜåıÿÿÿÿ8¨¿—Â-HÚ$RCRITICALZ
+CODE_SMELL
+squid:S1192"HDefine a constant instead of duplicating this literal "ADD_CAT" 3 times.(«Åš8¨¿—Â-HÛ$RCRITICALZ
+CODE_SMELL
+‡squid:S1192"KDefine a constant instead of duplicating this literal "ADD_GRADES" 4 times.(Æ™Ü°øÿÿÿÿ8¨¿—Â-HÜ$RCRITICALZ
+CODE_SMELL
+„squid:S1192,"HDefine a constant instead of duplicating this literal "T_RULES" 5 times.(ô°İ€øÿÿÿÿ8¨¿—Â-Hİ$RCRITICALZ
+CODE_SMELL
+‚squid:S1192-"KDefine a constant instead of duplicating this literal "T_RULESAPP" 3 times.(ûµÄè8¨¿—Â-HŞ$RCRITICALZ
+CODE_SMELL
+„squid:S1192"HDefine a constant instead of duplicating this literal "DOM_ADD" 8 times.(âôŒ…üÿÿÿÿ8¨¿—Â-Hß$RCRITICALZ
+CODE_SMELL
+‚squid:S11925"KDefine a constant instead of duplicating this literal "O2C_TRULES" 7 times.(æ¶‹©8¨¿—Â-Hà$RCRITICALZ
+CODE_SMELL
+squid:UnusedPrivateMethodH":Remove this unused private "ServiceRoleCodes" constructor.(î„áœùÿÿÿÿ8¨¿—Â-Há$RMAJORZ
+CODE_SMELL

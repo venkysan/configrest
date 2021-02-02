@@ -1,0 +1,43 @@
+package com.comviva.mfs.controller;
+
+import java.text.MessageFormat;
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.comviva.mfs.common.ApplicationException;
+import com.comviva.mfs.common.ErrorCodes;
+import com.comviva.mfs.common.ValidationException;
+import com.comviva.mfs.common.utils.CommonUtils;
+import com.comviva.mfs.entity.SysMessages;
+import com.comviva.mfs.model.BaseResponse;
+
+@ControllerAdvice
+@RestController
+public class ValidationExceptionHandler {
+	
+	  @ExceptionHandler(ValidationException.class)
+	  public final ResponseEntity<BaseResponse> handleValidationException(ValidationException ex) {
+		  BaseResponse response = new BaseResponse();
+		  response.setExternalRefId(ex.getExternalRefId());
+		  response.setMessage(ex.getMessage()); 
+		  response.setReferenceId(ex.getRefId());
+		  response.setStatus(ex.getErrorCode()+"1111");
+	    return new ResponseEntity<>(response, HttpStatus.OK);
+	  }
+	  
+	  @ExceptionHandler(ApplicationException.class)
+	  public final ResponseEntity handleApplicationException(ApplicationException ex) {
+		  BaseResponse response = new BaseResponse();
+		  //response.setExternalRefId(ex.getExternalRefId());
+		  response.setMessage(ex.getMessage()); 
+		  //response.setReferenceId(ex.getRefId());
+		  response.setStatus(ex.getErrorCode());
+	    return new ResponseEntity<>(response, HttpStatus.OK);
+	  }
+	  
+	  }

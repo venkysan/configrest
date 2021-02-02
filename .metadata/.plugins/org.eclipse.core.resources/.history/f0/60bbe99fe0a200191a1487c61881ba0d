@@ -1,0 +1,84 @@
+package com.comviva.mfs.service.tcp;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Service;
+
+import com.btsl.common.BTSLBaseException;
+import com.comviva.mfs.common.ApplicationException;
+import com.comviva.mfs.common.MessageCodes;
+import com.comviva.mfs.common.ValidationException;
+import com.comviva.mfs.entity.TransferControlProfileMaker;
+import com.comviva.mfs.entity.TransferControlProfileChecker;
+import com.comviva.mfs.repository.TransferControlProfileRepository;
+import com.comviva.mfs.repository.TransferControlProfileMakerRepository;
+import com.comviva.mfs.model.tcp.DeleteInitiateTransferControlProfileRequest;
+import com.comviva.mfs.model.tcp.DeleteInitiateTransferControlProfileResponse;
+import com.comviva.mfs.service.CommonService;
+
+@Service
+@Scope(scopeName=ConfigurableBeanFactory.SCOPE_PROTOTYPE,proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class DeleteInitiateTransferControlProfileService extends CommonService {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(DeleteInitiateTransferControlProfileService.class);
+	
+	private TransferControlProfileChecker transferControlProfileChecker;
+	private TransferControlProfileMaker transferControlProfileMaker;
+	private TransferControlProfileMakerRepository transferControlProfileMakerRepository;
+	private TransferControlProfileRepository transferControlProfileRepository;
+	private DeleteInitiateTransferControlProfileRequest deleteInitiateTransferControlProfileRequest;
+	private String profileId;
+	
+	
+	@Autowired
+	public DeleteInitiateTransferControlProfileService(
+			TransferControlProfileRepository transferControlProfileRepository,
+			TransferControlProfileMakerRepository transferControlProfileMakerRepository) {		
+		this.transferControlProfileRepository = transferControlProfileRepository;
+		this.transferControlProfileMakerRepository = transferControlProfileMakerRepository;
+		
+	}
+	
+	public DeleteInitiateTransferControlProfileResponse execute(String profileId, 
+				DeleteInitiateTransferControlProfileRequest deleteInitiateTransferControlProfileRequest) {
+		
+		List<String> params = new ArrayList<>();
+		try {
+			this.profileId = profileId;
+			this.deleteInitiateTransferControlProfileRequest = deleteInitiateTransferControlProfileRequest;
+			
+			
+		}catch(Exception e) {
+			handleException(e, params, this.getClass().getSimpleName());
+		}
+		
+		generateReponseMessage(params);
+		return createResponse();	
+	}
+	
+	@Override
+	public void validateInputs() throws ApplicationException {
+		
+		boolean isInitiated = transferControlProfileMakerRepository.isProfileInitiated(profileId);
+		if (isInitiated) {
+			throw new ValidationException(groupRoleCode, MessageCodes.UNDER_APPROVAL.getStrValue());
+		}
+		
+	}
+
+	@Override
+	public DeleteInitiateTransferControlProfileResponse createResponse() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	
+
+}

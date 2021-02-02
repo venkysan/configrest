@@ -1,0 +1,409 @@
+package com.comviva.mfs.controller.test;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import com.comviva.mfs.constant.test.TestBaseConstants;
+import com.comviva.mfs.repository.CategoryCheckerRepository;
+import com.comviva.mfs.repository.DomainCheckerRepository;
+import com.comviva.mfs.repository.DomainMakerRepository;
+import com.comviva.mfs.util.CategoryDataPreparationUtil;
+import com.comviva.mfs.util.DomainDataPreparationUtil;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class DomainControllerValidationTest {
+
+	private MockMvc mockMvc;
+	@Autowired
+	private WebApplicationContext wac;
+	@MockBean
+	private DomainCheckerRepository domainCheckerRepository;
+	@MockBean
+	private DomainMakerRepository domainMakerRepository;
+	@MockBean
+	private CategoryCheckerRepository categoryCheckerRepository;
+
+	@Before
+	public void setup() {
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+	}
+
+	@Test
+	public void addDomainInitiateDomainCodeEmptyValidationErrorTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.post(DomainDataPreparationUtil.addDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.addDomainInitiateDomainCodeEmptyRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void addDomainInitiateDomainCodeAlphaNumericValidationErrorTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.post(DomainDataPreparationUtil.addDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.addDomainInitiateDomainCodeAlphaNumericRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void addDomainInitiateDomainNameEmptyValidationErrorTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.post(DomainDataPreparationUtil.addDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.addDomainInitiateDomainNameEmptyRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void addDomainInitiateDomainNameAlphaNumericValidationErrorTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.post(DomainDataPreparationUtil.addDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.addDomainInitiateDomainNameAlphaNumericRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void addDomainInitiateNumberofcatEmptyValidationErrorTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.post(DomainDataPreparationUtil.addDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.addDomainInitiateNumOfCatEmptyRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void addDomainInitiateNumOfCatAlphaNumericValidationErrorTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.post(DomainDataPreparationUtil.addDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.addDomainInitiateNumOfCatAlphaNumericRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void addDomainInitiateDomainMakerNotNullValidationErrorTest() throws Exception {
+		when(domainMakerRepository.getDomainByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomainMaker());
+		mockMvc.perform(MockMvcRequestBuilders.post(DomainDataPreparationUtil.addDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.addDomainInitiateDomainNameAlphaNumericRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void addDomainInitiateDomainCheckerNotNullValidationErrorTest() throws Exception {
+		when(domainCheckerRepository.getDomainByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomainChecker());
+		mockMvc.perform(MockMvcRequestBuilders.post(DomainDataPreparationUtil.addDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.addDomainInitiateDomainNameAlphaNumericRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void addDomainInitiateDomainMakerNotNullTest() throws Exception {
+		when(domainMakerRepository.getDomainByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomainMaker());
+		when(domainCheckerRepository.getDomainByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomainChecker());
+		mockMvc.perform(MockMvcRequestBuilders.post(DomainDataPreparationUtil.addDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.addDomainInitiateRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void addDomainApprovalDomainMakerEmptyValidationErrorTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.post(DomainDataPreparationUtil.addDomainApprovalUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.addDomainApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void addDomainApprovalDomainCodeEmptyValidationErrorTest() throws Exception {
+		when(domainMakerRepository.getDomainByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomainMaker());
+		mockMvc.perform(MockMvcRequestBuilders.post(DomainDataPreparationUtil.addDomainApprovalDomainCodeNullUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.addDomainApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void addDomainApprovalDomainCodeisAlphaNumericAndLenghtCheckValidationErrorTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders
+				.post(DomainDataPreparationUtil.addDomainApprovalDomainCodeisAlphaNumericAndLenghtCheckUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.addDomainApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void updateDomainInitiateDomainCodeEmptyValidationErrorTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.put(DomainDataPreparationUtil.updateDomainInitiateDomainCodeNullUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.updateDomainInitiateRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void updateDomainInitiateDomainNameEmptyValidationErrorTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.put(DomainDataPreparationUtil.updateDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.updateDomainInitiateDomainNameEmptyRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void updateDomainInitiateDomainNameAlphaNumericValidationErrorTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.put(DomainDataPreparationUtil.updateDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.updateDomainInitiateDomainNameAlphaNumericRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void updateDomainInitiateDomainNameLengthValidationErrorTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.put(DomainDataPreparationUtil.updateDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.updateDomainInitiateDomainNameMorethanlengthRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void updateDomainInitiateNumOfcatZeroValidationErrorTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.put(DomainDataPreparationUtil.updateDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.updateDomainInitiateNumOfCatZeroRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void updateDomainInitiateNumOfcatNotValidationErrorTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.put(DomainDataPreparationUtil.updateDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.updateDomainInitiateNumOfCatNotvalidRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void updateDomainInitiateDomainCheckerEmptyTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.put(DomainDataPreparationUtil.updateDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.updateDomainInitiateRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void updateDomainInitiateDomainMakerNotNullTest() throws Exception {
+		when(domainMakerRepository.getDomainByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomainMaker());
+		when(domainCheckerRepository.getDomainByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomainChecker());
+		mockMvc.perform(MockMvcRequestBuilders.put(DomainDataPreparationUtil.updateDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.updateDomainInitiateRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void updateDomainApprovalDomainMakerNullValidationErrorTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.put(DomainDataPreparationUtil.updateDomainApprovalUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.updateDomainApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void updateDomainApprovalActionRejectTest() throws Exception {
+		when(domainMakerRepository.getDomainByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomainMaker());
+		mockMvc.perform(MockMvcRequestBuilders.put(DomainDataPreparationUtil.updateDomainRejectUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.updateDomainApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void updateDomainApprovalDomainCodeNullValidationErrorTest() throws Exception {
+		when(domainMakerRepository.getDomainByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomainMaker());
+		mockMvc.perform(MockMvcRequestBuilders.put(DomainDataPreparationUtil.updateDomainApprovalDomainCodeNullUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.updateDomainApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void updateDomainApprovalActionNullValidationErrorTest() throws Exception {
+		when(domainMakerRepository.getDomainByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomainMaker());
+		mockMvc.perform(MockMvcRequestBuilders.put(DomainDataPreparationUtil.updateDomainApprovalActionNullUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.updateDomainApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void deleteDomainInitiateDomainCheckerValidationErrorTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.delete(DomainDataPreparationUtil.deleteDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.deleteDomainInitiateRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void deleteDomainInitiateDomainMakerValidationErrorTest() throws Exception {
+		when(domainCheckerRepository.getDomainByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomainChecker());
+		when(domainMakerRepository.getDomainByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomainMaker());
+		mockMvc.perform(MockMvcRequestBuilders.delete(DomainDataPreparationUtil.deleteDomainInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.deleteDomainInitiateRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void deleteDomainInitiateDomainCodeValidationErrorTest() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders.delete(DomainDataPreparationUtil.deleteDomainInitiateDomainCodeNullUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.deleteDomainInitiateRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void deleteDomainApprovalDomainCodeValidationErrorTest() throws Exception {
+		when(domainMakerRepository.getDomainByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomainMakerForApprove());
+		when(categoryCheckerRepository.findCategoryListByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(CategoryDataPreparationUtil.getAllCategoryCheckers());
+		mockMvc.perform(MockMvcRequestBuilders.delete(DomainDataPreparationUtil.deleteDomainApprovalUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.deleteDomainApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void deleteDomainApprovalDomainMakerValidationErrorTest() throws Exception {
+		when(domainMakerRepository.getDomainByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomainMakerForDelete());
+		when(categoryCheckerRepository.findCategoryListByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(CategoryDataPreparationUtil.getAllCategoryCheckers());
+		mockMvc.perform(MockMvcRequestBuilders.delete(DomainDataPreparationUtil.deleteDomainApprovalUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(DomainDataPreparationUtil.deleteDomainApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void getAllDomainsInitiateStatusNullValidationErrorTest() throws Exception {
+		when(domainCheckerRepository.getAllActiveDomains(Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomains());
+		mockMvc.perform(MockMvcRequestBuilders.get(DomainDataPreparationUtil.getAllDomainsInitiateStatusNullUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void getAllDomainsInitiateStatusCheckYesOrNoValidationErrorTest() throws Exception {
+		when(domainCheckerRepository.getAllActiveDomains(Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomains());
+		mockMvc.perform(
+				MockMvcRequestBuilders.get(DomainDataPreparationUtil.getAllDomainsInitiateStatusCheckYesOrNoUrl())
+						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void getSingleDomainsInitiateStatusNullValidationErrorTest() throws Exception {
+		when(domainCheckerRepository.getDomainByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomainChecker());
+		mockMvc.perform(MockMvcRequestBuilders.get(DomainDataPreparationUtil.getSingleDomainInitiateStatusNullUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void getSingleDomainsInitiateStatusCheckYesOrNoValidationErrorTest() throws Exception {
+		when(domainCheckerRepository.getDomainByDomainCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(DomainDataPreparationUtil.getDomainChecker());
+		mockMvc.perform(
+				MockMvcRequestBuilders.get(DomainDataPreparationUtil.getSingleDomainInitiateStatusCheckYesOrNoUrl())
+						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+	
+	@Test
+	public void getDomainsByAppCodeInitiateStatusNoTest() throws Exception {
+		when(domainCheckerRepository.getDomainByDomainCode(Mockito.anyString(), Mockito.anyString()))
+		.thenReturn(DomainDataPreparationUtil.getDomainChecker());
+		
+		mockMvc.perform(MockMvcRequestBuilders.get(DomainDataPreparationUtil.getDomainsByAppCodeNOUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.SUCCESS_STATUS.getValue()));
+	}
+
+}

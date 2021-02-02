@@ -1,0 +1,5 @@
+package com.comviva.interop.txnengine.util;
+
+public class VelocityTemplateMakerTest {
+
+}

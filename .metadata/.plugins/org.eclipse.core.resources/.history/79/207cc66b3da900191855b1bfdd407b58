@@ -1,0 +1,36 @@
+package com.comviva.mfs.common;
+
+
+public enum DbConstants {
+
+	STATUS("status"),
+	CATEGORY_CODE("categoryCode"),
+	CATEGORY_NAME("categoryName"),
+	DOMAIN_CODE("domainCode"),
+	DOMAIN_NAME("domainName"),
+	OWNER_CAT("ownerCat"),
+	GRADE_CODE("gradeCode"),
+	GRADE_NAME("gradeName"),
+	PROVIDER_ID("providerId"),
+	PROTELECOM_REMITT_ID("protelecomRemittId"),
+	COMMISSIONWALLET_TYPE_ID("commissionWalletTypeId"),
+	APPLICATION_ID_VALUE("2"),
+	GROUP_ROLE_TYPE_ID("GID"),
+	REMITTANCEWALLET_TYPE_ID("remittanceWalletTypeId"),
+	IMTSMSR_9022("9022"),
+	IMTSMSR_9024("9024"),
+	INACTIVE_STATUS("N"),
+	GROUP_LEVEL("2"),
+	;
+
+	private String strValue;
+
+	public String getStrValue() {
+		return strValue;
+	}
+
+	DbConstants(String strValue) {
+		this.strValue = strValue;
+	}
+
+}

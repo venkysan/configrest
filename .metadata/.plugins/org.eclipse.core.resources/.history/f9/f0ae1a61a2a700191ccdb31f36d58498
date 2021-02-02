@@ -1,0 +1,467 @@
+package com.comviva.mfs.controller.test;
+
+import static io.restassured.RestAssured.with;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
+import com.comviva.mfs.common.ErrorCodes;
+import com.comviva.mfs.common.MessageCodes;
+import com.comviva.mfs.constant.test.TestBaseConstants;
+import com.comviva.mfs.repository.GradeCheckerRepository;
+import com.comviva.mfs.repository.GradeMakerRepository;
+import com.comviva.mfs.util.GradeDataPreparationUtil;
+
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class GradeControllerValidationTest {
+
+	@LocalServerPort
+	private int port;
+	@MockBean
+	private GradeCheckerRepository gradeCheckerRepository;
+	@MockBean
+	private GradeMakerRepository gradeMakerRepository;
+
+	private MockMvc mockMvc;
+	@Autowired
+	private WebApplicationContext wac;
+
+	@Before
+	public void setup() {
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+	}
+
+	@Test
+	public void addGradesInitiateGradeCodeEmptyValidationErrorTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.post(GradeDataPreparationUtil.addGradeInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.addGradesInitialGradeCodeEmptyRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void addGradesInitiateGradeAlphaNumericAndLenghtCheckValidationErrorTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.post(GradeDataPreparationUtil.addGradeInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.addGradesInitialGradeCodeAlphaNumericRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void addGradesInitiateGradeNameEmptyValidationErrorTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.post(GradeDataPreparationUtil.addGradeInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.addGradesInitialGradeNameEmptyRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void addGradesInitiateGradeNameAlphaNumericValidationErrorTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.post(GradeDataPreparationUtil.addGradeInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.addGradesInitialGradeNameAlphaNumericRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void addGradesInitiateCategoryCodeEmptyValidationErrorTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.post(GradeDataPreparationUtil.addGradeInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.addGradesInitialCategoryCodeEmptyRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void addGradesInitiateCategoryCodeAlphaNumericValidationErrorTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.post(GradeDataPreparationUtil.addGradeInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.addGradesInitialCategoryCodeAlphaNumericRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void addGradeApprovalGradeMakerEmptyValidationErrorTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.post(GradeDataPreparationUtil.addGradeApprovalUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.addGradeApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void addGradeApprovalGradeGradeCodeEmptyValidationErrorTest() throws Exception {
+		when(gradeMakerRepository.getGradeByGradeCode(Mockito.anyString()))
+				.thenReturn(GradeDataPreparationUtil.getGradeMaker());
+
+		mockMvc.perform(MockMvcRequestBuilders.post(GradeDataPreparationUtil.addGradeApprovalGradeCodeNullUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.addGradeApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void addGradeApprovalGradeActionEmptyValidationErrorTest() throws Exception {
+		when(gradeMakerRepository.getGradeByGradeCode(Mockito.anyString()))
+				.thenReturn(GradeDataPreparationUtil.getGradeMaker());
+
+		mockMvc.perform(MockMvcRequestBuilders.post(GradeDataPreparationUtil.addGradeApprovalActionNullUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.addGradeApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void addGradeApprovalGradeGradeCodeAlphaNumericValidationErrorTest() throws Exception {
+		when(gradeMakerRepository.getGradeByGradeCode(Mockito.anyString()))
+				.thenReturn(GradeDataPreparationUtil.getGradeMaker());
+
+		mockMvc.perform(MockMvcRequestBuilders.post(GradeDataPreparationUtil.addGradeApprovalGradeCodeAlphaNumUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.addGradeApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void updateGradeApprovalActionRejectTest() throws Exception {
+		when(gradeMakerRepository.getGradeByGradeCode(Mockito.anyString()))
+				.thenReturn(GradeDataPreparationUtil.getGradeMaker());
+
+		mockMvc.perform(MockMvcRequestBuilders.put(GradeDataPreparationUtil.updateGradeRejectUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.updateGradeApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.SUCCESS_STATUS.getValue()));
+
+	}
+
+	@Test
+	public void updateGradeApprovalGradeCodeNullValidationErrorTest() throws Exception {
+		when(gradeMakerRepository.getGradeByGradeCode(Mockito.anyString()))
+				.thenReturn(GradeDataPreparationUtil.getGradeMaker());
+
+		mockMvc.perform(MockMvcRequestBuilders.put(GradeDataPreparationUtil.updateGradeApprovalCategoryCodeNullUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.updateGradeApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void updateGradeApprovalActionNullValidationErrorTest() throws Exception {
+		when(gradeMakerRepository.getGradeByGradeCode(Mockito.anyString()))
+				.thenReturn(GradeDataPreparationUtil.getGradeMaker());
+
+		mockMvc.perform(MockMvcRequestBuilders.put(GradeDataPreparationUtil.updateGradeApprovalActionNullUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.updateGradeApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void deleteGradeApprovalGradeCheckerValidationErrorTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.delete(GradeDataPreparationUtil.deleteGradeApprovalUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.deleteGradeApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void deleteGradeApprovalGradeCodeEmptyValidationErrorTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.delete(GradeDataPreparationUtil.deleteGradeApprovalGradeCodeNullUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.deleteGradeApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void deleteGradeApprovalActionEmptyValidationErrorTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.delete(GradeDataPreparationUtil.deleteGradeApprovalActionNullUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.deleteGradeApproveRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	// UpdateGreadeInitiateServices - Test Cases
+
+	@Test
+	public void updateGradesInitiateGradeAlphaNumericAndLenghtCheckValidationErrorTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.post(GradeDataPreparationUtil.addGradeInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.addGradesInitialGradeCodeEmptyRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void deleteGradeApprovalGradeGradeCodeAlphaNumericValidationErrorTest() throws Exception {
+
+		mockMvc.perform(
+				MockMvcRequestBuilders.delete(GradeDataPreparationUtil.deleteGradeApprovalGradeCodeAlphaNumUrl())
+						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+						.content(GradeDataPreparationUtil.deleteGradeApproveRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+	// UpdateGreadeInitiateServices - Test Cases
+
+	@Test
+	public void updateGradesInitiateGradeCodeEmptyValidationErrorTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.post(GradeDataPreparationUtil.addGradeInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.addGradesInitialGradeCodeEmptyRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void updateGradesInitiateGradeCodeAlphaNumericAndLenghtCheckValidationErrorTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.post(GradeDataPreparationUtil.addGradeInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.addGradesInitialGradeCodeEmptyRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void updateGradesInitiateGradeNameEmptyValidationErrorTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.post(GradeDataPreparationUtil.addGradeInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.addGradesInitialGradeNameEmptyRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void updateGradesInitiateGradeNameAlphaNumericValidationErrorTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.post(GradeDataPreparationUtil.addGradeInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.addGradesInitialGradeNameAlphaNumericRequest()))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void updateGradesInitiateGradeCheckerEmptyTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.put(GradeDataPreparationUtil.updateGradeInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.updateGradeInitialRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void updateGradesInitiateGradeMakerEmptyTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.put(GradeDataPreparationUtil.updateGradeInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.updateGradeInitialRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void updateGradesInitiateGradeMakerNotNullTest() throws Exception {
+		when(gradeMakerRepository.getGradeByGradeCode(Mockito.anyString()))
+				.thenReturn(GradeDataPreparationUtil.getGradeMaker());
+		when(gradeCheckerRepository.getGradeByGradeCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(GradeDataPreparationUtil.getGradeChecker());
+
+		mockMvc.perform(MockMvcRequestBuilders.put(GradeDataPreparationUtil.updateGradeInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.updateGradeInitialRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	// DeleteGreadeInitiateServices - Test Cases
+
+	@Test
+	public void deleteGradesInitiateGradesCheckerValidationErrorTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.delete(GradeDataPreparationUtil.deleteGradeInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.deleteGradeInitialRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void deleteGradesInitiateGradesMakerValidationErrorTest() throws Exception {
+		when(gradeCheckerRepository.getGradeByGradeCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(GradeDataPreparationUtil.getGradeChecker());
+		when(gradeMakerRepository.getGradeByGradeCode(Mockito.anyString()))
+				.thenReturn(GradeDataPreparationUtil.getGradeMaker());
+
+		mockMvc.perform(MockMvcRequestBuilders.delete(GradeDataPreparationUtil.deleteGradeInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.deleteGradeInitialRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void deleteGradesInitiateGradeCodeValidationErrorTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.delete(GradeDataPreparationUtil.deleteGradeInitiateGradeCodeNullUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.deleteGradeInitialRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+	}
+
+	@Test
+	public void getGradeCategoryCodeTest() throws Exception {
+		when(gradeCheckerRepository.getGradeByCategoryCode(Mockito.anyString(), Mockito.anyString()))
+				.thenReturn(GradeDataPreparationUtil.getGradeCheckerList());
+
+		mockMvc.perform(MockMvcRequestBuilders.get(GradeDataPreparationUtil.getGradesByCategoryCodeUrl())
+				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.SUCCESS_STATUS.getValue()));
+
+	}
+
+	@Test
+	public void getGradeCategoryCodeEmptyCaseTest() throws Exception {
+		// when(gradeCheckerRepository.getGradeByCategoryCode(Mockito.anyString(),
+		// Mockito.anyString())).thenReturn(null);
+
+		mockMvc.perform(MockMvcRequestBuilders.get(GradeDataPreparationUtil.getGradesByCategoryCodeUrl())
+				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void getGradeByGradeCodeTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.get(GradeDataPreparationUtil.getGradeByCodeServiceUrl())
+				.accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void updateGradeInitiateGradeCodeNullValidationTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.put(GradeDataPreparationUtil.updateGradeInitiateGradeCodeNullUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.updateGradeInitialRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void updateGradeInitiateActionNullValidationTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.put(GradeDataPreparationUtil.updateGradeInitiateActionNullUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.updateGradeInitialRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void updateGradeInitiateGradeCodeAlphaNumValidationTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.put(GradeDataPreparationUtil.updateGradeInitiateGradeCodeAlphaNumUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.updateGradeInitialRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+	@Test
+	public void updateGradeInitiateValidationTest() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.put(GradeDataPreparationUtil.updateGradeInitiateUrl())
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+				.content(GradeDataPreparationUtil.updateGradeInitialRequest())).andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath(TestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+						.value(TestBaseConstants.VALIDATION_ERROR_VAL.getValue()));
+
+	}
+
+}

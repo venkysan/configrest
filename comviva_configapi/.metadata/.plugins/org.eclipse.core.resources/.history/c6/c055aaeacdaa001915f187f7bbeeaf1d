@@ -1,0 +1,210 @@
+/** 
+ * COPYRIGHT: Comviva Technologies Pvt. Ltd.
+ * This software is the sole property of Comviva
+ * and is protected by copyright law and international
+ * treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of
+ * it may result in severe civil and criminal penalties
+ * and will be prosecuted to the maximum extent possible
+ * under the law. Comviva reserves all rights not
+ * expressly granted. You may not reverse engineer, decompile,
+ * or disassemble the software, except and only to the
+ * extent that such activity is expressly permitted
+ * by applicable law notwithstanding this limitation.
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT
+ * WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY
+ * AND THE USE OF THIS SOFTWARE. Comviva SHALL NOT BE LIABLE FOR
+ * ANY DAMAGES WHATSOEVER ARISING OUT OF THE USE OF OR INABILITY TO
+ * USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ **/
+package com.comviva.mfs.service.grade;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+
+import com.comviva.mfs.common.Constants;
+import com.comviva.mfs.common.MessageCodes;
+import com.comviva.mfs.common.ServiceRoleCodes;
+import com.comviva.mfs.common.ValidationException;
+import com.comviva.mfs.common.utils.CommonUtils;
+import com.comviva.mfs.entity.DomainChecker;
+import com.comviva.mfs.entity.GradeChecker;
+import com.comviva.mfs.entity.GradeMaker;
+import com.comviva.mfs.model.grade.AddGradeInitiateRequest;
+import com.comviva.mfs.model.grade.AddGradeInitiateResponse;
+import com.comviva.mfs.repository.DomainCheckerRepository;
+import com.comviva.mfs.repository.GradeCheckerRepository;
+import com.comviva.mfs.repository.GradeMakerRepository;
+import com.comviva.mfs.service.CommonService;
+
+/**
+ * AddGradeInitiateService class is methods to add grade initiate
+ * 
+ * @author Venkatesans
+ */
+@Service
+@Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class AddGradeInitiateService extends CommonService {
+
+    private GradeCheckerRepository gradeCheckerRepository;
+    private GradeMakerRepository gradeMakerRepository;
+    private GradeChecker gradeChecker;
+    private GradeMaker gradeMaker;
+    private AddGradeInitiateRequest addGradeInitiateRequest;
+
+    @Autowired
+    private DomainCheckerRepository domainCheckerRepository;
+
+    @Autowired
+    private KafkaTemplate<String, Object> kafkaTemplate;
+
+    @Autowired
+    public AddGradeInitiateService(GradeCheckerRepository gradeCheckerRepository,
+            GradeMakerRepository gradeMakerRepository) {
+        this.gradeCheckerRepository = gradeCheckerRepository;
+        this.gradeMakerRepository = gradeMakerRepository;
+    }
+
+    /**
+     * Add GradeInitiate
+     * @param addGradeInitiateRequest
+     * @return AddGradeInitiateResponse
+     */
+    public AddGradeInitiateResponse execute(AddGradeInitiateRequest addGradeInitiateRequest) {
+        Map<String, Object> constructAdminMap = new HashMap<>();
+        List<String> params = new ArrayList<>();
+        String isApprovalRequired;
+        this.addGradeInitiateRequest = addGradeInitiateRequest;
+        serviceRoleCode = ServiceRoleCodes.ADD_GRADE_INIT_ROLE.getStrValue();
+        super.initiate(addGradeInitiateRequest, serviceRoleCode);
+        validateInputs();
+        isApprovalRequired = addGradeInitiateRequest.getIsApprovalRequired();
+
+        if (null != isApprovalRequired && Constants.ACTIVE_STATUS.getStrValue().equals(isApprovalRequired)) {
+            populateGradeMakerDetials();
+            gradeMaker.setStatus(Constants.ADD_INITIATE_STATUS.getStrValue());
+            gradeMakerRepository.save(gradeMaker);
+            params.add(gradeMaker.getGradeCode());
+            params.add(gradeMaker.getGradeName());
+            constructAdminMap.put(NEW_OBJECT, gradeMaker);
+            responseMessageCode = MessageCodes.GRADE_ADD_INIT_SUCCESS.getStrValue();
+        } else {
+            populateGradeCheckerDetials();
+            gradeChecker.setStatus(Constants.ACTIVE_STATUS.getStrValue());
+            gradeCheckerRepository.save(gradeChecker);
+            params.add(gradeChecker.getGradeCode());
+            params.add(gradeChecker.getGradeName());
+            constructAdminMap.put(NEW_OBJECT, gradeChecker);
+            responseMessageCode = MessageCodes.GRADE_ADD_APPR_SUCCESS.getStrValue();
+            kafkaTemplate.send("gradeChecker", gradeChecker);
+        }
+        responseStatus = Constants.SUCCESS_RESPONSE.getStrValue();
+        createRequestResponseHistObject();
+        createAuditLogMap(constructAdminMap);
+        generateReponseMessage(params);
+        return createResponse();
+    }
+
+    private void populateGradeCheckerDetials() {
+        gradeChecker = new GradeChecker();
+        gradeChecker.setGradeId(gradeMakerRepository.getNextSeriesId());
+        gradeChecker.setGradeCode(addGradeInitiateRequest.getGradeCode());
+        gradeChecker.setGradeName(addGradeInitiateRequest.getGradeName());
+        gradeChecker.setCategoryCode(addGradeInitiateRequest.getCategoryCode());
+        gradeChecker.setStatus(addGradeInitiateRequest.getIsApprovalRequired());
+        gradeChecker.setCreatedBy(addGradeInitiateRequest.getIdentifierValue());
+        gradeChecker.setCreatedOn(new Date());
+        gradeChecker.setModifiedBy(addGradeInitiateRequest.getIdentifierValue());
+        gradeChecker.setModifiedOn(new Date());
+
+    }
+
+    private void populateGradeMakerDetials() {
+        gradeMaker = new GradeMaker();
+        gradeMaker.setGradeId(gradeMakerRepository.getNextSeriesId());
+        gradeMaker.setGradeCode(addGradeInitiateRequest.getGradeCode());
+        gradeMaker.setGradeName(addGradeInitiateRequest.getGradeName());
+        gradeMaker.setCategoryCode(addGradeInitiateRequest.getCategoryCode());
+        gradeMaker.setStatus(addGradeInitiateRequest.getIsApprovalRequired());
+        gradeMaker.setCreatedBy(addGradeInitiateRequest.getIdentifierValue());
+        gradeMaker.setCreatedOn(new Date());
+        gradeMaker.setModifiedBy(addGradeInitiateRequest.getIdentifierValue());
+        gradeMaker.setModifiedOn(new Date());
+
+    }
+
+    /**
+     * Validate the request parameters
+     */
+    @Override
+    public void validateInputs() {
+        if (CommonUtils.isNullorEmpty(addGradeInitiateRequest.getGradeCode())) {
+            throw new ValidationException(Constants.GRADE_CODE.getStrValue(),
+                    MessageCodes.FIELD_MANDATORY.getStrValue());
+        } else if (!CommonUtils.isAlphaNumericAndLenghtCheck(addGradeInitiateRequest.getGradeCode(),
+                addGradeInitiateRequest.getGradeCode().length(), Constants.GRADE_CODE_LENGTH.getIntValue())) {
+            throw new ValidationException(Constants.GRADE_CODE.getStrValue(),
+                    MessageCodes.FIELD_ALPHANUMERIC.getStrValue());
+        }
+        if (CommonUtils.isNullorEmpty(addGradeInitiateRequest.getGradeName())) {
+            throw new ValidationException(Constants.GRADE_NAME.getStrValue(),
+                    MessageCodes.FIELD_MANDATORY.getStrValue());
+        } else if (!CommonUtils.isAlphaNumericAndLenghtCheck(addGradeInitiateRequest.getGradeName(),
+                addGradeInitiateRequest.getGradeName().length(), Constants.GRADE_NAME_LENGTH.getIntValue())) {
+            throw new ValidationException(Constants.GRADE_NAME.getStrValue(),
+                    MessageCodes.FIELD_ALPHANUMERIC.getStrValue());
+        }
+        if (CommonUtils.isNullorEmpty(addGradeInitiateRequest.getCategoryCode())) {
+            throw new ValidationException(Constants.CATEGORY_CODE.getStrValue(),
+                    MessageCodes.FIELD_MANDATORY.getStrValue());
+        } else if (!CommonUtils.isAlphaNumericAndLenghtCheck(addGradeInitiateRequest.getCategoryCode(),
+                addGradeInitiateRequest.getCategoryCode().length(), Constants.CATEGORY_CODE_LENGTH.getIntValue())) {
+            throw new ValidationException(Constants.CATEGORY_CODE.getStrValue(),
+                    MessageCodes.FIELD_ALPHANUMERIC.getStrValue());
+        }
+        domainChecker = domainCheckerRepository.getDomainByDomainCode(Constants.YES.getStrValue(), addGradeInitiateRequest.getDomainCode());
+        if (domainChecker == null) {
+            throw new ValidationException(addGradeInitiateRequest.getDomainCode(), MessageCodes.DOMAIN_NOT_FOUND.getStrValue());
+        }
+        gradeMaker = gradeMakerRepository.getGradeByGradeCode(addGradeInitiateRequest.getGradeCode());
+        if (gradeMaker != null) {
+            throw new ValidationException(addGradeInitiateRequest.getGradeCode(),
+                    MessageCodes.GRADE_UNDER_APROVAL.getStrValue());
+        }
+        gradeChecker = gradeCheckerRepository.getGradeByGradeCode(Constants.YES.getStrValue(),
+                addGradeInitiateRequest.getGradeCode());
+        if (gradeChecker != null) {
+            throw new ValidationException(addGradeInitiateRequest.getGradeCode(),
+                    MessageCodes.GRADE_ALREADY_EXISTS.getStrValue());
+        }
+    }
+
+    /**
+     * Construct the AddGradeInitiateResponse
+     * 
+     * return AddGradeInitiateResponse
+     */
+    @Override
+    public AddGradeInitiateResponse createResponse() {
+        AddGradeInitiateResponse gradeResponse = new AddGradeInitiateResponse();
+        gradeResponse.setStatus(responseStatus);
+        gradeResponse.setExternalRefId(addGradeInitiateRequest.getExternalRefId());
+        gradeResponse.setReferenceId(referenceId);
+        gradeResponse.setMessage(responseMessage);
+        return gradeResponse;
+    }
+
+}

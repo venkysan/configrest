@@ -1,0 +1,21 @@
+
+~squid:CommentedOutCodeLineb"<This block of commented-out lines of code should be removed.(™Ÿ„K8ˆÅ—Â-Hë$RMAJORZ
+CODE_SMELL
+Å%squid:RedundantThrowsDeclarationCheck€"vRemove the declaration of thrown exception 'com.comviva.mfs.common.ApplicationException' which is a runtime exception.(æè¾8ˆÅ—Â-Hç$RMINORZ
+CODE_SMELL
+É%squid:RedundantThrowsDeclarationCheckX"vRemove the declaration of thrown exception 'com.comviva.mfs.common.ApplicationException' which is a runtime exception.(Û¹œøÿÿÿÿ8ˆÅ—Â-Hæ$RMINORZ
+CODE_SMELL
+qsquid:S2629ø"7Use the built-in formatting to construct this argument.(åÊµ×þÿÿÿÿ8ˆÅ—Â-Hâ$RMAJORZ
+CODE_SMELL
+Ä%squid:RedundantThrowsDeclarationCheckk"vRemove the declaration of thrown exception 'com.comviva.mfs.common.ApplicationException' which is a runtime exception.(ÍŸ¼à8ˆÅ—Â-Hå$RMINORZ
+CODE_SMELL
+{squid:S3457æ"AFormat specifiers should be used instead of string concatenation.(åÊµ×þÿÿÿÿ8ˆÅ—Â-Hè$RMAJORZ
+CODE_SMELL
+{squid:S3457ø"AFormat specifiers should be used instead of string concatenation.(åÊµ×þÿÿÿÿ8ˆÅ—Â-Hé$RMAJORZ
+CODE_SMELL
+qsquid:S2629æ"7Use the built-in formatting to construct this argument.(åÊµ×þÿÿÿÿ8ˆÅ—Â-Hã$RMAJORZ
+CODE_SMELL
+„squid:CommentedOutCodeLineQ"<This block of commented-out lines of code should be removed.(¸à÷’úÿÿÿÿ8ˆÅ—Â-Hê$RMAJORZ
+CODE_SMELL
+Ä%squid:RedundantThrowsDeclarationCheckD"vRemove the declaration of thrown exception 'com.comviva.mfs.common.ApplicationException' which is a runtime exception.(©á…™8ˆÅ—Â-Hä$RMINORZ
+CODE_SMELL

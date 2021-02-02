@@ -1,0 +1,4 @@
+GitRepositoriesView.GitDirectories=C\:\\Users\\venkatesans\\comviva-javaproject\\comviva_configapi\\mds\\.git;C\:\\Users\\venkatesans\\comviva-javaproject\\comviva_configapi\\mds-consumer\\.git;
+GitRepositoriesView.GitDirectories.relative=mds\\.git;mds-consumer\\.git;
+core_autoIgnoreDerivedResources=false
+eclipse.preferences.version=1

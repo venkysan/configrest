@@ -1,0 +1,164 @@
+/** 
+ * COPYRIGHT: Comviva Technologies Pvt. Ltd.
+ * This software is the sole property of Comviva
+ * and is protected by copyright law and international
+ * treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of
+ * it may result in severe civil and criminal penalties
+ * and will be prosecuted to the maximum extent possible
+ * under the law. Comviva reserves all rights not
+ * expressly granted. You may not reverse engineer, decompile,
+ * or disassemble the software, except and only to the
+ * extent that such activity is expressly permitted
+ * by applicable law notwithstanding this limitation.
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT
+ * WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY
+ * AND THE USE OF THIS SOFTWARE. Comviva SHALL NOT BE LIABLE FOR
+ * ANY DAMAGES WHATSOEVER ARISING OUT OF THE USE OF OR INABILITY TO
+ * USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ **/
+package com.comviva.mfs.service.category;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+
+import com.comviva.mfs.common.Constants;
+import com.comviva.mfs.common.MessageCodes;
+import com.comviva.mfs.common.ServiceRoleCodes;
+import com.comviva.mfs.common.ValidationException;
+import com.comviva.mfs.common.utils.CommonUtils;
+import com.comviva.mfs.entity.CategoryChecker;
+import com.comviva.mfs.entity.CategoryMaker;
+import com.comviva.mfs.model.category.DeleteCategoryInitiateRequest;
+import com.comviva.mfs.model.category.DeleteCategoryInitiateResponse;
+import com.comviva.mfs.repository.CategoryCheckerRepository;
+import com.comviva.mfs.repository.CategoryMakerRepository;
+import com.comviva.mfs.service.CommonService;
+
+/**
+ * This service used for Delete Category Initiate
+ * 
+ * @author sudharshans
+ */
+@Service
+@Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class DeleteCategoryInitiateService extends CommonService {
+
+    private String categoryCode;
+    private CategoryChecker categoryChecker;
+    private CategoryCheckerRepository categoryCheckerRepository;
+    private CategoryMakerRepository categoryMakerRepository;
+    private DeleteCategoryInitiateRequest deleteCategoryInitiateRequest;
+
+    @Autowired
+    private KafkaTemplate<String, Object> kafkaTemplate;
+
+    /**
+     * Construct DeleteCategoryInitiateService with service
+     * 
+     * @param categoryCheckerRepository
+     *            - categoryCheckerRepository
+     * @param categoryMakerRepository
+     *            - categoryMakerRepository
+     */
+    @Autowired
+    public DeleteCategoryInitiateService(CategoryCheckerRepository categoryCheckerRepository,
+            CategoryMakerRepository categoryMakerRepository) {
+        this.categoryCheckerRepository = categoryCheckerRepository;
+        this.categoryMakerRepository = categoryMakerRepository;
+    }
+
+    /**
+     * Execution of delete category with request parameters
+     * 
+     * @param categoryCode
+     *            - category code
+     * @param deleteCategoryInitiateRequest
+     *            - request parameters
+     * @return DeleteCategoryInitiateResponse - response with status
+     */
+    public DeleteCategoryInitiateResponse execute(String categoryCode,
+            DeleteCategoryInitiateRequest deleteCategoryInitiateRequest) {
+        String isApprovalRequired;
+        this.categoryCode = categoryCode;
+        this.deleteCategoryInitiateRequest = deleteCategoryInitiateRequest;
+        serviceRoleCode = ServiceRoleCodes.DELETE_CATEGORY_INIT_ROLE.getStrValue();
+        super.initiate(deleteCategoryInitiateRequest, serviceRoleCode);
+        validateInputs();
+        isApprovalRequired = deleteCategoryInitiateRequest.getIsApprovalRequired();
+        Map<String, Object> constructAdminMap = new HashMap<>();
+        List<String> params = new ArrayList<>();
+        if (Constants.ACTIVE_STATUS.getStrValue().equals(isApprovalRequired)) {
+            CategoryMaker categoryMaker = new CategoryMaker();
+            copyObjects(categoryMaker, categoryChecker);
+            categoryMaker.setStatus(Constants.DELETE_INITIATE_STATUS.getStrValue());
+            categoryMakerRepository.save(categoryMaker);
+            constructAdminMap.put(NEW_OBJECT, categoryMaker);
+            constructAdminMap.put(OLD_OBJECT, categoryChecker);
+            params.add(categoryMaker.getCategoryName());
+            responseMessageCode = MessageCodes.CATEGORY_DELETE_INIT_SUCCESS.getStrValue();
+        } else {
+            constructAdminMap.put(OLD_OBJECT, categoryChecker);
+            categoryChecker.setStatus(Constants.INACTIVE_STATUS.getStrValue());
+            categoryCheckerRepository.save(categoryChecker);
+            constructAdminMap.put(NEW_OBJECT, categoryChecker);
+            params.add(categoryChecker.getCategoryName());
+            responseMessageCode = MessageCodes.CATEGORY_DELETE_APPR_SUCCESS.getStrValue();
+            kafkaTemplate.send("categoryChecker", categoryChecker);
+        }
+        responseStatus = Constants.SUCCESS_RESPONSE.getStrValue();
+        createRequestResponseHistObject();
+        createAuditLogMap(constructAdminMap);
+        generateReponseMessage(params);
+        return createResponse();
+    }
+
+    /**
+     * Construct for DeleteCategoryInitiate response
+     * 
+     * @return DeleteCategoryInitiateResponse
+     */
+    @Override
+    public DeleteCategoryInitiateResponse createResponse() {
+        DeleteCategoryInitiateResponse deleteInitiateCategoryResponse = new DeleteCategoryInitiateResponse();
+        deleteInitiateCategoryResponse.setStatus(responseStatus);
+        deleteInitiateCategoryResponse.setExternalRefId(deleteCategoryInitiateRequest.getExternalRefId());
+        deleteInitiateCategoryResponse.setReferenceId(referenceId);
+        deleteInitiateCategoryResponse.setMessage(responseMessage);
+        return deleteInitiateCategoryResponse;
+    }
+
+    
+    /**
+     * Input validation
+     */
+    @Override
+    public void validateInputs() {
+        
+        if (CommonUtils.isNullorEmpty(categoryCode)) {
+            throw new ValidationException("Category Code", MessageCodes.FIELD_MANDATORY.getStrValue());
+        }
+        categoryChecker = categoryCheckerRepository.getCategoryByCategoryCode(Constants.YES.getStrValue(),
+                categoryCode);
+        if (categoryChecker == null) {
+            throw new ValidationException(categoryCode, MessageCodes.CATEGORY_CODE_NOT_FOUND.getStrValue());
+        }
+        CategoryMaker categoryMaker = categoryMakerRepository.getCategoryByCategoryCode(categoryCode);
+        if (categoryMaker != null) {
+            throw new ValidationException(categoryCode, MessageCodes.UNDER_APPROVAL.getStrValue());
+        }
+    }
+
+}

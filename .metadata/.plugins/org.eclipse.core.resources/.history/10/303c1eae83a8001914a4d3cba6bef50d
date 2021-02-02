@@ -1,0 +1,108 @@
+package com.comviva.mfs.entity;
+
+import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import lombok.EqualsAndHashCode;
+
+@Entity
+@Table(name = "MTX_CATEGORY_RELATIONS_M")
+@EqualsAndHashCode
+public class CategoryRelationsMaker {
+
+	@Id
+	@GeneratedValue
+	@Column(name = "ID")
+	private long id;
+
+	@Column(name = "FROM_CATEGORY")
+	private String fromCategory;
+
+	@Column(name = "STATUS")
+	private String status;
+	
+	@Column(name = "APPLICATION_ID")
+	private String applicationId;
+
+	@Column(name = "RELATION_TYPE")
+	private String relationType;
+	
+	@Column(name = "CREATED_BY")
+	private String createdBy;
+
+	@Column(name = "TO_CATEGORY")
+	private String toCategory;
+
+	@Column(name = "CREATED_ON")
+	private Date createdOn;
+	
+
+	public long getId() {
+		return id;
+	}
+
+	public String getFromCategory() {
+		return fromCategory;
+	}
+
+	public void setFromCategory(String fromCategory) {
+		this.fromCategory = fromCategory;
+	}
+
+	public String getToCategory() {
+		return toCategory;
+	}
+
+	public void setToCategory(String toCategory) {
+		this.toCategory = toCategory;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getRelationType() {
+		return relationType;
+	}
+
+	public void setRelationType(String relationType) {
+		this.relationType = relationType;
+	}
+
+	public String getApplicationId() {
+		return applicationId;
+	}
+
+	public void setApplicationId(String applicationId) {
+		this.applicationId = applicationId;
+	}
+
+	public Date getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(Date createdOn) {
+		this.createdOn = createdOn;
+	}
+	
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+}

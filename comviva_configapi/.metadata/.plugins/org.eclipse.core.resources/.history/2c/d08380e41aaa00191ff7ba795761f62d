@@ -1,0 +1,104 @@
+package com.comviva.mfs.service.grade;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Service;
+
+import com.comviva.mfs.common.Constants;
+import com.comviva.mfs.common.MessageCodes;
+import com.comviva.mfs.common.ServiceRoleCodes;
+import com.comviva.mfs.common.ValidationException;
+import com.comviva.mfs.common.utils.CommonUtils;
+import com.comviva.mfs.entity.GradeChecker;
+import com.comviva.mfs.model.BaseRequest;
+import com.comviva.mfs.model.grade.GetGradeDetailsByCategoryResponse;
+import com.comviva.mfs.repository.GradeCheckerRepository;
+import com.comviva.mfs.repository.SysMessagesRepository;
+import com.comviva.mfs.service.CommonService;
+
+/**
+ * GetAllGradeByCategoryService class is methods to getAll grade By code
+ * 
+ * @author Venkatesans
+ */
+
+@Service
+@Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class GetAllGradeByCategoryService extends CommonService {
+
+    private String categoryCode;
+    private List<GradeChecker> allGradeList;
+    private GradeCheckerRepository gradeCheckerRepository;
+
+    /**
+     * @param sysMessagesRepository
+     * @param gradeCheckerRepository
+     */
+    @Autowired
+    public GetAllGradeByCategoryService(SysMessagesRepository sysMessagesRepository,
+            GradeCheckerRepository gradeCheckerRepository) {
+        this.sysMessagesRepository = sysMessagesRepository;
+        this.gradeCheckerRepository = gradeCheckerRepository;
+    }
+
+    /**
+     * Get GradeDetails
+     * @param categoryCode
+     * @param identifierType
+     * @param identifierValue
+     * @param bearerCode
+     * @return GetGradeDetailsByCategoryResponse
+     */
+    public GetGradeDetailsByCategoryResponse execute(String categoryCode, String identifierType, String identifierValue,
+            String bearerCode) {
+        List<String> params = new ArrayList<>();
+        BaseRequest request = new BaseRequest();
+        this.categoryCode = categoryCode;
+        request.setIdentifierType(identifierType);
+        request.setIdentifierValue(identifierValue);
+        request.setBearerCode(bearerCode);
+        serviceRoleCode = ServiceRoleCodes.VIEW_GRADE_ROLE.getStrValue();
+        super.initiate(request, serviceRoleCode);
+        validateInputs();        
+        responseMessageCode = MessageCodes.SUCCESS.getStrValue();      
+        responseStatus = Constants.SUCCESS_RESPONSE.getStrValue();
+        generateReponseMessage(params);
+        return createResponse();
+    }
+
+    /**
+     * Validate the request parameters
+     */
+    @Override
+    public void validateInputs() {
+        if (CommonUtils.isNullorEmpty(categoryCode)) {
+            throw new ValidationException(Constants.CATEGORY_CODE.getStrValue(),
+                    MessageCodes.FIELD_MANDATORY.getStrValue());
+        }
+        allGradeList = gradeCheckerRepository.getGradeByCategoryCode(Constants.YES.getStrValue(), categoryCode);
+        if (null == allGradeList || allGradeList.isEmpty()) {
+            throw new ValidationException(categoryCode, MessageCodes.NO_RECORDS_FOUND.getStrValue());
+        }
+    }
+
+    /**
+     * Construct the GetGradeDetailsByCategoryResponse
+     * 
+     * return GetGradeDetailsByCategoryResponse
+     */
+    @Override
+    public GetGradeDetailsByCategoryResponse createResponse() {
+        GetGradeDetailsByCategoryResponse getGradeDetailsByCategoryResponse = new GetGradeDetailsByCategoryResponse();
+        getGradeDetailsByCategoryResponse.setStatus(responseStatus);
+        getGradeDetailsByCategoryResponse.setMessage(responseMessage);
+        getGradeDetailsByCategoryResponse.setAllGradeList(allGradeList);
+        getGradeDetailsByCategoryResponse.setReferenceId(referenceId);
+        return getGradeDetailsByCategoryResponse;
+    }
+
+}

@@ -1,0 +1,34 @@
+package com.comviva.mfs.constant.test;
+
+public enum DomainTestConstants {
+	GET_DOMAIN("domains"),
+	ADD_DOMAIN("domains/"),
+	GET_SINGLE_DOMAIN("domains/intre"),
+	EXTERNAL_REF_ID("123456"),
+	DOMAIN_CODE("intre"),
+	DOMAIN_NAME("intwhole"),
+	DOMAIN_NAME_UPDATED("newname"),
+	NUM_OF_CAT("5"),
+	IS_APPROVAL_REQUIRED("Y"),
+	ACTION("APPROVE"),
+	ACTION_REJECT("REJECT"),
+	DOMAIN_TYPE_CODE("DISTB_CHAN"),
+	STATUS("AI"),
+	SUCCESS_STATUS("Y"),
+	APPLICATION_CODE("2"),
+	NULL_VALUE(""),
+	DOMAIN_SEQ_NUM("5"),
+	DOMAIN_CODE_LENGTH_CHECK("retasaaaaaaaaaaaaaaaaaaaaa")
+	;
+	
+	private String value;
+	
+	private DomainTestConstants(String value) {
+		this.value = value;
+	}
+	
+	public String getValue() {
+		return this.value;
+	}
+
+}

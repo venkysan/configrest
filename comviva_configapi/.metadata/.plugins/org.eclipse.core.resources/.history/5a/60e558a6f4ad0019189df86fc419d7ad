@@ -1,0 +1,196 @@
+package com.comviva.mfs.common;
+
+import lombok.Getter;
+
+@Getter
+public enum Constants {
+
+	DEFAULT_LANG(1),
+    ACTIVE_STATUS("Y"),
+    INACTIVE_STATUS("N"),
+    YES("Y"),
+    NO("N"),
+    WEB("WEB"),
+    WALLET("WALLET"),
+    ALL("ALL"),
+    INITIATOR("INITIATOR"),
+
+    SUSPENDED("S"),
+    ADD_INITIATE_STATUS("AI"),
+    UPDATE_INITIATE_STATUS("UI"),
+    DELETE_INITIATE_STATUS("DI"),
+
+    GENERIC_ERROR_MESSAGE("GENERIC ERROR IN MDS"),
+    SUCCESS_RESPONSE("200"),
+    SUCCESS_MESSAGE ("Success"),
+    ACTION("APPROVE"),
+    BEARER_CODE("BEARER_CODE"),
+    BANK("BANK"),
+
+    ADD_DOMAIN_INIT_ROLE("ADD_INI_DOM"),
+    ADD_DOMAIN_APPR_ROLE("ADD_APP_DOM"),
+    UPDATE_DOMAIN_INIT_ROLE("MOD_INI_DOM"),
+    UPDATE_DOMAIN_APPR_ROLE("MOD_APP_DOM"),
+    DELETE_DOMAIN_INIT_ROLE("DEL_INI_DOM"),
+    DELETE_DOMAIN_APPR_ROLE("DEL_APP_DOM"),
+    VIEW_SINGLE_DOMAIN_ROLE("GET_DOM"),
+    VIEW_ALL_DOMAINS_ROLES("GET_ALL_DOM"),
+
+    ADD_CATEGORY_INIT_ROLE("ADD_CAT"),
+    ADD_CATEGORY_APPR_ROLE("CAT_APPRL"),
+    UPDATE_CATEGORY_INIT_ROLE("MODIFY_CAT"),
+    UPDATE_CATEGORY_APPR_ROLE("UPDATE_CAT_APPR"),
+    DELETE_CATEGORY_INIT_ROLE("DELETE_CAT_INIT"),
+    DELETE_CATEGORY_APPR_ROLE("DELETE_CAT_APPR"),
+    GET_ALL_CATEGORY("GET_ALL_CAT"),
+    GET_CATEGORY_BY_CATEGORY_CODE("GET_CAT_CODE"),
+    GET_CATEGORY_BY_DOMAIN_CODE("GET_CAT_DOMAIN"),
+    GET_CATEGORY_BY_DOMAIN_CATEGORY_CODE("GET_CAT_DOM_CAT_CODE"),
+    GET_CATEGORY_RELATION_BY_CODE("GET_CAT_RELATION"),
+
+    ADD_GRADE_INIT_ROLE("ADD_GRADES"),
+    ADD_GRADE_APPR_ROLE("ADD_GRADES_APPR"),
+    UPDATE_GRADE_INIT_ROLE("MODIFY_GRADES"),
+    UPDATE_GRADE_APPR_ROLE("MODIFY_GRADES_APPR"),
+    DELETE_GRADE_INIT_ROLE("DELETE_GRADES"),
+    DELETE_GRADE_APPR_ROLE("DELETE_GRADES_APPR"),
+    VIEW_GRADE("VIEW_GRADES"),
+
+    GET_ALL_GROUP_ROLES("GET_ALL_GRR"),
+    GET_GROUP_ROLES_BY_CODE("GRP_ROL_VIEW"),
+    
+    
+    ADD_GROUP_ROLE_INIT_ROLE("GRP_ROL"),
+    ADD_GROUP_ROLE_APPR_ROLE("GRP_ROL"),
+    DELETE_GROUP_ROLE_INIT_ROLE("GRP_ROL"),
+    DELETE_GROUP_ROLE_APPR_ROLE("GRP_ROL"),
+    UPDATE_GROUP_ROLE_INIT_ROLE("GRP_ROL"),
+    UPDATE_GROUP_ROLE_APPR_ROLE("GRP_ROL"),
+    
+    ADD_TRANSFER_RULES_INIT_ROLE("T_RULESAPP"),
+    ADD_TRANSFER_RULES_APPR_ROLE("T_RULESAPP"),
+       
+    UPDATE_TRANSFER_RULE_INIT_ROLE("T_RULESAPP"),
+    UPDATE_TRANSFER_RULE_APPR_ROLE("T_RULESAPP"),
+    DELETE_TRANSFER_RULE_INIT_ROLE("T_RULESAPP"),
+    DELETE_TRANSFER_RULE_APPR_ROLE("T_RULESAPP"),
+    GET_TRANSFER_RULES_BY_ID("GET_TR_BY_ID"),
+    ADD_O2C_TRANSFER_RULES_INIT_ROLE("O2C_TRULES"),
+    ADD_O2C_TRANSFER_RULES_APPR_ROLE("O2C_TRULES"),
+    UPDATE_O2C_TRANSFER_RULE_INIT_ROLE("O2C_TRULES"),
+    UPDATE_O2C_TRANSFER_RULE_APPR_ROLE("O2C_TRULES"),
+    DELETE_O2C_TRANSFER_RULE_INIT_ROLE("O2C_TRULES"),
+    DELETE_O2C_TRANSFER_RULE_APPR_ROLE("O2C_TRULES"),
+    
+
+    DOMAIN_NAME_LENGTH(50),
+    DOMAIN_CODE_LENGTH(10),
+    NUMBER_OF_CAT_LENGTH(5),
+
+    GRADE_CODE_LENGTH(10),
+    GRADE_NAME_LENGTH(40),
+    CATEGORY_CODE_LENGTH(10),
+    CATEGORY_NAME_LENGTH(50),
+    GROUPROLE_CODE_LENGTH(35),
+    GROUPROLE_NAME_LENGTH(50),
+   
+    GRADE_CODE("Grade Code"),
+    GRADE_NAME("Grade Name"),
+    CATEGORY_CODE("Category Code"),
+    REGISTRATION_TYPE("Registration type"),
+    CATEGORY_DETAILS("Category Details"),
+    PAYER_SELECTION_WALLET_SERVICE("Please select altleast one payer Wallet Service"),
+    PAYEE_SELECTION_WALLET_SERVICE("Please select altleast one payee Wallet Service"),
+    INITIATOR_SELECTION_WALLET_SERVICE("Please select altleast one initiator Wallet Service"),
+    PAYER_SELECTION_BANK_SERVICE("Please select altleast one payer Bank Service"),
+    PAYEE_SELECTION_BANK_SERVICE("Please select altleast one payee Bank Service"),
+    INITIATOR_SELECTION_BANK_SERVICE("Please select altleast one initiator Bank Service"),
+    CATEGORY_NAME("Category Name"),
+    ACTION_CODE("Action"),
+    DOMAIN_CODE("Domain Code"),
+    APPLICATION_CODE("Application Code"),
+    DOMAIN_NAME("Domain Name"),
+    NUMBER_OF_CAT("Number of Cat"),
+    GROUP_ROLE_CODE("Group Role Code"),
+    GROUP_ROLE_NAME("Group Role Name"),
+
+    SERVICE_LIST("Service List"),
+    SERVICE_TYPE("Service Type"),
+    SERVICE_PYMT_ID("Service Pymt Id"),
+    SERVIE_NAME("Service Name"),
+    SERVICE_STATUS("Service Status"),
+    INITIATE_TYPE("Initiate type"),
+    
+    TRANSFER_RULE_TYPE("Transfer Rule Type"),
+    GRPH_DOMAIN_CODE("Grph Domain Code"),
+    
+    
+    TRANSFER_RULE_APPROVE_REQ("Approval Required"),
+   
+    
+    USER_TYPE_PAYER("PAYER"),
+    USER_TYPE_PAYEE("PAYEE"),
+    
+    ROLE_TYPE("Role Type"),
+    
+    TRANSFER_RULE_ID_NOT_FOUND("Transfer Rule Id not Found"),
+    TRANSFER_RULE_ID("Transfer Rule Id"),
+    GRPH_DOMAINCODE("GrphDomainCode"),
+    PAYER_CATEGORY_CODE("PayerCategoryCode"),
+    PAYEE_CATEGORY_CODE("PayeeCategoryCode"),
+    FOC_ALLOWED("focAllowed"),
+    PAYER_PAYMENT_METHODTYPE("payerpaymentMethodType"),
+    PAYEE_PAYMENT_METHODTYPE("payeepaymentMethodType"),
+    PAYER_BANKID("Payer Bank Id"),
+    PAYEE_BANKID("Payee Bank Id"),
+    PAYER_PROVIDERID("Payer Provider Id"),
+    PAYEE_PROVIDERID("Payee Provider Id"),
+    PAYER_PAYMENTTYPEID("Payer Payment Type Id"),
+    PAYEE_PAYMENTTYPEID("Payee Payment Type Id"),
+    PAYER_GRADECODE("Payer Grade Code"),
+    PAYEE_GRADECODE("Payee Grade Code"),
+    PARENT_ASSOCALLOWED("Parentassoc Allowed"),
+    RES_MSISDN_ALLOWED("ResMsisdn allowed"),
+    BYPASS_ALLOWED("Bypass Allowed"),
+    DIRECT_TRANSFER_ALLOWED("Direct Transfer Allowed"),
+    UNCONTROLED_TRANSFER_ALLOWED("Un Controled Transfer Allowed"),
+    TRANSFER_CATEGORY("Transfer Category"),
+    TRANSFER_TYPE("TransferType"),
+    UNCONTROLLED_TRANSFER_LEVEL("Un Controlled Transfer Level"),
+    FIXED_TRANSFER_CATEGORY("Fixed Transfer Category"),
+    FIXED_TRANSFER_LEVEL("Fixed Transfer Level"),
+    CONTROLLED_TRANSFER_LEVEL("Controlled Transfer Level"),
+    APPLICATION_ID("2"),
+    OWNER("OWNER"),
+    PARENT("PARENT"),
+    PARENT_CAT("Parent Category"),
+    MODULE_CODE("moduleCode"),
+    ROLE_NAME("roleName"),
+    ROLE_CODE("roleCode"),
+    SERVICE_PAYMT_ID("servicePymtId"),
+    SERVICE_BEARER_CODE("bearerCode"),
+    SELECTED("Selected"),
+    PROVIDER_ID("Provider Id"),
+    PAYMENT_INSTRUMENT_TYPE("Pyament Type"),
+    APPROVAL_LIMIT1("First Approval Limit"),
+    O2C_SERVICE("O2C"),
+    OPERATOR("OPT"),
+    TRANSFER_TYPE_SALE("TR_SALE"),
+    FIRST_LEVEL_LIMIT_APPROVAL("A1"),
+    CURRENCY_FACTOR("CURRENCY_FACTOR"),
+    PROFILE_NAME("Profile Name"),
+    IS_APPROVAL_REQUIRED("isApprovalRequired"),
+    ;
+
+	private String strValue;
+	private int intValue;
+
+	Constants(String strValue) {
+		this.strValue = strValue;
+	}
+
+	Constants(int intValue) {
+		this.intValue = intValue;
+	}
+
+}

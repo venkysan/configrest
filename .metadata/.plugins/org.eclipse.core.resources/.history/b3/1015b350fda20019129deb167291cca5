@@ -1,0 +1,26 @@
+package com.comviva.mfs.util;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+import com.comviva.mfs.constant.test.TestBaseConstants;
+
+import com.comviva.mfs.entity.TransferControlProfile;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public class TransferControlProfileDataPreparationUtil {
+
+	static ObjectMapper objectMapper = new ObjectMapper();
+
+	
+	public static String getAllInstrumentLevelTcpsRequest() {
+		return CommonUtilTest.convertObjectToJson();
+	}
+	
+	
+	
+	
+	
+}

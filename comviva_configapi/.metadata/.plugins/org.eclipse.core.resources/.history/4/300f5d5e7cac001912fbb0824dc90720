@@ -1,0 +1,39 @@
+package com.comviva.mfs.category.service.test;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+
+import com.comviva.mfs.MdsApplication;
+import com.comviva.mfs.common.Constants;
+import com.comviva.mfs.datadrive.test.CategoryDataPreparationUtil;
+import com.comviva.mfs.model.category.AddCategoryInitiateResponse;
+import com.comviva.mfs.repository.CategoryCheckerRepository;
+import com.comviva.mfs.repository.CategoryMakerRepository;
+import com.comviva.mfs.service.category.AddCategoryInitiateService;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = MdsApplication.class)
+@WebAppConfiguration
+public class AddCategoryInitiateServiceTest {
+    
+    @MockBean
+    private CategoryCheckerRepository categoryCheckerRepository;
+    @MockBean
+    private CategoryMakerRepository categoryMakerRepository;
+    @Autowired
+    private AddCategoryInitiateService addCategoryInitiateService;
+    
+    @Test
+    public void testAddCategoryApproveService() {
+        AddCategoryInitiateResponse response = addCategoryInitiateService.execute(CategoryDataPreparationUtil.getAddCategoryInitialRequest());
+        assertThat("validation status",response.getStatus(),is(Constants.SUCCESS_RESPONSE.getStrValue()));
+    }
+}

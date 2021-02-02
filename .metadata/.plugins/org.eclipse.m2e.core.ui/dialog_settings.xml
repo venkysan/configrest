@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="MavenProjectImportWizardPage">
+		<list key="rootDirectory">
+			<item value="C:\Users\venkatesans\comviva-javaproject\comviva_configapi\mds"/>
+			<item value="C:\Users\venkatesans\comviva-javaproject\comviva_configapi\mds-consumer"/>
+			<item value="D:\venky\mobiquity\CoreWeb"/>
+			<item value="C:\Users\venkatesans\comviva-javaproject\comviva_configapi\new\mds"/>
+			<item value="C:\Users\venkatesans\comviva-javaproject\comviva_configapi\new\mds-consumer"/>
+			<item value="C:\Users\venkatesans\comviva-javaproject\comviva_configapi\old\mds-consumer"/>
+			<item value="C:\Users\venkatesans\comviva-javaproject\comviva_configapi\old\mds"/>
+			<item value="C:\Users\venkatesans\comviva-javaproject\mds"/>
+		</list>
+		<list key="projectNameTemplate">
+			<item value="[artifactId]"/>
+			<item value="[artifactId]-TRUNK"/>
+			<item value="[artifactId]-[version]"/>
+			<item value="[groupId].[artifactId]"/>
+			<item value="[groupId].[artifactId]-[version]"/>
+			<item value="[name]"/>
+		</list>
+	</section>
+	<section name="org.eclipse.m2e.core.pom.overview">
+		<list key="ciManagementUrl">
+		</list>
+		<list key="ciManagementSystem">
+		</list>
+		<list key="issueManagementSystem">
+		</list>
+		<list key="issueManagementUrl">
+		</list>
+	</section>
+	<section name="org.eclipse.m2e.core.pom.dependencies">
+	</section>
+	<section name="org.eclipse.m2e.core.ui.internal.dialogs.MavenRepositorySearchDialog">
+		<item key="width" value="480"/>
+		<item key="height" value="530"/>
+		<item key="x" value="443"/>
+		<item key="y" value="11"/>
+	</section>
+</section>

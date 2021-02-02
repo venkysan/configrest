@@ -1,0 +1,132 @@
+package com.comviva.mfs.integration.test;
+
+import static org.junit.Assert.assertEquals;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import com.comviva.mfs.constant.integration.test.IntegrationTestBaseConstants;
+import com.comviva.mfs.datadrive.test.GroupRoleIntegDataPreparationUtil;
+
+@RunWith(SpringRunner.class)
+@PropertySource("classpath:application-test.properties")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class GroupRoleIntegrationTest {
+
+    @LocalServerPort
+    private int port;
+    private MockMvc mockMvc;
+    @Autowired
+    private WebApplicationContext wac;
+
+    @Before
+    public void setup() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+    }
+
+    @Test
+    public void testGroupRoleIntegration() throws Exception {
+
+        ResultActions status;
+
+        // Add Initiate Group Role
+        status = mockMvc
+                .perform(MockMvcRequestBuilders.post(GroupRoleIntegDataPreparationUtil.addGroupRoleInitiateUrl())
+                        .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+                        .content(GroupRoleIntegDataPreparationUtil.addGroupRoleInitialRequest()))
+                .andExpect(status().isOk()).body().extract().path(IntegrationTestBaseConstants.SUCCESS_STATUS.getValue());
+;
+
+        assertEquals("Validate Add Initiate Group Role",Integer.parseInt(IntegrationTestBaseConstants.SUCCESS_STATUS.getValue()),
+                status.andReturn().getResponse().getStatus());
+
+        // Add Approve Group Role
+        status = mockMvc
+                .perform(MockMvcRequestBuilders.post(GroupRoleIntegDataPreparationUtil.addGroupRoleApprovalUrl())
+                        .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+                        .content(GroupRoleIntegDataPreparationUtil.addGroupRoleApproveRequest()))
+                .andExpect(status().isOk()).andExpect(
+                        MockMvcResultMatchers.jsonPath(IntegrationTestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+                                .value(IntegrationTestBaseConstants.SUCCESS_STATUS.getValue()));
+
+        assertEquals("Validate Add Approve Group Role",Integer.parseInt(IntegrationTestBaseConstants.SUCCESS_STATUS.getValue()),
+                status.andReturn().getResponse().getStatus());
+
+        // get Group Role By Group Code
+
+        status = mockMvc
+                .perform(MockMvcRequestBuilders.get(GroupRoleIntegDataPreparationUtil.getGroupRolesByRoleCodeUrl())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andExpect(
+                        MockMvcResultMatchers.jsonPath(IntegrationTestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+                                .value(IntegrationTestBaseConstants.SUCCESS_STATUS.getValue()));
+
+        assertEquals("Validate List of Group Role",Integer.parseInt(IntegrationTestBaseConstants.SUCCESS_STATUS.getValue()),
+                status.andReturn().getResponse().getStatus());
+
+        // Update Initiate Group Role
+        status = mockMvc
+                .perform(MockMvcRequestBuilders.put(GroupRoleIntegDataPreparationUtil.updateGroupRoleInitiationeUrl())
+                        .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+                        .content(GroupRoleIntegDataPreparationUtil.updateGroupRoleInitialRequest()))
+                .andExpect(status().isOk()).andExpect(
+                        MockMvcResultMatchers.jsonPath(IntegrationTestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+                                .value(IntegrationTestBaseConstants.SUCCESS_STATUS.getValue()));
+
+        assertEquals("Validate Update Initiate Group Role",Integer.parseInt(IntegrationTestBaseConstants.SUCCESS_STATUS.getValue()),
+                status.andReturn().getResponse().getStatus());
+
+        // Update Approve Group Role
+
+        status = mockMvc
+                .perform(MockMvcRequestBuilders.put(GroupRoleIntegDataPreparationUtil.updateGroupRoleApproveUrl())
+                        .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+                        .content(GroupRoleIntegDataPreparationUtil.updateGroupRoleApproveRequest()))
+                .andExpect(status().isOk()).andExpect(
+                        MockMvcResultMatchers.jsonPath(IntegrationTestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+                                .value(IntegrationTestBaseConstants.SUCCESS_STATUS.getValue()));
+
+        assertEquals("Validate Update Approve Group Role",Integer.parseInt(IntegrationTestBaseConstants.SUCCESS_STATUS.getValue()),
+                status.andReturn().getResponse().getStatus());
+
+        // Delete Initiate Group Role
+
+        status = mockMvc
+                .perform(MockMvcRequestBuilders.delete(GroupRoleIntegDataPreparationUtil.deleteGroupRoleInitiateUrl())
+                        .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+                        .content(GroupRoleIntegDataPreparationUtil.deleteGroupRoleInitiateRequest()))
+                .andExpect(status().isOk()).andExpect(
+                        MockMvcResultMatchers.jsonPath(IntegrationTestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+                                .value(IntegrationTestBaseConstants.SUCCESS_STATUS.getValue()));
+
+        assertEquals("Validate Delete Initiate Group Role",Integer.parseInt(IntegrationTestBaseConstants.SUCCESS_STATUS.getValue()),
+                status.andReturn().getResponse().getStatus());
+
+        // Delete Approve Group Role
+        status = mockMvc
+                .perform(MockMvcRequestBuilders.delete(GroupRoleIntegDataPreparationUtil.deleteGroupRoleApproveUrl())
+                        .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+                        .content(GroupRoleIntegDataPreparationUtil.deleteGroupRoleApproveRequest()))
+                .andExpect(status().isOk()).andExpect(
+                        MockMvcResultMatchers.jsonPath(IntegrationTestBaseConstants.RESULT_STATUS_JSON_FIELD.getValue())
+                                .value(IntegrationTestBaseConstants.SUCCESS_STATUS.getValue()));
+
+        assertEquals("Validate Delete Approve Group Role",Integer.parseInt(IntegrationTestBaseConstants.SUCCESS_STATUS.getValue()),
+                status.andReturn().getResponse().getStatus());
+
+    }
+
+}

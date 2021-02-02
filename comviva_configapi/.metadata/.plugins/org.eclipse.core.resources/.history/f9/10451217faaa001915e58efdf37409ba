@@ -1,0 +1,514 @@
+package com.comviva.mfs.util;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.comviva.mfs.constant.test.CategoryTestConstants;
+import com.comviva.mfs.constant.test.GroupRoleTestConstants;
+import com.comviva.mfs.constant.test.TestBaseConstants;
+import com.comviva.mfs.entity.SysGroupRoleChecker;
+import com.comviva.mfs.entity.SysGroupRoleMaker;
+import com.comviva.mfs.model.grouprole.AddGroupRoleApproveRequest;
+import com.comviva.mfs.model.grouprole.AddGroupRoleInitiateRequest;
+import com.comviva.mfs.model.grouprole.DeleteGroupRoleApproveRequest;
+import com.comviva.mfs.model.grouprole.DeleteGroupRoleInitiateRequest;
+import com.comviva.mfs.model.grouprole.ServiceRole;
+import com.comviva.mfs.model.grouprole.UpdateGroupRoleApproveRequest;
+import com.comviva.mfs.model.grouprole.UpdateGroupRoleInitiateRequest;
+
+public class GroupRoleDataPreparationUtil {
+
+	public static String addGroupRoleInitialRequest() {
+		return CommonUtilTest.convertObjectToJson(getAddGroupRoleInitiateRequest());
+	}
+	
+	public static String addGroupRoleInitialServiceListEmptyRequest() {
+	    AddGroupRoleInitiateRequest addGroupRoleInitiateRequest = getAddGroupRoleInitiateRequest();
+	    addGroupRoleInitiateRequest.setAllServiceList(null);
+        return CommonUtilTest.convertObjectToJson(addGroupRoleInitiateRequest);
+	}
+	
+	public static String addGroupRoleInitialGroupRoleNameEmptyRequest() {
+        AddGroupRoleInitiateRequest addGroupRoleInitiateRequest = getAddGroupRoleInitiateRequest();
+        addGroupRoleInitiateRequest.setGroupRoleName(null);
+        return CommonUtilTest.convertObjectToJson(addGroupRoleInitiateRequest);
+    }
+	
+	public static String addGroupRoleInitialGroupRoleNameAlphaNumericRequest() {
+        AddGroupRoleInitiateRequest addGroupRoleInitiateRequest = getAddGroupRoleInitiateRequest();
+        addGroupRoleInitiateRequest.setGroupRoleName("retail???##");
+        return CommonUtilTest.convertObjectToJson(addGroupRoleInitiateRequest);
+    }
+	
+	public static String addGroupRoleInitialCategoryCodeEmptyRequest() {
+        AddGroupRoleInitiateRequest addGroupRoleInitiateRequest = getAddGroupRoleInitiateRequest();
+        addGroupRoleInitiateRequest.setCategoryCode(null);
+        return CommonUtilTest.convertObjectToJson(addGroupRoleInitiateRequest);
+    }
+	
+	public static String addGroupRoleInitialCategoryCodeAlphaNumericRequest() {
+        AddGroupRoleInitiateRequest addGroupRoleInitiateRequest = getAddGroupRoleInitiateRequest();
+        addGroupRoleInitiateRequest.setCategoryCode("retailer?????###");
+        return CommonUtilTest.convertObjectToJson(addGroupRoleInitiateRequest);
+    }
+	
+	public static String addGroupRoleInitialGradeCodeEmptyRequest() {
+        AddGroupRoleInitiateRequest addGroupRoleInitiateRequest = getAddGroupRoleInitiateRequest();
+        addGroupRoleInitiateRequest.setCategoryCode("retailer?????###");
+        return CommonUtilTest.convertObjectToJson(addGroupRoleInitiateRequest);
+    }
+	
+	
+	public static String addGroupRoleInitialServiceListsetServiceNameEmptyRequest() {
+        AddGroupRoleInitiateRequest addGroupRoleInitiateRequest = getAddGroupRoleInitiateRequest();
+        ServiceRole groupRoleServiceRequest[] = new ServiceRole[1];
+        ServiceRole serviceRole = new ServiceRole();
+        serviceRole.setServiceName(null);
+        serviceRole.setServiceType("50010");
+        serviceRole.setServiceStatus("Y");
+        groupRoleServiceRequest[0] = serviceRole;
+        addGroupRoleInitiateRequest.setAllServiceList(groupRoleServiceRequest);
+        return CommonUtilTest.convertObjectToJson(addGroupRoleInitiateRequest);
+    }
+	
+	public static String addGroupRoleInitialServiceListsetsetServiceTypeEmptyRequest() {
+        AddGroupRoleInitiateRequest addGroupRoleInitiateRequest = getAddGroupRoleInitiateRequest();
+        ServiceRole groupRoleServiceRequest[] = new ServiceRole[1];
+        ServiceRole serviceRole = new ServiceRole();
+        serviceRole.setServiceName("C2C Sender");
+        serviceRole.setServiceType(null);
+        serviceRole.setServiceStatus("Y");
+        groupRoleServiceRequest[0] = serviceRole;
+        addGroupRoleInitiateRequest.setAllServiceList(groupRoleServiceRequest);
+        return CommonUtilTest.convertObjectToJson(addGroupRoleInitiateRequest);
+    }
+	
+	
+	public static String addGroupRoleInitialServiceListsetsetServiceStatusEmptyRequest() {
+        AddGroupRoleInitiateRequest addGroupRoleInitiateRequest = getAddGroupRoleInitiateRequest();
+        ServiceRole groupRoleServiceRequest[] = new ServiceRole[1];
+        ServiceRole serviceRole = new ServiceRole();
+        serviceRole.setServiceName("C2C Sender");
+        serviceRole.setServiceType("50010");
+        serviceRole.setServiceStatus(null);
+        groupRoleServiceRequest[0] = serviceRole;
+        addGroupRoleInitiateRequest.setAllServiceList(groupRoleServiceRequest);
+        return CommonUtilTest.convertObjectToJson(addGroupRoleInitiateRequest);
+    }
+	
+	
+	
+	public static String addGroupRoleInitiateGroupRoleTypeOneRequest() {
+        AddGroupRoleInitiateRequest addGroupRoleInitiateRequest = getAddGroupRoleInitiateRequest();
+        addGroupRoleInitiateRequest.setGroupRoleType(Integer.parseInt(GroupRoleTestConstants.GROUP_ROLE_TYPE_1.getValue()));
+        return CommonUtilTest.convertObjectToJson(addGroupRoleInitiateRequest);
+    }
+	
+	public static String addGroupRoleInitiatePaymentTypeBankRequest() {
+        AddGroupRoleInitiateRequest addGroupRoleInitiateRequest = getAddGroupRoleInitiateRequest();
+        addGroupRoleInitiateRequest.setPaymentType(GroupRoleTestConstants.BANK_GROUP_ROLE_TYPE.getValue());
+        return CommonUtilTest.convertObjectToJson(addGroupRoleInitiateRequest);
+    }
+
+	public static String addGroupRoleApproveRequest() {
+		return CommonUtilTest.convertObjectToJson(getAddGroupRoleApproveRequest());
+	}
+
+	private static AddGroupRoleApproveRequest getAddGroupRoleApproveRequest() {
+		AddGroupRoleApproveRequest addApproveGroupRole = new AddGroupRoleApproveRequest();
+		addApproveGroupRole.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		addApproveGroupRole.setExternalRefId(CategoryTestConstants.EXTERNAL_REF_ID.getValue());
+		addApproveGroupRole.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		addApproveGroupRole.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+		return addApproveGroupRole;
+	}
+
+	public static String addGroupRoleInitiateUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GroupRoleTestConstants.ADD_GROUPROLES.getValue();
+	}
+
+	public static String addGroupRoleInitialNoApprovalRequest() {
+		AddGroupRoleInitiateRequest addGroupRoleInitiateRequest = getAddGroupRoleInitiateRequest();
+		addGroupRoleInitiateRequest.setIsApprovalRequired(null);
+		return CommonUtilTest.convertObjectToJson(addGroupRoleInitiateRequest);
+	}
+
+	public static String addGroupRoleInitialGroupRoleCodeNullRequest() {
+		AddGroupRoleInitiateRequest addGroupRoleInitiateRequest = getAddGroupRoleInitiateRequest();
+		addGroupRoleInitiateRequest.setGroupRoleCode(null);
+		return CommonUtilTest.convertObjectToJson(addGroupRoleInitiateRequest);
+	}
+
+	public static String addGroupRoleApprovalUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GroupRoleTestConstants.ADD_GROUPROLES.getValue()
+				+ GroupRoleTestConstants.GROUP_ROLE_CODE.getValue() + "/" + GroupRoleTestConstants.ACTION.getValue();
+	}
+
+	public static String addGroupRoleInitiateGroupCodeEmptyRequest() {
+		AddGroupRoleInitiateRequest addGroupRoleInitiateRequest = getAddGroupRoleInitiateRequest();
+		addGroupRoleInitiateRequest.setGradeCode(null);
+		return CommonUtilTest.convertObjectToJson(addGroupRoleInitiateRequest);
+	}
+
+	public static String addGroupRoleApprovalGroupRoleCodeNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/" 
+				+ TestBaseConstants.NULL.getValue() + "/" + GroupRoleTestConstants.ACTION.getValue();
+	}
+
+	public static String addGroupRoleApprovalGroupRoleActionNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/"
+				+ GroupRoleTestConstants.GROUP_ROLE_CODE.getValue() + "/" + TestBaseConstants.NULL.getValue();
+	}
+
+	public static String addGroupRoleInitiateGroupCodeAlphaNumericRequest() {
+		AddGroupRoleInitiateRequest addGroupRoleInitiateRequest = getAddGroupRoleInitiateRequest();
+		addGroupRoleInitiateRequest.setGradeCode("AUTSUBSNormal");
+		return CommonUtilTest.convertObjectToJson(addGroupRoleInitiateRequest);
+	}
+
+	public static String getGroupRolesByCategoryCodeGradeCodeAndWalletRoleUrl() {
+		return getGroupRolesBasicUrl(
+				GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/" + GroupRoleTestConstants.CATEGORY_CODE.getValue()
+						+ "/" + GroupRoleTestConstants.GRADE_CODE.getValue() + "/"
+						+ GroupRoleTestConstants.WALLET_GROUP_ROLE_TYPE.getValue(),
+				TestBaseConstants.AND_SYMBOL.getValue() + TestBaseConstants.INITIATEDTYPE.getValue()
+						+ TestBaseConstants.EQUAL_SYMBOL.getValue() + TestBaseConstants.NO.getValue());
+	}
+
+	public static String getGroupRolesByCategoryCodeGradeCodeAndWalletRoleNullGradeCodeUrl() {
+		return getGroupRolesBasicUrl(
+				GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/" + GroupRoleTestConstants.CATEGORY_CODE.getValue()
+						+ "/" + TestBaseConstants.NULL.getValue() + "/"
+						+ GroupRoleTestConstants.WEB_GROUP_ROLE_TYPE.getValue(),
+				TestBaseConstants.AND_SYMBOL.getValue() + TestBaseConstants.INITIATEDTYPE.getValue()
+						+ TestBaseConstants.EQUAL_SYMBOL.getValue() + TestBaseConstants.NO.getValue());
+	}
+
+	public static String getGroupRolesByCategoryCodeGradeCodeAndNullRoleTypeUrl() {
+		return getGroupRolesBasicUrl(
+				GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/" + GroupRoleTestConstants.CATEGORY_CODE.getValue()
+						+ "/" + GroupRoleTestConstants.GRADE_CODE.getValue() + "/" + TestBaseConstants.NULL.getValue()
+						+ "/",
+				TestBaseConstants.AND_SYMBOL.getValue() + TestBaseConstants.INITIATEDTYPE.getValue()
+						+ TestBaseConstants.EQUAL_SYMBOL.getValue() + TestBaseConstants.NO.getValue());
+	}
+
+	// update grouprole and approval request
+
+	public static String updateGroupRoleInitiateRequest() {
+		return CommonUtilTest.convertObjectToJson(getUpdateGroupRoleInitialRequest());
+	}
+
+	public static String updateGroupRoleInitiateNoApprovalRequest() {
+		UpdateGroupRoleInitiateRequest updateInitiateGroupRole = getUpdateGroupRoleInitialRequest();
+		updateInitiateGroupRole.setIsApprovalRequired(null);
+		return CommonUtilTest.convertObjectToJson(updateInitiateGroupRole);
+	}
+
+	public static String getGroupRolesByCategoryCodeGradeCodeAndInvalidRoleTypeUrl() {
+		return getGroupRolesBasicUrl(
+				GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/" + GroupRoleTestConstants.CATEGORY_CODE.getValue()
+						+ "/" + GroupRoleTestConstants.GRADE_CODE.getValue() + "/"
+						+ GroupRoleTestConstants.INVALID_GROUP_ROLE_TYPE.getValue() + "/",
+				TestBaseConstants.AND_SYMBOL.getValue() + TestBaseConstants.INITIATEDTYPE.getValue()
+						+ TestBaseConstants.EQUAL_SYMBOL.getValue() + TestBaseConstants.NO.getValue());
+	}
+
+	public static String getGroupRolesByCategoryCodenGradeCodeAndNullCategoryCodeUrl() {
+		return getGroupRolesBasicUrl(
+				GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/" + TestBaseConstants.NULL.getValue() + "/"
+						+ GroupRoleTestConstants.GRADE_CODE.getValue() + "/"
+						+ GroupRoleTestConstants.GROUP_ROLE_TYPE.getValue(),
+				TestBaseConstants.AND_SYMBOL.getValue() + TestBaseConstants.INITIATEDTYPE.getValue()
+						+ TestBaseConstants.EQUAL_SYMBOL.getValue() + TestBaseConstants.NO.getValue());
+	}
+
+	public static String getGroupRolesByCategoryCodeGradeCodeAndWebRoleUrl() {
+		return getGroupRolesBasicUrl(
+				GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/" + GroupRoleTestConstants.CATEGORY_CODE.getValue()
+						+ "/" + GroupRoleTestConstants.GRADE_CODE.getValue() + "/"
+						+ GroupRoleTestConstants.WEB_GROUP_ROLE_TYPE.getValue(),
+				TestBaseConstants.AND_SYMBOL.getValue() + TestBaseConstants.INITIATEDTYPE.getValue()
+						+ TestBaseConstants.EQUAL_SYMBOL.getValue() + TestBaseConstants.NO.getValue());
+	}
+
+	public static String getGroupRolesByRoleCodeUrl() {
+		return getGroupRolesBasicUrl(
+				GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/"
+						+ GroupRoleTestConstants.GROUP_ROLE_CODE.getValue(),
+				TestBaseConstants.AND_SYMBOL.getValue() + TestBaseConstants.INITIATEDTYPE.getValue()
+						+ TestBaseConstants.EQUAL_SYMBOL.getValue() + TestBaseConstants.NO.getValue());
+	}
+
+	public static String getGroupRolesByRoleCodeNullUrl() {
+		return getGroupRolesBasicUrl(
+				GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/" + TestBaseConstants.NULL.getValue(),
+				TestBaseConstants.AND_SYMBOL.getValue() + TestBaseConstants.INITIATEDTYPE.getValue()
+						+ TestBaseConstants.EQUAL_SYMBOL.getValue() + TestBaseConstants.NO.getValue());
+	}
+
+	public static String getGroupRolesByGroupRoleCodeAndNullInitiatedTypeUrl() {
+		return getGroupRolesBasicUrl(
+				GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/"
+						+ GroupRoleTestConstants.GROUP_ROLE_CODE.getValue(),
+				TestBaseConstants.AND_SYMBOL.getValue() + TestBaseConstants.INITIATEDTYPE.getValue()
+						+ TestBaseConstants.EQUAL_SYMBOL.getValue() + TestBaseConstants.NULL.getValue());
+	}
+
+	public static String getGroupRolesByGroupRoleCodeAndInvalidInitiatedTypeUrl() {
+		return getGroupRolesBasicUrl(
+				GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/"
+						+ GroupRoleTestConstants.GROUP_ROLE_CODE.getValue(),
+				TestBaseConstants.AND_SYMBOL.getValue() + TestBaseConstants.INITIATEDTYPE.getValue()
+						+ TestBaseConstants.EQUAL_SYMBOL.getValue()
+						+ GroupRoleTestConstants.INVALID_INITIATED_TYPE_VAL.getValue());
+	}
+
+	public static String getGroupRolesByGroupRoleCodeAndYesInitiatedTypeUrl() {
+		return getGroupRolesBasicUrl(
+				GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/"
+						+ GroupRoleTestConstants.GROUP_ROLE_CODE.getValue(),
+				TestBaseConstants.AND_SYMBOL.getValue() + TestBaseConstants.INITIATEDTYPE.getValue()
+						+ TestBaseConstants.EQUAL_SYMBOL.getValue() + TestBaseConstants.YES.getValue());
+	}
+
+	public static String getGroupRolesByGroupRoleCodeAndBankGroupRoleTypeUrl() {
+		return getGroupRolesBasicUrl(
+				GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/" + GroupRoleTestConstants.CATEGORY_CODE.getValue()
+						+ "/" + GroupRoleTestConstants.GRADE_CODE.getValue() + "/"
+						+ GroupRoleTestConstants.BANK_GROUP_ROLE_TYPE.getValue(),
+				TestBaseConstants.AND_SYMBOL.getValue() + TestBaseConstants.INITIATEDTYPE.getValue()
+						+ TestBaseConstants.EQUAL_SYMBOL.getValue() + TestBaseConstants.NO.getValue());
+	}
+
+	public static String updateGroupRoleInitiationeUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/"
+				+ GroupRoleTestConstants.GROUP_ROLE_CODE.getValue();
+	}
+
+	public static String updateGroupRoleApproveUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/"
+				+ GroupRoleTestConstants.GROUP_ROLE_CODE.getValue() + "/" + GroupRoleTestConstants.ACTION.getValue();
+	}
+	
+	public static String updateGroupRoleRejectUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/"
+				+ GroupRoleTestConstants.GROUP_ROLE_CODE.getValue() + "/" + GroupRoleTestConstants.ACTION_REJECT.getValue();
+	}
+
+	public static String updateGroupRoleApproveGroupRoleCodeNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/"
+				+ TestBaseConstants.NULL.getValue() + "/" + GroupRoleTestConstants.ACTION.getValue();
+	}
+
+	public static String updateGroupRoleApprovalActionNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GroupRoleTestConstants.GET_GROUPROLES.getValue() + "/"
+				+ GroupRoleTestConstants.GROUP_ROLE_CODE.getValue() + "/" + TestBaseConstants.NULL.getValue();
+	}
+
+	// Url formation
+
+	public static String updateGroupRoleInitiateUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GroupRoleTestConstants.ADD_GROUPROLES.getValue()
+				+ GroupRoleTestConstants.GROUP_ROLE_CODE.getValue();
+	}
+
+	public static String deleteGroupRoleInitiateUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GroupRoleTestConstants.ADD_GROUPROLES.getValue() + "/"
+				+ GroupRoleTestConstants.GROUP_ROLE_CODE.getValue();
+	}
+
+	public static String deleteGroupRoleInitiateGroupRoleNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GroupRoleTestConstants.ADD_GROUPROLES.getValue() + "/"
+				+ TestBaseConstants.NULL.getValue();
+	}
+
+	public static String deleteGroupRoleApproveUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GroupRoleTestConstants.ADD_GROUPROLES.getValue() + "/"
+				+ GroupRoleTestConstants.GROUP_ROLE_CODE.getValue() + "/" + GroupRoleTestConstants.ACTION.getValue();
+	}
+
+	public static String deleteGroupRoleInitiateGroupRoleCodeNullUrl() {
+		return TestBaseConstants.BASE_URL.getValue() + GroupRoleTestConstants.ADD_GROUPROLES.getValue() + "/"
+				+ TestBaseConstants.NULL.getValue();
+	}
+
+	private static AddGroupRoleInitiateRequest getAddGroupRoleInitiateRequest() {
+		AddGroupRoleInitiateRequest addGroupRoleInitiateRequest = new AddGroupRoleInitiateRequest();
+		ServiceRole agroupRoleServiceRequest = new ServiceRole();
+		addGroupRoleInitiateRequest.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		addGroupRoleInitiateRequest.setExternalRefId(GroupRoleTestConstants.EXTERNAL_REF_ID.getValue());
+		addGroupRoleInitiateRequest.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		addGroupRoleInitiateRequest.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+		addGroupRoleInitiateRequest.setGroupRoleCode(GroupRoleTestConstants.GROUP_ROLE_CODE.getValue());
+		addGroupRoleInitiateRequest.setGroupRoleName(GroupRoleTestConstants.GROUP_ROLE_NAME.getValue());
+		addGroupRoleInitiateRequest.setCategoryCode(GroupRoleTestConstants.CATEGORY_CODE.getValue());
+		addGroupRoleInitiateRequest.setGradeCode(GroupRoleTestConstants.GRADE_CODE.getValue());
+		addGroupRoleInitiateRequest
+				.setGroupRoleType(Integer.parseInt(GroupRoleTestConstants.GROUP_ROLE_TYPE.getValue()));
+		addGroupRoleInitiateRequest.setProviderId(Long.valueOf(GroupRoleTestConstants.PROVIDER_ID.getValue()));
+		addGroupRoleInitiateRequest.setPaymentType(GroupRoleTestConstants.PAYMENT_TYPE.getValue());
+		addGroupRoleInitiateRequest.setPaymentTypeId(Long.valueOf(GroupRoleTestConstants.PAYMENT_TYPE_ID.getValue()));
+		addGroupRoleInitiateRequest.setLinkedbanks(GroupRoleTestConstants.LINKEDBANKS.getValue());
+		addGroupRoleInitiateRequest.setIsApprovalRequired(GroupRoleTestConstants.IS_APPROVAL_REQUIRED_YES.getValue());
+		agroupRoleServiceRequest.setServiceName(GroupRoleTestConstants.SERVICE_NAME.getValue());
+		agroupRoleServiceRequest.setServiceType(GroupRoleTestConstants.SERVICE_TYPE.getValue());
+		agroupRoleServiceRequest.setServiceName(GroupRoleTestConstants.SELECTED.getValue());
+		ServiceRole groupRoleServiceRequest[] = new ServiceRole[1];
+		ServiceRole serviceRole = new ServiceRole();
+		serviceRole.setServiceName("C2C Sender");
+		serviceRole.setServiceType("50010");
+		serviceRole.setServiceStatus("Y");
+		groupRoleServiceRequest[0] = serviceRole;
+		addGroupRoleInitiateRequest.setAllServiceList(groupRoleServiceRequest);
+		return addGroupRoleInitiateRequest;
+
+	}
+
+	public static List<SysGroupRoleChecker> getGroupRoles() {
+		List<SysGroupRoleChecker> list = new ArrayList<SysGroupRoleChecker>();
+		list.add(getGroupRolesChecker());
+		return list;
+	}
+
+	public static SysGroupRoleChecker getGroupRolesChecker() {
+		SysGroupRoleChecker sysGroupRoleChecker = new SysGroupRoleChecker();
+		sysGroupRoleChecker.setCategoryCode(GroupRoleTestConstants.CATEGORY_CODE.getValue());
+		sysGroupRoleChecker.setGroupRoleCode(GroupRoleTestConstants.GROUP_ROLE_CODE.getValue());
+		sysGroupRoleChecker.setStatus(GroupRoleTestConstants.STATUS.getValue());
+		sysGroupRoleChecker.setGroupRoleName(GroupRoleTestConstants.GROUP_ROLE_NAME.getValue());
+		sysGroupRoleChecker.setGroupRoleType(GroupRoleTestConstants.WEB_GROUP_ROLE_TYPE.getValue());
+		sysGroupRoleChecker.setProviderId(10L);
+		sysGroupRoleChecker.setBankId(GroupRoleTestConstants.BANK_ID.getValue());
+		sysGroupRoleChecker.setPaymentTypeId(12L);
+		sysGroupRoleChecker.setDeFault(GroupRoleTestConstants.IS_DEFAULT.getValue());
+		sysGroupRoleChecker.setGradeCode(GroupRoleTestConstants.GRADE_CODE.getValue());
+		return sysGroupRoleChecker;
+	}
+
+	public static SysGroupRoleMaker getGroupRolesMaker() {
+		SysGroupRoleMaker sysGroupRoleMaker = new SysGroupRoleMaker();
+		sysGroupRoleMaker.setCategoryCode(GroupRoleTestConstants.CATEGORY_CODE.getValue());
+		sysGroupRoleMaker.setGroupRoleCode(GroupRoleTestConstants.GROUP_ROLE_CODE.getValue());
+		sysGroupRoleMaker.setStatus(GroupRoleTestConstants.STATUS.getValue());
+		sysGroupRoleMaker.setGroupRoleName(GroupRoleTestConstants.GROUP_ROLE_NAME.getValue());
+		sysGroupRoleMaker.setGroupRoleType(GroupRoleTestConstants.GROUP_ROLE_TYPE.getValue());
+		sysGroupRoleMaker.setProviderId(10L);
+		sysGroupRoleMaker.setBankId(GroupRoleTestConstants.BANK_ID.getValue());
+		sysGroupRoleMaker.setPaymentTypeId(12L);
+		sysGroupRoleMaker.setDeFault(GroupRoleTestConstants.IS_DEFAULT.getValue());
+		sysGroupRoleMaker.setGradeCode(GroupRoleTestConstants.GRADE_CODE.getValue());
+		return sysGroupRoleMaker;
+	}
+
+	public static List<SysGroupRoleChecker> getGroupRolesEmpty() {
+		List<SysGroupRoleChecker> list = new ArrayList<SysGroupRoleChecker>();
+		list.add(null);
+		return list;
+	}
+
+	public static SysGroupRoleChecker getGroupRolesCheckerEmpty() {
+		SysGroupRoleChecker sysGroupRoleCheckerEmpty = new SysGroupRoleChecker();
+		return sysGroupRoleCheckerEmpty;
+	}
+
+	private static String getGroupRolesBasicUrl(String prefixUrl, String suffixUrl) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(TestBaseConstants.BASE_URL.getValue());
+		sb.append(prefixUrl);
+		sb.append(TestBaseConstants.QUESTION_MARK_SYMBOL.getValue());
+		sb.append(TestBaseConstants.IDENTIFIER_TYPE.getValue());
+		sb.append(TestBaseConstants.EQUAL_SYMBOL.getValue());
+		sb.append(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		sb.append(TestBaseConstants.AND_SYMBOL.getValue());
+		sb.append(TestBaseConstants.IDENTIFIER_VALUE.getValue());
+		sb.append(TestBaseConstants.EQUAL_SYMBOL.getValue());
+		sb.append(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+		sb.append(TestBaseConstants.AND_SYMBOL.getValue());
+		sb.append(TestBaseConstants.BEARER_CODE.getValue());
+		sb.append(TestBaseConstants.EQUAL_SYMBOL.getValue());
+		sb.append(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		sb.append(suffixUrl);
+		return sb.toString();
+	}
+
+	public static String updateGroupRoleInitialRequest() {
+		return CommonUtilTest.convertObjectToJson(getUpdateGroupRoleInitialRequest());
+	}
+
+	public static UpdateGroupRoleInitiateRequest getUpdateGroupRoleInitialRequest() {
+		UpdateGroupRoleInitiateRequest updateInitiateGroupRole = new UpdateGroupRoleInitiateRequest();
+		updateInitiateGroupRole.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		updateInitiateGroupRole.setExternalRefId(CategoryTestConstants.EXTERNAL_REF_ID.getValue());
+		updateInitiateGroupRole.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		updateInitiateGroupRole.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+		updateInitiateGroupRole.setIsApprovalRequired(CategoryTestConstants.IS_APPROVAL_REQUIRED.getValue());
+		ServiceRole groupRoleServiceRequest[] = new ServiceRole[1];
+		ServiceRole serviceRole = new ServiceRole();
+		serviceRole.setServiceName("C2C Sender");
+		serviceRole.setServiceType("50010");
+		serviceRole.setServiceStatus("Y");
+		groupRoleServiceRequest[0] = serviceRole;
+		updateInitiateGroupRole.setAllServiceList(groupRoleServiceRequest);
+		return updateInitiateGroupRole;
+	}
+
+	public static String updateGroupRoleInitialNoApprovalRequest() {
+		UpdateGroupRoleInitiateRequest updateInitiateGroupRole = getUpdateGroupRoleInitialRequest();
+		updateInitiateGroupRole.setIsApprovalRequired(null);
+		return CommonUtilTest.convertObjectToJson(updateInitiateGroupRole);
+	}
+
+	public static String updateGroupRoleApproveRequest() {
+			UpdateGroupRoleApproveRequest updateApproveGroupRole = new UpdateGroupRoleApproveRequest();
+			updateApproveGroupRole.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+			updateApproveGroupRole.setExternalRefId(CategoryTestConstants.EXTERNAL_REF_ID.getValue());
+			updateApproveGroupRole.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+			updateApproveGroupRole.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+			return CommonUtilTest.convertObjectToJson(updateApproveGroupRole);
+	}
+
+	public static String deleteGroupRoleInitiateRequest() {
+		return CommonUtilTest.convertObjectToJson(getDeleteGroupRoleInitialRequest());
+	}
+
+	public static String deleteGroupRoleInitialNoApprovalRequest() {
+		DeleteGroupRoleInitiateRequest deleteInitiateGroupRole = getDeleteGroupRoleInitialRequest();
+		deleteInitiateGroupRole.setIsApprovalRequired(null);
+		return CommonUtilTest.convertObjectToJson(deleteInitiateGroupRole);
+	}
+	
+	public static String deleteGroupRoleInitialApprovalRequest() {
+		return CommonUtilTest.convertObjectToJson(getDeleteGroupRoleInitialApprovalRequiredRequest());
+	}
+
+	private static DeleteGroupRoleInitiateRequest getDeleteGroupRoleInitialRequest() {
+		DeleteGroupRoleInitiateRequest deleteInitiateGroupRole = new DeleteGroupRoleInitiateRequest();
+		deleteInitiateGroupRole.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		deleteInitiateGroupRole.setExternalRefId(GroupRoleTestConstants.EXTERNAL_REF_ID.getValue());
+		deleteInitiateGroupRole.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		deleteInitiateGroupRole.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+		deleteInitiateGroupRole.setIsApprovalRequired(GroupRoleTestConstants.IS_APPROVAL_REQUIRED_NO.getValue());
+		return deleteInitiateGroupRole;
+	}
+
+	public static DeleteGroupRoleInitiateRequest getDeleteGroupRoleInitialApprovalRequiredRequest() {
+		DeleteGroupRoleInitiateRequest deleteInitiateGroupRole = new DeleteGroupRoleInitiateRequest();
+		deleteInitiateGroupRole.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+		deleteInitiateGroupRole.setExternalRefId(GroupRoleTestConstants.EXTERNAL_REF_ID.getValue());
+		deleteInitiateGroupRole.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+		deleteInitiateGroupRole.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+		deleteInitiateGroupRole.setIsApprovalRequired(GroupRoleTestConstants.IS_APPROVAL_REQUIRED_YES.getValue());
+		return deleteInitiateGroupRole;
+	}
+
+	public static String deleteGroupRoleApproveRequest() {
+			DeleteGroupRoleApproveRequest deleteApproveGroupRole = new DeleteGroupRoleApproveRequest();
+			deleteApproveGroupRole.setBearerCode(TestBaseConstants.BEARER_CODE_VALUE.getValue());
+			deleteApproveGroupRole.setExternalRefId(GroupRoleTestConstants.EXTERNAL_REF_ID.getValue());
+			deleteApproveGroupRole.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+			deleteApproveGroupRole.setIdentifierValue(TestBaseConstants.IDENTIFIER_VALUE_NETADMIN_VALUE.getValue());
+			return CommonUtilTest.convertObjectToJson(deleteApproveGroupRole);
+	}
+
+}

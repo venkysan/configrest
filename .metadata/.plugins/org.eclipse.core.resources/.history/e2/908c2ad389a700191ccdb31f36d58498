@@ -1,0 +1,37 @@
+package com.comviva.mfs.constant.test;
+
+public enum CategoryTestConstants{
+
+	GET_CATEGORIES("categories"),
+	ADD_CATEGORIES("categories/"),
+	GET_SINGLE_CATEGORIE("categories/retailer"),
+	GET_CATEGORIES_BY_DOMAINS("categories/domains/"),
+	GET_CATEGORYRELATIONS("categoryrelations/"),
+	EXTERNAL_REF_ID("123456"),
+<<<<<<< HEAD
+	CATEGORY_CODE("retailer"),
+	CATEGORY_NAME("wholesaler"),
+=======
+	CATEGORY_CODE("COMVIVA"),
+	CATEGORY_NAME("COMVIVA"),
+>>>>>>> a9c8150abcf5db8aea4dc023798a1de6b12157b1
+	DOMAIN_CODE("DISTWS"),
+	PARENT_CATEGORY_CODE("WHS"),
+	CATEGORY_TYPE("OVCASHIN"),
+	GRAPH_DOMAIN_TYPE("ZO"),
+	IS_APPROVAL_REQUIRED("Y"),
+	NO_APPROVAL_REQUIRED("N"),
+	ACTION("APPROVE"),
+	ACTION_REJECT("REJECT"),
+	;
+	
+	private String value;
+	
+	private CategoryTestConstants(String value) {
+		this.value = value;
+	}
+	
+	public String getValue() {
+		return this.value;
+	}
+}

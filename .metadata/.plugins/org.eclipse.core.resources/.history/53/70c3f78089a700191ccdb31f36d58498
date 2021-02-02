@@ -1,0 +1,74 @@
+package com.comviva.mfs.integration.test;
+
+import static io.restassured.RestAssured.with;
+import static org.junit.Assert.assertEquals;
+
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpStatus;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import com.comviva.mfs.constant.test.CategoryTestConstants;
+import com.comviva.mfs.constant.test.TestBaseConstants;
+import com.comviva.mfs.model.category.AddCategoryInitiateRequest;
+import com.comviva.mfs.util.AppProperties;
+import com.comviva.mfs.util.CategoryDataPreparationUtil;
+import com.comviva.mfs.util.CommonUtilTest;
+
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+
+@RunWith(SpringRunner.class)
+@PropertySource("classpath:application-test.properties")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class CategoryIntegrationTest {
+	
+	@LocalServerPort
+	private int port;
+	
+	@Autowired
+	private AppProperties appProps;
+	
+	@Before
+	public void setup() {
+		RestAssured.baseURI = "http://localhost";
+		RestAssured.port = port;
+	}
+	
+	@Test
+	public void categoryTest() {
+		String status;
+		status =with().contentType(ContentType.JSON).accept(ContentType.JSON)
+		.body(addCategoryInitialRequest()).given()
+		.when().post(CategoryDataPreparationUtil.addCategoriesInitiateUrl())
+		.then().assertThat().statusCode(HttpStatus.OK.value()).extract().path(TestBaseConstants.STATUS.getValue());
+		assertEquals(TestBaseConstants.STATUS.getValue(),status);
+		//GET
+		//UPDATE
+		// DELETE SOFT
+		//HARD
+		 
+	}
+	
+	public String addCategoryInitialRequest() {
+			AddCategoryInitiateRequest addInitiateCategory = new AddCategoryInitiateRequest();
+			addInitiateCategory.setBearerCode(appProps.getBearerCode());
+			addInitiateCategory.setExternalRefId(CategoryTestConstants.EXTERNAL_REF_ID.getValue());
+			addInitiateCategory.setIdentifierType(TestBaseConstants.IDENTIFIER_TYPE_VALUE.getValue());
+			addInitiateCategory.setIdentifierValue(appProps.getChannelIndentifier());
+			addInitiateCategory.setCategoryCode(CategoryTestConstants.CATEGORY_CODE.getValue());
+			addInitiateCategory.setCategoryName(CategoryTestConstants.CATEGORY_NAME.getValue());
+			addInitiateCategory.setDomainCode(CategoryTestConstants.DOMAIN_CODE.getValue());
+			addInitiateCategory.setParentCategoryCode(CategoryTestConstants.PARENT_CATEGORY_CODE.getValue());
+			addInitiateCategory.setCategoryType(CategoryTestConstants.CATEGORY_TYPE.getValue());
+			addInitiateCategory.setGraphDomainType(CategoryTestConstants.GRAPH_DOMAIN_TYPE.getValue());
+			addInitiateCategory.setIsApprovalRequired(CategoryTestConstants.IS_APPROVAL_REQUIRED.getValue());
+			return CommonUtilTest.convertObjectToJson(addInitiateCategory);
+	}
+}
