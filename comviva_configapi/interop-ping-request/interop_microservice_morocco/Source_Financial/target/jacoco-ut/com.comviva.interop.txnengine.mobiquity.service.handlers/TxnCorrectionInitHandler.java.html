@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TxnCorrectionInitHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.mobiquity.service.handlers</a> &gt; <span class="el_source">TxnCorrectionInitHandler.java</span></div><h1>TxnCorrectionInitHandler.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.mobiquity.service.handlers;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.comviva.interop.txnengine.configuration.BrokerServiceProperties;
+import com.comviva.interop.txnengine.configuration.BrokerServiceURLProperties;
+import com.comviva.interop.txnengine.configuration.Resource;
+import com.comviva.interop.txnengine.configuration.ServiceTemplateNames;
+import com.comviva.interop.txnengine.entities.ChannelUserDetails;
+import com.comviva.interop.txnengine.entities.InteropTransactionDetails;
+import com.comviva.interop.txnengine.entities.InteropTransactions;
+import com.comviva.interop.txnengine.enums.Constants;
+import com.comviva.interop.txnengine.enums.LogConstants;
+import com.comviva.interop.txnengine.enums.RequestType;
+import com.comviva.interop.txnengine.enums.ThirdPartyResponseCodes;
+import com.comviva.interop.txnengine.enums.TransactionStatus;
+import com.comviva.interop.txnengine.model.Response;
+import com.comviva.interop.txnengine.model.TxnCorrection;
+import com.comviva.interop.txnengine.repositories.InteropTransactionDetailsRepository;
+import com.comviva.interop.txnengine.repositories.InteropTransactionsRepository;
+import com.comviva.interop.txnengine.util.MobiquityConst;
+import com.comviva.interop.txnengine.util.StringUtils;
+import com.comviva.interop.txnengine.util.ThirdPartyCaller;
+import com.comviva.interop.txnengine.util.TransactionDataPreparationUtil;
+
+@Service
+<span class="fc" id="L32">public class TxnCorrectionInitHandler {</span>
+
+    
+    @Autowired
+    private BrokerServiceProperties thirdPartyProperties;
+    
+    @Autowired
+    private ThirdPartyCaller thirdPartyCaller;
+
+    @Autowired
+    private InteropTransactionDetailsRepository interopTransactionDetailsRepository;
+
+    @Autowired
+    private InteropTransactionsRepository interOpTransactionRepository;
+
+    @Autowired
+    private TxnCorrectionApprovalHandler txnCorrectionApprovalHandler;    
+    
+    @Autowired
+    private ServiceTemplateNames serviceTemplateNames;
+    
+    @Autowired
+    private BrokerServiceURLProperties brokerServiceURLProperties;
+    
+    @Autowired
+    private Resource resource;
+    
+    public void doTxnCorrectionInitiation(InteropTransactions interopTransaction, String pin, String lang,
+            String interOpRefId, String txnId, ChannelUserDetails channelUserDetails,String txnMode, String em) {
+<span class="fc" id="L61">    	InteropTransactionDetails txnDetails = TransactionDataPreparationUtil</span>
+<span class="fc" id="L62">                .prepareRequestTransactionDetails(interopTransaction, RequestType.REQTRCORIN.toString(),thirdPartyProperties,Constants.ZERO.getValue(), Constants.ONE.getValue());</span>
+<span class="fc" id="L63">    	txnDetails.setTxnMode(txnMode);</span>
+<span class="fc" id="L64">        interopTransactionDetailsRepository.save(txnDetails);</span>
+<span class="fc" id="L65">        Response txnCorrectionInitResponse = execute(prepareTxnCorrectionForInit(interopTransaction, txnId,</span>
+<span class="fc" id="L66">                channelUserDetails, thirdPartyProperties.getTxnCorrectionActionType()), interOpRefId,txnMode);</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (!Optional.ofNullable(txnCorrectionInitResponse.getMappingResponse()).isPresent()) {</span>
+<span class="fc" id="L68">        	interOpTransactionRepository.save(TransactionDataPreparationUtil.updateTransactionStatus(interopTransaction,</span>
+<span class="fc" id="L69">                    TransactionStatus.TRANSACTION_AMBIGUOUS_AT_HPS.getStatus()));</span>
+<span class="fc" id="L70">            interopTransactionDetailsRepository.save(TransactionDataPreparationUtil.prepareResponseTransactionDetails(</span>
+<span class="fc" id="L71">                    interopTransaction, RequestType.REQTRCORIN.toString(), txnCorrectionInitResponse,thirdPartyProperties,Constants.ZERO.getValue(), Constants.ONE.getValue()));</span>
+<span class="fc" id="L72">        } else if (ThirdPartyResponseCodes.SUCCESS.getMappedCode()</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">                .equals(txnCorrectionInitResponse.getMappingResponse().getMappingCode())) {</span>
+<span class="fc" id="L74">        	interOpTransactionRepository.save(TransactionDataPreparationUtil.updateTransactionStatus(interopTransaction,</span>
+<span class="fc" id="L75">                    TransactionStatus.TRANSACTION_CORRECTION_INITIATED.getStatus()));</span>
+<span class="fc" id="L76">            interopTransactionDetailsRepository.save(TransactionDataPreparationUtil.prepareResponseTransactionDetails(</span>
+<span class="fc" id="L77">                    interopTransaction, RequestType.TRCORINRESP.toString(), txnCorrectionInitResponse,thirdPartyProperties,Constants.ZERO.getValue(), Constants.ONE.getValue()));</span>
+<span class="fc" id="L78">            txnCorrectionApprovalHandler.doTxnCorrectionApprove(interopTransaction, pin,lang, interOpRefId, txnId,</span>
+                    channelUserDetails,txnMode, em);
+        } else {
+<span class="fc" id="L81">        	interOpTransactionRepository.save(TransactionDataPreparationUtil.updateTransactionStatus(interopTransaction,</span>
+<span class="fc" id="L82">                    TransactionStatus.TRANSACTION_FAIL_AT_HPS.getStatus()));</span>
+<span class="fc" id="L83">            interopTransactionDetailsRepository.save(TransactionDataPreparationUtil.prepareResponseTransactionDetails(</span>
+<span class="fc" id="L84">                    interopTransaction, RequestType.REQTRCORIN.toString(), txnCorrectionInitResponse,thirdPartyProperties,Constants.ZERO.getValue(), Constants.ONE.getValue()));</span>
+        }
+<span class="fc" id="L86">    }</span>
+
+    public Response execute(TxnCorrection txnCorrection, String interopReferenceId,String txnMode) {
+<span class="fc" id="L89">        Map&lt;String, String&gt; txnCorrectionInit = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L90">        txnCorrectionInit.put(MobiquityConst.SESSION_ID.getValue(), interopReferenceId);</span>
+<span class="fc" id="L91">        txnCorrectionInit.put(MobiquityConst.TXNMODE.getValue(), txnMode);</span>
+<span class="fc" id="L92">        txnCorrectionInit.put(MobiquityConst.MSISDN.getValue(), txnCorrection.getMsisdn());</span>
+<span class="fc" id="L93">        txnCorrectionInit.put(MobiquityConst.MSISDN2.getValue(), txnCorrection.getMsisdn2());</span>
+<span class="fc" id="L94">        txnCorrectionInit.put(MobiquityConst.AMOUNT.getValue(), txnCorrection.getAmount());</span>
+<span class="fc" id="L95">        txnCorrectionInit.put(MobiquityConst.TXNID.getValue(), txnCorrection.getTxnId());</span>
+<span class="fc" id="L96">        txnCorrectionInit.put(MobiquityConst.USER_TYPE.getValue(), txnCorrection.getUserType());</span>
+<span class="fc" id="L97">        txnCorrectionInit.put(MobiquityConst.USER_TYPE2.getValue(), txnCorrection.getUserType2());</span>
+<span class="fc" id="L98">        txnCorrectionInit.put(MobiquityConst.REMARKS.getValue(), txnCorrection.getRemarks());</span>
+<span class="fc" id="L99">        txnCorrectionInit.put(MobiquityConst.SCREVERSAL.getValue(), txnCorrection.getScReversal());</span>
+<span class="fc" id="L100">        txnCorrectionInit.put(MobiquityConst.ACTION.getValue(), txnCorrection.getAction());</span>
+<span class="fc" id="L101">        txnCorrectionInit.put(MobiquityConst.USER_ID.getValue(), txnCorrection.getUserId());</span>
+<span class="fc" id="L102">        return thirdPartyCaller.postMobiquityServiceRequest(txnCorrectionInit,</span>
+<span class="fc" id="L103">                serviceTemplateNames.getTxnCorrectionInitRequestTemplate(), getWalletTxnCorrectionInitUrl(), interopReferenceId, LogConstants.TXN_CORRECTION_INIT.getValue());</span>
+    }
+
+    private String getWalletTxnCorrectionInitUrl() {
+<span class="fc" id="L107">        Object[] urlArgs = { resource.getWalletBaseUrl(), brokerServiceURLProperties.getUrlAddonIdValue(),</span>
+<span class="fc" id="L108">                brokerServiceURLProperties.getUrlCountryIdValue(), brokerServiceURLProperties.getUrlCurrencyValue() };</span>
+<span class="fc" id="L109">        return StringUtils.msgFormat(brokerServiceURLProperties.getTxnCorrectionInitUrl(), urlArgs);</span>
+    }
+
+    private TxnCorrection prepareTxnCorrectionForInit(InteropTransactions interopTransaction, String txnId,
+            ChannelUserDetails channelUserDetails, String action) {
+<span class="fc" id="L114">        TxnCorrection txnCorrection = txnCorrectionApprovalHandler.prepareTxnCorrection(interopTransaction, txnId,</span>
+                channelUserDetails, action);
+<span class="fc" id="L116">        txnCorrection.setRemarks(thirdPartyProperties.getTxnCorrectionRemarks());</span>
+<span class="fc" id="L117">        txnCorrection.setScReversal(thirdPartyProperties.getTxnScreversal());</span>
+<span class="fc" id="L118">        return txnCorrection;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

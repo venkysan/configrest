@@ -1,0 +1,30 @@
+<!-- Read http://docs.spring.io/spring-boot/docs/current/reference/html/howto-logging.html#howto-configure-logback-for-logging 
+	for more info -->
+<configuration scan="true">
+
+	<property resource="application.properties" />
+	<property scope="context" name="node.name" value="%property{mfs.node.name}" />
+
+	<property name="defaultPattern"
+		value="%d ${HOSTNAME} ${mfs.component.id} t=%X{mfsTenantId:-?} ${node.name:-unknown_node} interopReferenceId: %X{interopReferenceId} className: %X{className} %thread %-5level %logger{25}.%M - %msg%n" />
+
+	
+
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${defaultPattern}</pattern>
+		</encoder>
+	</appender>
+
+	<root level="${logging.level:-INFO}">
+		<appender-ref ref="CONSOLE" />
+		<if
+			condition='property("java.class.path").contains("IntelliJ")
+        || property("java.class.path").contains("test-classes") '>
+			<then>
+				<appender-ref ref="CONSOLE" />
+			</then>
+		</if>
+	</root>
+
+</configuration>

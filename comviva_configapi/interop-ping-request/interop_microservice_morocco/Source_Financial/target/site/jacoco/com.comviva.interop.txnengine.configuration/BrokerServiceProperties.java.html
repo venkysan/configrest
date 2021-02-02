@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BrokerServiceProperties.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.configuration</a> &gt; <span class="el_source">BrokerServiceProperties.java</span></div><h1>BrokerServiceProperties.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.configuration;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+
+import lombok.Getter;
+
+@Configuration
+@PropertySource(&quot;classpath:broker_service.properties&quot;)
+@Getter
+<span class="fc" id="L12">public class BrokerServiceProperties {</span>
+
+    @Value(&quot;${channel.user.msisdn:#{null}}&quot;)
+<span class="fc" id="L15">    private String channelUserMsisdn;</span>
+
+    @Value(&quot;${usertype.subscriber:#{null}}&quot;)
+<span class="fc" id="L18">    private String subscriberUserType;</span>
+
+    @Value(&quot;${payerproviderid:#{null}}&quot;)
+<span class="fc" id="L21">    private String payerProviderId;</span>
+
+    @Value(&quot;${payerpayid:#{null}}&quot;)
+<span class="fc" id="L24">    private String payerPayId;</span>
+
+    @Value(&quot;${payeeusertype.channel.user:#{null}}&quot;)
+<span class="fc" id="L27">    private String payeeUserType;</span>
+
+    @Value(&quot;${payeeproviderid:#{null}}&quot;)
+<span class="fc" id="L30">    private String payeeProviderId;</span>
+
+    @Value(&quot;${payeepayid:#{null}}&quot;)
+<span class="fc" id="L33">    private String payeePayId;</span>
+
+    @Value(&quot;${confirm.status}&quot;)
+<span class="fc" id="L36">    private String confirmStatus;</span>
+
+    @Value(&quot;${txn.correction.action}&quot;)
+<span class="fc" id="L39">    private String txnCorrectionActionType;</span>
+
+    @Value(&quot;${txn.screversal}&quot;)
+<span class="fc" id="L42">    private String txnScreversal;</span>
+
+    @Value(&quot;${txn.correction.remarks}&quot;)
+<span class="fc" id="L45">    private String txnCorrectionRemarks;</span>
+
+    @Value(&quot;${txn.correction.approve.action}&quot;)
+<span class="fc" id="L48">    private String txnCorrectionApproveActionType;</span>
+
+    @Value(&quot;${identification.code.acquiring.organization}&quot;)
+<span class="fc" id="L51">    private String identificationCodeOfTheAcquiringOrganization;</span>
+
+    @Value(&quot;${identification.code.sending.organization}&quot;)
+<span class="fc" id="L54">    private String identificationCodeOfTheSendingOrganization;</span>
+
+    @Value(&quot;${cardholder.billing.exchange.rate}&quot;)
+<span class="fc" id="L57">    private String cardholderBillingEexchangeRate;</span>
+
+    @Value(&quot;${business.type}&quot;)
+<span class="fc" id="L60">    private String businessType;</span>
+    
+    @Value(&quot;${business.type.merchant.payment}&quot;)
+<span class="fc" id="L63">    private String businessTypeMerchantPayment;</span>
+
+    @Value(&quot;${authorization.username}&quot;)
+<span class="fc" id="L66">    private String authorizationUserName;</span>
+
+    @Value(&quot;${authorization.password}&quot;)
+<span class="fc" id="L69">    private String authorizationPassword;</span>
+    
+    @Value(&quot;${c2c.connector}&quot;)
+<span class="fc" id="L72">    private String connector;</span>
+    
+    @Value(&quot;${c2c.blocksms}&quot;)
+<span class="nc" id="L75">    private String blocksms;</span>
+    
+    @Value(&quot;${merchant.code}&quot;)
+<span class="fc" id="L78">    private String merchantCode;</span>
+
+    @Value(&quot;${private.additional.data.p2p}&quot;)
+<span class="fc" id="L81">    private String privateAdditionalDataP2P;</span>
+
+    @Value(&quot;${private.additional.data.mp}&quot;)
+<span class="fc" id="L84">    private String privateAdditionalDataMerchantPayment;</span>
+
+    @Value(&quot;${security.check.information}&quot;)
+<span class="fc" id="L87">    private String securityCheckInformation;</span>
+
+    @Value(&quot;${card.accepter.terminal.id}&quot;)
+<span class="fc" id="L90">    private String cardAccepterTerminalId;</span>
+
+    @Value(&quot;${identification.code.of.card.acceptor}&quot;)
+<span class="fc" id="L93">    private String identificationCodeOfCardAcceptor;</span>
+
+    @Value(&quot;${name.and.address.of.card.acceptor}&quot;)
+<span class="fc" id="L96">    private String nameAndAddressOfCardAcceptor;</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

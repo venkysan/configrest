@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OffUsTransactionService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.services</a> &gt; <span class="el_source">OffUsTransactionService.java</span></div><h1>OffUsTransactionService.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.services;
+
+import java.net.SocketTimeoutException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+
+import com.comviva.interop.txnengine.configuration.BrokerServiceURLProperties;
+import com.comviva.interop.txnengine.entities.InteropTransactions;
+import com.comviva.interop.txnengine.enums.InteropResponseCodes;
+import com.comviva.interop.txnengine.enums.LogConstants;
+import com.comviva.interop.txnengine.enums.TransactionStatus;
+import com.comviva.interop.txnengine.enums.TransactionSubTypes;
+import com.comviva.interop.txnengine.enums.TransactionTypes;
+import com.comviva.interop.txnengine.events.CreateTransactionResponseEvent;
+import com.comviva.interop.txnengine.exception.InteropException;
+import com.comviva.interop.txnengine.mobiquity.service.handlers.CashOutInitHandler;
+import com.comviva.interop.txnengine.model.Request;
+import com.comviva.interop.txnengine.model.TransactionRequest;
+import com.comviva.interop.txnengine.model.TransactionResponse;
+import com.comviva.interop.txnengine.repositories.InteropTransactionsRepository;
+import com.comviva.interop.txnengine.request.validations.GetDescriptionForCode;
+import com.comviva.interop.txnengine.util.CastUtils;
+import com.comviva.interop.txnengine.util.LoggerUtil;
+import com.comviva.interop.txnengine.util.TransactionDataPreparationUtil;
+
+@Service
+<span class="fc" id="L33">public class OffUsTransactionService {</span>
+
+<span class="fc" id="L35">    private static final Logger LOGGER = LoggerFactory.getLogger(OffUsTransactionService.class);</span>
+    
+    @Autowired
+    private GetDescriptionForCode getDescriptionForCode;
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
+
+    @Autowired
+    private InteropTransactionsRepository interOpTransactionRepository;
+
+    @Autowired
+    private CashOutInitHandler cashOutInitHandler;
+    
+    @Autowired
+    private BrokerServiceURLProperties brokerServiceURLProperties;
+    
+    /**
+     * @param request
+     */
+    @Async(&quot;ThirdPartyCallsAsyncPool&quot;)
+    public void doOffUsTransaction(Request request, InteropTransactions interopTransaction) {
+<span class="fc" id="L57">        TransactionRequest requestBody = CastUtils.toTransactionRequest(request.getRequestAttr());</span>
+        try {
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        	interopTransaction.setTransactionSubType(TransactionTypes.P2P.getTransactionType().equals(requestBody.getTransactionType()) ? TransactionSubTypes.P2P_OFF_US.toString() : TransactionSubTypes.MP_OFF_US.toString());</span>
+<span class="fc" id="L60">            cashOutInitHandler.doCashOutInit(request, interopTransaction, requestBody);</span>
+<span class="fc" id="L61">        } catch (InteropException e) {</span>
+<span class="fc" id="L62">        	interOpTransactionRepository.save(TransactionDataPreparationUtil.updateTransactionStatus(interopTransaction,</span>
+<span class="fc" id="L63">                     TransactionStatus.TRANSACTION_FAIL.getStatus()));</span>
+<span class="fc" id="L64">            String description = getDescriptionForCode.getDescription(e.getEntity(), e.getStatusCode(),</span>
+<span class="fc" id="L65">                    requestBody.getLang());</span>
+<span class="fc" id="L66">            TransactionResponse transactionResponse = prepareTxnResponse(description,</span>
+<span class="fc" id="L67">                    CastUtils.joinStatusCode(e.getEntity(), e.getStatusCode()),</span>
+<span class="fc" id="L68">                    getDescriptionForCode.getMappingCode(e.getStatusCode()));</span>
+<span class="fc" id="L69">            this.publishResponseEvent(transactionResponse, request.getInteropReferenceId(), requestBody, e);</span>
+<span class="fc" id="L70">        } catch (RestClientException restException) {</span>
+<span class="fc" id="L71">            TransactionResponse transactionResponse = null;</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">            if(restException.getCause() instanceof SocketTimeoutException) {</span>
+<span class="fc" id="L73">                interOpTransactionRepository.save(TransactionDataPreparationUtil.updateTransactionStatus(interopTransaction,</span>
+<span class="fc" id="L74">                        TransactionStatus.TRANSACTION_FAIL.getStatus()));</span>
+<span class="fc" id="L75">                String description = getDescriptionForCode.getDescription(</span>
+<span class="fc" id="L76">                        InteropResponseCodes.READ_TIMEOUT_FROM_BROKER.getEntity().toString(),</span>
+<span class="fc" id="L77">                        InteropResponseCodes.READ_TIMEOUT_FROM_BROKER.getStatusCode(), requestBody.getLang());</span>
+<span class="fc" id="L78">                transactionResponse = new TransactionResponse(description,</span>
+<span class="fc" id="L79">                        CastUtils.joinStatusCode(</span>
+<span class="fc" id="L80">                                InteropResponseCodes.READ_TIMEOUT_FROM_BROKER.getEntity().toString(),</span>
+<span class="fc" id="L81">                                InteropResponseCodes.READ_TIMEOUT_FROM_BROKER.getStatusCode()),</span>
+                        getDescriptionForCode
+<span class="fc" id="L83">                                .getMappingCode(InteropResponseCodes.READ_TIMEOUT_FROM_BROKER.getStatusCode()));</span>
+<span class="fc" id="L84">            }</span>
+            else {
+<span class="fc" id="L86">                interOpTransactionRepository.save(TransactionDataPreparationUtil.updateTransactionStatus(interopTransaction,</span>
+<span class="fc" id="L87">                        TransactionStatus.TRANSACTION_FAIL.getStatus()));</span>
+<span class="fc" id="L88">                String description = getDescriptionForCode.getDescription(</span>
+<span class="fc" id="L89">                        InteropResponseCodes.NOT_ABLE_TO_CONNECT_THIRD_PARTY.getEntity().toString(),</span>
+<span class="fc" id="L90">                        InteropResponseCodes.NOT_ABLE_TO_CONNECT_THIRD_PARTY.getStatusCode(), requestBody.getLang());</span>
+<span class="fc" id="L91">                transactionResponse = prepareTxnResponse(description,</span>
+<span class="fc" id="L92">                        CastUtils.joinStatusCode(</span>
+<span class="fc" id="L93">                                InteropResponseCodes.NOT_ABLE_TO_CONNECT_THIRD_PARTY.getEntity().toString(),</span>
+<span class="fc" id="L94">                                InteropResponseCodes.NOT_ABLE_TO_CONNECT_THIRD_PARTY.getStatusCode()),</span>
+                        getDescriptionForCode
+<span class="fc" id="L96">                                .getMappingCode(InteropResponseCodes.NOT_ABLE_TO_CONNECT_THIRD_PARTY.getStatusCode()));    </span>
+            }
+<span class="fc" id="L98">            this.publishResponseEvent(transactionResponse, request.getInteropReferenceId(), requestBody, restException);</span>
+<span class="fc" id="L99">        } catch (Exception e) {</span>
+<span class="fc" id="L100">        	 interOpTransactionRepository.save(TransactionDataPreparationUtil.updateTransactionStatus(interopTransaction,</span>
+<span class="fc" id="L101">                     TransactionStatus.TRANSACTION_FAIL.getStatus()));</span>
+<span class="fc" id="L102">            String description = getDescriptionForCode.getDescription(</span>
+<span class="fc" id="L103">                    InteropResponseCodes.INTERNAL_ERROR.getEntity().toString(),</span>
+<span class="fc" id="L104">                    InteropResponseCodes.INTERNAL_ERROR.getStatusCode(), requestBody.getLang());</span>
+<span class="fc" id="L105">            TransactionResponse transactionResponse = prepareTxnResponse(description,  CastUtils.joinStatusCode(InteropResponseCodes.INTERNAL_ERROR.getEntity().toString(),</span>
+<span class="fc" id="L106">                    InteropResponseCodes.INTERNAL_ERROR.getStatusCode()),getDescriptionForCode.getMappingCode(InteropResponseCodes.INTERNAL_ERROR.getStatusCode())); </span>
+<span class="fc" id="L107">            this.publishResponseEvent(transactionResponse, request.getInteropReferenceId(), requestBody, e);</span>
+<span class="fc" id="L108">        }</span>
+
+<span class="fc" id="L110">    }</span>
+
+    private void publishResponseEvent(TransactionResponse transactionResponse, String reqId, TransactionRequest req, Exception ex) {
+<span class="fc" id="L113">        CreateTransactionResponseEvent createTransactionResponseEvent = new CreateTransactionResponseEvent(this,</span>
+                transactionResponse, reqId);
+<span class="fc" id="L115">        String message = LoggerUtil.prepareLogDetailForCreateTransactionResponse(req, brokerServiceURLProperties.getUrlCountryIdValue(),</span>
+<span class="fc" id="L116">                reqId, LogConstants.OUTGOING_RESPONSE_EVENT_TYPE.getValue(),  transactionResponse, ex);</span>
+<span class="fc" id="L117">        LOGGER.info(&quot;Create Transaction  service response: {}&quot;, message);</span>
+<span class="fc" id="L118">        applicationEventPublisher.publishEvent(createTransactionResponseEvent);</span>
+<span class="fc" id="L119">    }</span>
+    
+    private TransactionResponse prepareTxnResponse(String description, String statusCode, String mappedCode) {
+<span class="fc" id="L122">        return new TransactionResponse(description,statusCode,mappedCode);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

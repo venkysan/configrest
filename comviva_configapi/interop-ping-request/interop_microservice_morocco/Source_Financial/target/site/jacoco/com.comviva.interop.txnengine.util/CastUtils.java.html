@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CastUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.util</a> &gt; <span class="el_source">CastUtils.java</span></div><h1>CastUtils.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.util;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.comviva.interop.txnengine.enums.LogConstants;
+import com.comviva.interop.txnengine.model.AccountIdentifierBase;
+import com.comviva.interop.txnengine.model.ConfirmTransactionRequest;
+import com.comviva.interop.txnengine.model.PendingTransactionRequest;
+import com.comviva.interop.txnengine.model.QuotationRequest;
+import com.comviva.interop.txnengine.model.ReceiveTransactionRequest;
+import com.comviva.interop.txnengine.model.RequestWrapper;
+import com.comviva.interop.txnengine.model.TransactionRequest;
+import com.comviva.interop.txnengine.model.TransactionStatusRequest;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public class CastUtils {
+
+	private CastUtils() {
+	}
+
+<span class="fc" id="L28">	private static final Logger LOGGER = LoggerFactory.getLogger(CastUtils.class);</span>
+<span class="fc" id="L29">	public static final ObjectMapper mapper = new ObjectMapper();</span>
+
+	public static final String ENGLISH_LANGUAGE_CODE = &quot;en&quot;;
+
+	public static final String FRANCE_LANGUAGE_CODE = &quot;fr&quot;;
+
+	public static QuotationRequest toTransactionQuotationRequest(RequestWrapper requestAttr) {
+<span class="fc" id="L36">		return (QuotationRequest) requestAttr;</span>
+	}
+
+	public static TransactionRequest toTransactionRequest(RequestWrapper requestAttr) {
+<span class="fc" id="L40">		return (TransactionRequest) requestAttr;</span>
+	}
+
+	public static TransactionStatusRequest toTransactionStatusRequest(RequestWrapper requestAttr) {
+<span class="fc" id="L44">		return (TransactionStatusRequest) requestAttr;</span>
+	}
+
+	public static ReceiveTransactionRequest toReceiveTransactionRequest(RequestWrapper requestAttr) {
+<span class="fc" id="L48">		return (ReceiveTransactionRequest) requestAttr;</span>
+	}
+
+	public static PendingTransactionRequest toPendingTransactionRequest(RequestWrapper requestAttr) {
+<span class="fc" id="L52">		return (PendingTransactionRequest) requestAttr;</span>
+	}
+
+	public static ConfirmTransactionRequest toConfirmTransactionRequest(RequestWrapper requestAttr) {
+<span class="fc" id="L56">		return (ConfirmTransactionRequest) requestAttr;</span>
+	}
+
+	public static Map&lt;String, String&gt; stringToMap(String payload) {
+<span class="fc" id="L60">		Map&lt;String, String&gt; map = null;</span>
+		try {
+<span class="fc" id="L62">			map = mapper.readValue(payload, new TypeReference&lt;Map&lt;String, Object&gt;&gt;() {</span>
+			});
+<span class="nc" id="L64">		} catch (Exception e) {</span>
+<span class="nc" id="L65">			String message = LoggerUtil.printLog(LogConstants.CASTING_FAILED_EVENT.getValue(), e);</span>
+<span class="nc" id="L66">			LOGGER.info(&quot;Exception in CastUtils while casting string to map..{}&quot;, message);</span>
+<span class="fc" id="L67">		}</span>
+<span class="fc" id="L68">		return map;</span>
+	}
+
+	public static String joinStatusCode(String entity, String statusCode) {
+<span class="fc" id="L72">		return entity + &quot;_&quot; + statusCode;</span>
+	}
+
+	public static String getLanguageWithCountryCode(String language) {
+<span class="fc bfc" id="L76" title="All 3 branches covered.">		switch (language) {</span>
+		case ENGLISH_LANGUAGE_CODE:
+<span class="fc" id="L78">			return Locale.US.toString();</span>
+		case FRANCE_LANGUAGE_CODE:
+<span class="fc" id="L80">			return Locale.FRANCE.toString();</span>
+		default:
+<span class="fc" id="L82">			return language;</span>
+		}
+	}
+
+	public static boolean isSenderRequiredDetailsExists(List&lt;AccountIdentifierBase&gt; party,
+			AccountIdentifierBase.KeyEnum key) {
+<span class="nc" id="L88">		boolean valid = false;</span>
+<span class="nc bnc" id="L89" title="All 4 branches missed.">		if (null != party &amp;&amp; !party.isEmpty()) {</span>
+<span class="nc" id="L90">			Iterator&lt;AccountIdentifierBase&gt; iterator = party.iterator();</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">			while (iterator.hasNext()) {</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">				if (iterator.next().getKey().equals(key)) {</span>
+<span class="nc" id="L93">					valid = true;</span>
+<span class="nc" id="L94">					break;</span>
+				}
+			}
+		}
+<span class="nc" id="L98">		return valid;</span>
+	}
+	
+	
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

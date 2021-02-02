@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionQuotationService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.services</a> &gt; <span class="el_source">TransactionQuotationService.java</span></div><h1>TransactionQuotationService.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.services;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+import com.comviva.interop.txnengine.configuration.BrokerServiceURLProperties;
+import com.comviva.interop.txnengine.enums.InteropResponseCodes;
+import com.comviva.interop.txnengine.enums.LogConstants;
+import com.comviva.interop.txnengine.enums.SuccessStatus;
+import com.comviva.interop.txnengine.events.TransactionQuotationResponseEvent;
+import com.comviva.interop.txnengine.exception.InteropException;
+import com.comviva.interop.txnengine.mobiquity.service.handlers.GetFeeHandler;
+import com.comviva.interop.txnengine.model.QuotationRequest;
+import com.comviva.interop.txnengine.model.QuotationResponse;
+import com.comviva.interop.txnengine.model.Request;
+import com.comviva.interop.txnengine.model.RequestValidationResponse;
+import com.comviva.interop.txnengine.request.validations.GetDescriptionForCode;
+import com.comviva.interop.txnengine.request.validations.ValidateTransactionQuotationRequestBody;
+import com.comviva.interop.txnengine.util.CastUtils;
+import com.comviva.interop.txnengine.util.LoggerUtil;
+
+@Service(&quot;TransactionQuotationService&quot;)
+<span class="fc" id="L27">public class TransactionQuotationService implements ExecutableServices {</span>
+
+<span class="fc" id="L29">    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionQuotationService.class);</span>
+    
+    @Autowired
+    private ValidateTransactionQuotationRequestBody requestValidations;
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
+
+    @Autowired
+    private GetDescriptionForCode getDescriptionForCode;
+
+    @Autowired
+    private GetDefaultWalletStatusHandler nonFinGetUserHandler;
+
+    @Autowired
+    private GetFeeHandler mobiquityGetFeeHandler;
+    
+    @Autowired
+    private BrokerServiceURLProperties brokerServiceURLProperties;
+
+    @Override
+    @Async
+    public void execute(Request request) {
+<span class="fc" id="L52">        boolean isP2POnUs = false;</span>
+<span class="fc" id="L53">        QuotationRequest requestBody = CastUtils.toTransactionQuotationRequest(request.getRequestAttr());</span>
+        try {
+<span class="fc" id="L55">            RequestValidationResponse requestValidationResponse = requestValidations.validate(requestBody);</span>
+<span class="fc" id="L56">            if (!requestValidationResponse.getStatusCode()</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">                    .equals(SuccessStatus.SUCCESSFUL_REQUEST_VALIDATION.getStatusCode())) {</span>
+<span class="fc" id="L58">                throw new InteropException(requestValidationResponse.getStatusCode(),</span>
+<span class="fc" id="L59">                        requestValidationResponse.getEntity());</span>
+            }
+<span class="fc" id="L61">            isP2POnUs = nonFinGetUserHandler.isUserRegisteredWithSameMFS(requestBody.getDebitParty().get(0).getValue(), requestBody.getCreditParty().get(0).getValue(), </span>
+<span class="fc" id="L62">            		request.getInteropReferenceId(), requestBody.getTransactionType());</span>
+<span class="fc" id="L63">            mobiquityGetFeeHandler.execute(isP2POnUs, requestBody, request.getInteropReferenceId());</span>
+<span class="fc" id="L64">        } catch (InteropException e) {</span>
+<span class="fc" id="L65">            String description = getDescriptionForCode.getDescription(e.getEntity(), e.getStatusCode(),</span>
+<span class="fc" id="L66">                    requestBody.getLang());</span>
+<span class="fc" id="L67">            QuotationResponse quotationResponse = new QuotationResponse(description, CastUtils.joinStatusCode(e.getEntity(), e.getStatusCode()),</span>
+<span class="fc" id="L68">                    getDescriptionForCode.getMappingCode(e.getStatusCode()));</span>
+<span class="fc" id="L69">            this.publishResponseEvent(quotationResponse, request.getInteropReferenceId(), requestBody, e);</span>
+<span class="fc" id="L70">        } catch (Exception e) {</span>
+<span class="fc" id="L71">            QuotationResponse quotationResponse = new QuotationResponse(</span>
+<span class="fc" id="L72">                    getDescriptionForCode.getDescription(InteropResponseCodes.INTERNAL_ERROR.getEntity().toString(),</span>
+<span class="fc" id="L73">                            InteropResponseCodes.INTERNAL_ERROR.getStatusCode(), requestBody.getLang()),</span>
+<span class="fc" id="L74">                    CastUtils.joinStatusCode(InteropResponseCodes.INTERNAL_ERROR.getEntity().toString(), InteropResponseCodes.INTERNAL_ERROR.getStatusCode()),</span>
+<span class="fc" id="L75">                    getDescriptionForCode.getMappingCode(InteropResponseCodes.INTERNAL_ERROR.getStatusCode()));</span>
+<span class="fc" id="L76">            quotationResponse.setMappedCode(</span>
+<span class="fc" id="L77">                    getDescriptionForCode.getMappingCode(InteropResponseCodes.INTERNAL_ERROR.getStatusCode()));</span>
+<span class="fc" id="L78">            this.publishResponseEvent(quotationResponse, request.getInteropReferenceId(), requestBody, e);</span>
+<span class="fc" id="L79">        }</span>
+<span class="fc" id="L80">    }</span>
+
+    private void publishResponseEvent(QuotationResponse quotationResponse, String reqId, QuotationRequest req, Exception exception) {
+<span class="fc" id="L83">        TransactionQuotationResponseEvent initiateEnrolmentResponseEvent = new TransactionQuotationResponseEvent(this,</span>
+                quotationResponse, reqId);
+<span class="fc" id="L85">        String message = LoggerUtil.prepareLogDetailForQuotationResponse(req, brokerServiceURLProperties.getUrlCountryIdValue(), </span>
+<span class="fc" id="L86">                reqId, LogConstants.OUTGOING_RESPONSE_EVENT_TYPE.getValue(),  quotationResponse, exception);</span>
+<span class="fc" id="L87">        LOGGER.info(&quot;Transaction quotation  service response: {}&quot;, message);</span>
+<span class="fc" id="L88">        applicationEventPublisher.publishEvent(initiateEnrolmentResponseEvent);</span>
+<span class="fc" id="L89">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

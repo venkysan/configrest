@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OffusHPS.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.services</a> &gt; <span class="el_source">OffusHPS.java</span></div><h1>OffusHPS.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.services;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.comviva.interop.txnengine.configuration.BrokerServiceProperties;
+import com.comviva.interop.txnengine.configuration.EigTags;
+import com.comviva.interop.txnengine.configuration.Resource;
+import com.comviva.interop.txnengine.configuration.ServiceTemplateNames;
+import com.comviva.interop.txnengine.enums.Constants;
+import com.comviva.interop.txnengine.enums.ISOFields;
+import com.comviva.interop.txnengine.enums.LogConstants;
+import com.comviva.interop.txnengine.enums.RequestSource;
+import com.comviva.interop.txnengine.enums.SourceAccountType;
+import com.comviva.interop.txnengine.enums.TransactionTypes;
+import com.comviva.interop.txnengine.model.TransactionRequest;
+import com.comviva.interop.txnengine.util.StringUtils;
+import com.comviva.interop.txnengine.util.ThirdPartyCaller;
+
+@Service
+<span class="fc" id="L26">public class OffusHPS {</span>
+
+    @Autowired
+    private Resource resource;
+    
+    @Autowired
+    private ThirdPartyCaller thirdPartyCaller;
+    
+    @Autowired
+    private ServiceTemplateNames serviceTemplateNames;
+
+    @Autowired
+    private BrokerServiceProperties thirdPartyProperties;
+    
+    @Autowired
+    private EigTags eigTags;
+
+
+    public Map&lt;String, String&gt; execute(TransactionRequest transactionRequest, String stan, String rrn,
+            String currencyCode) {
+
+<span class="fc" id="L47">        Map&lt;String, String&gt; eigRequest = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L48">        eigRequest.put(eigTags.getInterfaceIdTag(), eigTags.getFinancialTxnInterfaceId());</span>
+<span class="fc" id="L49">        eigRequest.put(eigTags.getUserLanguageTag(),</span>
+<span class="fc" id="L50">                transactionRequest.getLang().toLowerCase() + &quot;_&quot; + transactionRequest.getLang().toUpperCase());</span>
+<span class="fc" id="L51">        eigRequest.put(eigTags.getRequestDateTag(),</span>
+<span class="fc" id="L52">                new SimpleDateFormat(eigTags.getEigDateFormat()).format(new Date()));</span>
+
+<span class="fc" id="L54">        eigRequest.put(ISOFields.PAN.getValue(), transactionRequest.getCreditParty().get(0).getValue());</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if(TransactionTypes.P2P.getTransactionType().equals(transactionRequest.getTransactionType())) {</span>
+<span class="fc" id="L56">            eigRequest.put(eigTags.getServiceTypeTag(), ISOFields.FINANCIAL_TRANSACTION.getValue());</span>
+<span class="fc" id="L57">            eigRequest.put(ISOFields.PROCESSING_CODE.getValue(), SourceAccountType.getType(transactionRequest.getSourceAccountType()).getProcessingCode());</span>
+<span class="fc" id="L58">            eigRequest.put(ISOFields.PAN.getValue(), transactionRequest.getCreditParty().get(0).getValue());</span>
+<span class="fc" id="L59">            eigRequest.put(ISOFields.PRIVATE_ADDITIONAL_DATA.getValue(),thirdPartyProperties.getPrivateAdditionalDataP2P());</span>
+<span class="fc" id="L60">            eigRequest.put(ISOFields.BUSINNES_TYPE.getValue(), thirdPartyProperties.getBusinessType());</span>
+        }
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        else if(TransactionTypes.MERCHPAY.getTransactionType().equals(transactionRequest.getTransactionType())) {</span>
+<span class="fc" id="L63">            eigRequest.put(eigTags.getServiceTypeTag(), ISOFields.FINANCIAL_TRANSACTION_MP_PUSH.getValue());</span>
+<span class="fc" id="L64">            eigRequest.put(ISOFields.PROCESSING_CODE.getValue(), Constants.MP_PROCESSING_CODE.getValue());</span>
+<span class="fc" id="L65">            eigRequest.put(ISOFields.CARD_ACCEPTER_TERMINAL_ID.getValue(),thirdPartyProperties.getCardAccepterTerminalId());</span>
+<span class="fc" id="L66">            eigRequest.put(ISOFields.IDENTIFICATION_CODE_OF_CARD_ACCEPTOR.getValue(), thirdPartyProperties.getIdentificationCodeOfCardAcceptor());</span>
+<span class="fc" id="L67">            eigRequest.put(ISOFields.NAME_AND_ADDRESS_OF_CARD_ACCEPTOR.getValue(), thirdPartyProperties.getNameAndAddressOfCardAcceptor());</span>
+<span class="fc" id="L68">            eigRequest.put(ISOFields.PAN.getValue(), transactionRequest.getDebitParty().get(0).getValue());</span>
+<span class="fc" id="L69">            eigRequest.put(ISOFields.PRIVATE_ADDITIONAL_DATA.getValue(),thirdPartyProperties.getPrivateAdditionalDataMerchantPayment());</span>
+<span class="fc" id="L70">            eigRequest.put(ISOFields.BUSINNES_TYPE.getValue(), thirdPartyProperties.getBusinessTypeMerchantPayment());</span>
+        }
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        else if(TransactionTypes.MERCHPAY_PULL.getTransactionType().equals(transactionRequest.getTransactionType())) {</span>
+<span class="fc" id="L73">            eigRequest.put(eigTags.getServiceTypeTag(), ISOFields.FINANCIAL_TRANSACTION_MP_PULL.getValue());</span>
+<span class="fc" id="L74">            eigRequest.put(ISOFields.PROCESSING_CODE.getValue(), Constants.MP_PULL_PROCESSING_CODE.getValue());</span>
+<span class="fc" id="L75">            eigRequest.put(ISOFields.PAN.getValue(), transactionRequest.getCreditParty().get(0).getValue());</span>
+<span class="fc" id="L76">            eigRequest.put(ISOFields.PRIVATE_ADDITIONAL_DATA.getValue(),thirdPartyProperties.getPrivateAdditionalDataMerchantPayment());</span>
+<span class="fc" id="L77">            eigRequest.put(ISOFields.BUSINNES_TYPE.getValue(), thirdPartyProperties.getBusinessTypeMerchantPayment());</span>
+        }
+        
+<span class="fc" id="L80">        eigRequest.put(ISOFields.SERVICE_ENTRY_MODE.getValue(), RequestSource.getValueBySource(transactionRequest.getRequestSource()));</span>
+<span class="fc" id="L81">        eigRequest.put(ISOFields.TRANSACTION_AMOUNT.getValue(),</span>
+<span class="fc" id="L82">                StringUtils.convertTxnAmountinISO(transactionRequest.getAmount()));</span>
+<span class="fc" id="L83">        eigRequest.put(ISOFields.CONSOLIDATION_AMOUNT.getValue(),</span>
+<span class="fc" id="L84">                StringUtils.convertTxnAmountinISO(transactionRequest.getAmount()));</span>
+<span class="fc" id="L85">        eigRequest.put(ISOFields.CARD_HOLDER_BILL_AMOUNT.getValue(),</span>
+<span class="fc" id="L86">                StringUtils.convertTxnAmountinISO(transactionRequest.getAmount()));</span>
+<span class="fc" id="L87">        eigRequest.put(ISOFields.DATE_AND_TIME_OF_TRANSMISSION.getValue(), new SimpleDateFormat(&quot;yyMMddHHmm&quot;).format(new Date()));</span>
+<span class="fc" id="L88">        eigRequest.put(ISOFields.CARD_HOLDER_BILLING_EXCHANGE_RATE.getValue(),</span>
+<span class="fc" id="L89">                thirdPartyProperties.getCardholderBillingEexchangeRate());</span>
+<span class="fc" id="L90">        eigRequest.put(ISOFields.SYSTEM_AUDIT_NUMBER.getValue(), stan);</span>
+<span class="fc" id="L91">        eigRequest.put(ISOFields.DATE_AND_TIME_OF_TXN.getValue(), new SimpleDateFormat(&quot;yyMMddHHmmss&quot;).format(new Date()));</span>
+<span class="fc" id="L92">        eigRequest.put(ISOFields.DATE_AND_TIME_OF_TXN.getValue(), new SimpleDateFormat(&quot;yyMMddHHmmss&quot;).format(new Date()));</span>
+<span class="fc" id="L93">        eigRequest.put(ISOFields.SETTLEMENT_DATE.getValue(), new SimpleDateFormat(&quot;yyMMdd&quot;).format(new Date()));</span>
+<span class="fc" id="L94">        eigRequest.put(ISOFields.EXCHANGE_DATE.getValue(), new SimpleDateFormat(&quot;MMdd&quot;).format(new Date()));</span>
+<span class="fc" id="L95">        eigRequest.put(ISOFields.COUNTRY_CODE_OF_THE_ACQUIRING_ORG.getValue(), currencyCode);</span>
+<span class="fc" id="L96">        eigRequest.put(ISOFields.COUNTRY_CODE_OF_THE_SENDER_ORG.getValue(), currencyCode);</span>
+<span class="fc" id="L97">        eigRequest.put(ISOFields.SERVICE_POINT_DATA_CODE.getValue(), Constants.SERVICE_POINT_DATA_CODE.getValue());</span>
+<span class="fc" id="L98">        eigRequest.put(ISOFields.FUNCTION_CODE.getValue(), Constants.FUNCTION_CODE.getValue());</span>
+<span class="fc" id="L99">        eigRequest.put(ISOFields.IDENTIFICATION_CODE_OF_THE_ACQUIRING_ORG.getValue(),</span>
+<span class="fc" id="L100">                thirdPartyProperties.getIdentificationCodeOfTheAcquiringOrganization());</span>
+<span class="fc" id="L101">        eigRequest.put(ISOFields.IDENTIFICATION_CODE_OF_THE_SENDING_ORG.getValue(),</span>
+<span class="fc" id="L102">                thirdPartyProperties.getIdentificationCodeOfTheSendingOrganization());</span>
+<span class="fc" id="L103">        eigRequest.put(ISOFields.REFERENCE_NUMBER_OF_THE_RECOVERY.getValue(), rrn);</span>
+<span class="fc" id="L104">        eigRequest.put(ISOFields.CURRENCY_CODE_OF_THE_TXN.getValue(), currencyCode);</span>
+<span class="fc" id="L105">        eigRequest.put(ISOFields.CURRENCY_CODE_OF_THE_CONSOLIDATION.getValue(), currencyCode);</span>
+<span class="fc" id="L106">        eigRequest.put(ISOFields.CURRENCY_CODE_OF_THE_CARD_HOLDER_INVOICE.getValue(), currencyCode);</span>
+<span class="fc" id="L107">        eigRequest.put(ISOFields.SECURITY_CHECK_INFORMATION.getValue(), thirdPartyProperties.getSecurityCheckInformation());</span>
+<span class="fc" id="L108">        eigRequest.put(ISOFields.SOURCE_ACCOUNT_NUMBER.getValue(), transactionRequest.getDebitParty().get(0).getValue());</span>
+<span class="fc" id="L109">        eigRequest.put(ISOFields.DESTINATION_ACCOUNT_NUMBER.getValue(),</span>
+<span class="fc" id="L110">                transactionRequest.getCreditParty().get(0).getValue());</span>
+<span class="fc" id="L111">        eigRequest.put(ISOFields.SOURCE_ACCOUNT_TYPE.getValue(),</span>
+<span class="fc" id="L112">        		SourceAccountType.getType(transactionRequest.getSourceAccountType()).getAccountTypeValue());</span>
+
+
+<span class="fc" id="L115">        return thirdPartyCaller.postRequestMapResponse(eigRequest, serviceTemplateNames.getFinancialTxnRequestTemplate(),</span>
+<span class="fc" id="L116">                resource.getEigUrl(), serviceTemplateNames.getFinancialTxnResponseTemplate(), null, LogConstants.HPS_TRANSACTION.getValue());</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

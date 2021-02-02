@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NetworkMessageService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.services</a> &gt; <span class="el_source">NetworkMessageService.java</span></div><h1>NetworkMessageService.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.services;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.comviva.interop.txnengine.configuration.ServiceResources;
+import com.comviva.interop.txnengine.enums.InteropResponseCodes;
+import com.comviva.interop.txnengine.enums.LogConstants;
+import com.comviva.interop.txnengine.enums.ValidationErrors;
+import com.comviva.interop.txnengine.exception.InteropException;
+import com.comviva.interop.txnengine.model.NetworkMessageRequest;
+import com.comviva.interop.txnengine.model.NetworkMessageResponse;
+import com.comviva.interop.txnengine.request.validations.GetDescriptionForCode;
+import com.comviva.interop.txnengine.request.validations.RequestValidations;
+import com.comviva.interop.txnengine.util.CastUtils;
+import com.comviva.interop.txnengine.util.LoggerUtil;
+
+@Service(&quot;NetworkMessageService&quot;)
+<span class="fc" id="L21">public class NetworkMessageService {</span>
+<span class="fc" id="L22">	private static final Logger LOGGER = LoggerFactory.getLogger(NetworkMessageService.class);</span>
+
+	@Autowired
+	private RequestValidations requestValidations;
+
+	@Autowired
+	private ServiceResources serviceResources;
+	
+	@Autowired
+	private NetworkMessageHPSHandler networkMessageHPSHandler;
+
+	@Autowired
+	private GetDescriptionForCode getDescriptionForCode;
+
+	public NetworkMessageResponse networkMessage(NetworkMessageRequest networkMessageRequest) {
+<span class="nc" id="L37">		NetworkMessageResponse networkMessageResponse = new NetworkMessageResponse();</span>
+		try {
+<span class="nc" id="L39">			validateInputs(networkMessageRequest);</span>
+<span class="nc" id="L40">			networkMessageResponse = networkMessageHPSHandler.execute(networkMessageRequest, serviceResources.getDefaultLanguage());</span>
+<span class="nc" id="L41">		} catch (InteropException e) {</span>
+<span class="nc" id="L42">			networkMessageResponse.setCode(CastUtils.joinStatusCode(e.getEntity(), e.getStatusCode()));</span>
+<span class="nc" id="L43">			networkMessageResponse.setMappedCode(getDescriptionForCode.getMappingCode(e.getStatusCode()));</span>
+<span class="nc" id="L44">			networkMessageResponse.setMessage(getDescriptionForCode.getDescription(e.getEntity(), e.getStatusCode(),</span>
+<span class="nc" id="L45">					serviceResources.getDefaultLanguage()));</span>
+<span class="nc" id="L46">			String message = LoggerUtil.prepareLogDetailForNetworkMessageResponse(&quot;&quot;, null,</span>
+<span class="nc" id="L47">					null, LogConstants.OUTGOING_RESPONSE_EVENT_TYPE.getValue(),</span>
+					networkMessageResponse, e);
+<span class="nc" id="L49">			LOGGER.info(&quot;get Network Message service, response: {}&quot;, message);</span>
+<span class="nc" id="L50">		} catch (Exception e) {</span>
+<span class="nc" id="L51">			networkMessageResponse</span>
+<span class="nc" id="L52">					.setCode(CastUtils.joinStatusCode(InteropResponseCodes.INTERNAL_ERROR.getEntity().toString(),</span>
+<span class="nc" id="L53">							InteropResponseCodes.INTERNAL_ERROR.getStatusCode()));</span>
+<span class="nc" id="L54">			networkMessageResponse.setMappedCode(</span>
+<span class="nc" id="L55">					getDescriptionForCode.getMappingCode(InteropResponseCodes.INTERNAL_ERROR.getStatusCode()));</span>
+<span class="nc" id="L56">			networkMessageResponse.setMessage(getDescriptionForCode.getDescription(</span>
+<span class="nc" id="L57">					InteropResponseCodes.INTERNAL_ERROR.getEntity().toString(),</span>
+<span class="nc" id="L58">					InteropResponseCodes.INTERNAL_ERROR.getStatusCode(), serviceResources.getDefaultLanguage()));</span>
+<span class="nc" id="L59">			String message = LoggerUtil.prepareLogDetailForNetworkMessageResponse(&quot;&quot;, null,</span>
+<span class="nc" id="L60">					null, LogConstants.OUTGOING_RESPONSE_EVENT_TYPE.getValue(),</span>
+					networkMessageResponse, e);
+<span class="nc" id="L62">			LOGGER.info(&quot;get transaction status service, response: {}&quot;, message);</span>
+
+<span class="nc" id="L64">		}</span>
+<span class="nc" id="L65">		return networkMessageResponse;</span>
+	}
+	
+	private void validateInputs(NetworkMessageRequest networkMessageRequest) {
+		ValidationErrors validationError;
+<span class="nc" id="L70">		validationError = requestValidations</span>
+<span class="nc" id="L71">				.requestNewtorkActionValidation(networkMessageRequest.getNetworkAction());</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">		if (!ValidationErrors.VALID.getStatusCode().equals(validationError.getStatusCode())) {</span>
+<span class="nc" id="L73">			throw new InteropException(validationError.getStatusCode(), validationError.getEntity().toString());</span>
+		}
+<span class="nc" id="L75">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

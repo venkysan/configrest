@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GetFeeHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.mobiquity.service.handlers</a> &gt; <span class="el_source">GetFeeHandler.java</span></div><h1>GetFeeHandler.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.mobiquity.service.handlers;
+
+import java.util.Optional;
+
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+
+import com.comviva.interop.txnengine.configuration.BrokerServiceURLProperties;
+import com.comviva.interop.txnengine.enums.InteropResponseCodes;
+import com.comviva.interop.txnengine.enums.LogConstants;
+import com.comviva.interop.txnengine.enums.Sources;
+import com.comviva.interop.txnengine.enums.ThirdPartyResponseCodes;
+import com.comviva.interop.txnengine.events.TransactionQuotationResponseEvent;
+import com.comviva.interop.txnengine.exception.InteropException;
+import com.comviva.interop.txnengine.model.QuotationRequest;
+import com.comviva.interop.txnengine.model.QuotationResponse;
+import com.comviva.interop.txnengine.model.Response;
+import com.comviva.interop.txnengine.model.WalletResponse;
+import com.comviva.interop.txnengine.request.validations.GetDescriptionForCode;
+import com.comviva.interop.txnengine.util.CastUtils;
+import com.comviva.interop.txnengine.util.LoggerUtil;
+
+@Service
+public class GetFeeHandler {
+
+<span class="fc" id="L32">    private static final Logger LOGGER = LoggerFactory.getLogger(GetFeeHandler.class);</span>
+    
+    @Autowired
+    private BrokerServiceURLProperties brokerServiceURLProperties;
+
+    @Autowired
+    private GetDescriptionForCode getDescriptionForCode;
+    
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
+
+    @Autowired
+    private GetFeeService mobiquityGetFee;
+
+    @Autowired
+    public GetFeeHandler(GetFeeService mobiquityGetFee, ApplicationEventPublisher applicationEventPublisher,
+            GetDescriptionForCode getDescriptionForCode, BrokerServiceURLProperties brokerServiceURLProperties) {
+<span class="fc" id="L49">        super();</span>
+<span class="fc" id="L50">        this.mobiquityGetFee = mobiquityGetFee;</span>
+<span class="fc" id="L51">        this.applicationEventPublisher = applicationEventPublisher;</span>
+<span class="fc" id="L52">        this.getDescriptionForCode = getDescriptionForCode;</span>
+<span class="fc" id="L53">        this.brokerServiceURLProperties = brokerServiceURLProperties;</span>
+<span class="fc" id="L54">    }</span>
+
+    @Async(&quot;ThirdPartyCallsAsyncPool&quot;)
+    public void execute(boolean isP2POnUs, QuotationRequest req, String interopReferenceId) {
+        try {
+<span class="fc" id="L59">            Response feeResponse = mobiquityGetFee.execute(isP2POnUs, req, interopReferenceId);</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">            if (!Optional.ofNullable(feeResponse.getMappingResponse()).isPresent()) {</span>
+<span class="fc" id="L61">                throw new InteropException(InteropResponseCodes.READ_TIMEOUT_FROM_BROKER.getStatusCode(),</span>
+<span class="fc" id="L62">                        Sources.BROKER.toString());</span>
+<span class="fc" id="L63">            } else if (ThirdPartyResponseCodes.SUCCESS.getMappedCode()</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">                    .equals(feeResponse.getMappingResponse().getMappingCode())) {</span>
+<span class="fc" id="L65">                QuotationResponse quotationResponse = getQuotationResponse(interopReferenceId, req.getExtOrgRefId(),</span>
+                        feeResponse);
+<span class="fc" id="L67">                this.publishResponseEvent(quotationResponse, interopReferenceId, req, null);</span>
+<span class="fc" id="L68">            } else {</span>
+<span class="fc" id="L69">                throw new InteropException(feeResponse.getBrokerResponse().getBrokerCode(), Sources.BROKER.toString(),</span>
+<span class="nc" id="L70">                        feeResponse.getMappingResponse().getMappingCode(),feeResponse.getWalletResponse().getMessage());</span>
+            }
+<span class="fc" id="L72">        } catch (InteropException e) {</span>
+<span class="fc" id="L73">            String description = null;</span>
+<span class="pc bpc" id="L74" title="3 of 4 branches missed.">            if(e.getMessage()!=null &amp;&amp; !e.getMessage().isEmpty()){</span>
+<span class="nc" id="L75">                description = e.getMessage();</span>
+            }else {
+<span class="fc" id="L77">                description = getDescriptionForCode.getDescription(e.getEntity(), e.getStatusCode(),</span>
+<span class="fc" id="L78">                        req.getLang());</span>
+            }
+
+<span class="fc" id="L81">            QuotationResponse quotationResponse = new QuotationResponse(description,</span>
+<span class="fc" id="L82">                    CastUtils.joinStatusCode(e.getEntity(), e.getStatusCode()),</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">                    Optional.ofNullable(e.getMappedCode()).isPresent() ? e.getMappedCode()</span>
+<span class="fc" id="L84">                            : getDescriptionForCode.getMappingCode(e.getStatusCode()));</span>
+<span class="fc" id="L85">            this.publishResponseEvent(quotationResponse, interopReferenceId, req, e);</span>
+<span class="fc" id="L86">        } catch (RestClientException restException) {</span>
+<span class="fc" id="L87">            String description = getDescriptionForCode.getDescription(</span>
+<span class="fc" id="L88">                    InteropResponseCodes.NOT_ABLE_TO_CONNECT_THIRD_PARTY.getEntity().toString(),</span>
+<span class="fc" id="L89">                    InteropResponseCodes.NOT_ABLE_TO_CONNECT_THIRD_PARTY.getStatusCode(), req.getLang());</span>
+<span class="fc" id="L90">            QuotationResponse quotationResponse = new QuotationResponse(description,</span>
+<span class="fc" id="L91">                    CastUtils.joinStatusCode(</span>
+<span class="fc" id="L92">                            InteropResponseCodes.NOT_ABLE_TO_CONNECT_THIRD_PARTY.getEntity().toString(),</span>
+<span class="fc" id="L93">                            InteropResponseCodes.NOT_ABLE_TO_CONNECT_THIRD_PARTY.getStatusCode()),</span>
+                    getDescriptionForCode
+<span class="fc" id="L95">                            .getMappingCode(InteropResponseCodes.NOT_ABLE_TO_CONNECT_THIRD_PARTY.getStatusCode()));</span>
+<span class="fc" id="L96">            this.publishResponseEvent(quotationResponse, interopReferenceId, req, restException);</span>
+<span class="fc" id="L97">        } catch (Exception e) {</span>
+<span class="fc" id="L98">            String description = getDescriptionForCode.getDescription(</span>
+<span class="fc" id="L99">                    InteropResponseCodes.INTERNAL_ERROR.getEntity().toString(),</span>
+<span class="fc" id="L100">                    InteropResponseCodes.INTERNAL_ERROR.getStatusCode(), req.getLang());</span>
+<span class="fc" id="L101">            QuotationResponse quotationResponse = new QuotationResponse(description,</span>
+<span class="fc" id="L102">                    CastUtils.joinStatusCode(InteropResponseCodes.INTERNAL_ERROR.getEntity().toString(),</span>
+<span class="fc" id="L103">                            InteropResponseCodes.INTERNAL_ERROR.getStatusCode()),</span>
+<span class="fc" id="L104">                    getDescriptionForCode.getMappingCode(InteropResponseCodes.INTERNAL_ERROR.getStatusCode()));</span>
+<span class="fc" id="L105">            this.publishResponseEvent(quotationResponse, interopReferenceId, req, e);</span>
+<span class="fc" id="L106">        }</span>
+<span class="fc" id="L107">    }</span>
+
+    private void publishResponseEvent(QuotationResponse quotationResponse, String reqId, QuotationRequest req, Exception exception) {
+<span class="fc" id="L110">        TransactionQuotationResponseEvent initiateEnrolmentResponseEvent = new TransactionQuotationResponseEvent(this,</span>
+                quotationResponse, reqId);
+<span class="fc" id="L112">        String message = LoggerUtil.prepareLogDetailForQuotationResponse(req, brokerServiceURLProperties.getUrlCountryIdValue(), reqId,</span>
+<span class="fc" id="L113">                LogConstants.OUTGOING_RESPONSE_EVENT_TYPE.getValue(),  quotationResponse, exception);</span>
+<span class="fc" id="L114">        LOGGER.info(&quot;Transaction quotation  service response: {}&quot;, message);</span>
+<span class="fc" id="L115">        applicationEventPublisher.publishEvent(initiateEnrolmentResponseEvent);</span>
+<span class="fc" id="L116">    }</span>
+
+    private QuotationResponse getQuotationResponse(String interopReferenceId, String extOrgRefId, Response fee) {
+<span class="fc" id="L119">        QuotationResponse response = new QuotationResponse();</span>
+<span class="fc" id="L120">        response.setExtOrgRefId(extOrgRefId);</span>
+<span class="fc" id="L121">        response.setInteropRefId(interopReferenceId);</span>
+<span class="fc" id="L122">        WalletResponse walletRes = fee.getWalletResponse();</span>
+<span class="fc" id="L123">        response.setFeesPayerPaid(walletRes.getFeesPayerPaid());</span>
+<span class="fc" id="L124">        response.setFeesPayeePaid(walletRes.getFeesPayeePaid());</span>
+<span class="fc" id="L125">        response.setCommissionPayerPaid(walletRes.getCommPayerPaid());</span>
+<span class="fc" id="L126">        response.setCommissionPayerReceived(walletRes.getCommPayerRec());</span>
+<span class="fc" id="L127">        response.setCommissionPayeePaid(walletRes.getCommPayeePaid());</span>
+<span class="fc" id="L128">        response.setCommissionPayeeReceived(walletRes.getCommPayeeRec());</span>
+<span class="fc" id="L129">        response.setTaxPayerPaid(walletRes.getTaxPayerPaid());</span>
+<span class="fc" id="L130">        response.setTaxPayeePaid(walletRes.getTaxPayeePaid());</span>
+<span class="fc" id="L131">        response.setMessage(walletRes.getMessage());</span>
+<span class="fc" id="L132">        response.setMappedCode(fee.getMappingResponse().getMappingCode());</span>
+<span class="fc" id="L133">        response.setCode(CastUtils.joinStatusCode(InteropResponseCodes.SUCCESS.getEntity().toString(), InteropResponseCodes.SUCCESS.getStatusCode()));</span>
+<span class="fc" id="L134">        response.setTransactionSubmitTime(new DateTime());</span>
+<span class="fc" id="L135">        return response;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

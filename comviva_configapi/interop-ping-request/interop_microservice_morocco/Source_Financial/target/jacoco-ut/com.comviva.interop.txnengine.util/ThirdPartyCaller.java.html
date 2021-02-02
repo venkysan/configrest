@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ThirdPartyCaller.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.util</a> &gt; <span class="el_source">ThirdPartyCaller.java</span></div><h1>ThirdPartyCaller.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.util;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.comviva.interop.txnengine.configuration.BrokerServiceURLProperties;
+import com.comviva.interop.txnengine.configuration.EigTags;
+import com.comviva.interop.txnengine.configuration.NonFinancialServerProperties;
+import com.comviva.interop.txnengine.configuration.Resource;
+import com.comviva.interop.txnengine.entities.BrokerNonFinServiceDetails;
+import com.comviva.interop.txnengine.entities.NonFinancialServiceDetails;
+import com.comviva.interop.txnengine.enums.InteropResponseCodes;
+import com.comviva.interop.txnengine.enums.LogConstants;
+import com.comviva.interop.txnengine.enums.NonFinancialServiceTypes;
+import com.comviva.interop.txnengine.enums.ValidationErrors;
+import com.comviva.interop.txnengine.exception.InteropException;
+import com.comviva.interop.txnengine.model.Response;
+import com.comviva.interop.txnengine.repositories.BrokerNonFinServiceDetailsRepository;
+import com.comviva.interop.txnengine.repositories.NonFinancialServiceDetailsRepository;
+
+@Service
+public class ThirdPartyCaller {
+
+<span class="fc" id="L35">    private static final Logger LOGGER = LoggerFactory.getLogger(ThirdPartyCaller.class);</span>
+
+    private RestTemplate restTemplate;
+    
+    private VelocityTemplateMaker velocityTemplateMaker;
+    
+    @Autowired
+    private BrokerServiceURLProperties brokerServiceURLProperties;
+    
+    @Autowired
+    private EigTags eigTags;
+    
+    @Autowired
+    private Resource resource;
+    
+    @Autowired
+    private NonFinancialServiceDetailsRepository nonFinancialServiceDetailsRepository;
+
+    @Autowired
+    private BrokerNonFinServiceDetailsRepository brokerNonFinServiceDetailsRepository;
+    
+    @Autowired
+    private NonFinancialServerProperties nonFinancialServerProperties;
+        
+    @Autowired
+<span class="fc" id="L60">    public ThirdPartyCaller(RestTemplate restTemplate, VelocityTemplateMaker velocityTemplateMaker) {</span>
+<span class="fc" id="L61">        this.restTemplate = restTemplate;</span>
+<span class="fc" id="L62">        this.velocityTemplateMaker = velocityTemplateMaker;</span>
+<span class="fc" id="L63">    }</span>
+
+    public Response postMobiquityServiceRequest(Map&lt;String, String&gt; request, String requestTemplateName, String url, String interOpRefId, String useCase) {
+<span class="fc" id="L66">        Response brokerResponse = null;</span>
+<span class="pc bpc" id="L67" title="1 of 4 branches missed.">        if (request != null &amp;&amp; null != requestTemplateName) {</span>
+<span class="fc" id="L68">            String payload = velocityTemplateMaker.getTemplatefromMapInput(requestTemplateName, request);</span>
+<span class="fc" id="L69">            url += MobiquityConst.SEPARATOR.getValue() + payload;</span>
+        }
+<span class="fc" id="L71">        url = url.replaceAll(&quot;\\s&quot;, &quot;&quot;);</span>
+<span class="fc" id="L72">        BrokerNonFinServiceDetails brokerNonFinServiceDetails = saveNonfinacialService(useCase,  request, interOpRefId);</span>
+        
+<span class="fc" id="L74">        String message = LoggerUtil.prepareLogDetailForBrokerRequest(brokerServiceURLProperties.getUrlCountryIdValue(), brokerServiceURLProperties.getUrlCurrencyValue(), interOpRefId, </span>
+<span class="fc" id="L75">                LogConstants.OUTGOING_REQUEST_EVENT_TYPE.getValue(), request, useCase, resource.getPinLength());</span>
+<span class="fc" id="L76">        LOGGER.info(&quot;Broker request: {}&quot;, message);</span>
+<span class="fc" id="L77">        HttpHeaders headers = new HttpHeaders();</span>
+<span class="fc" id="L78">        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_XML));</span>
+<span class="fc" id="L79">        HttpEntity&lt;String&gt; entity = new HttpEntity&lt;&gt;(headers);</span>
+<span class="fc" id="L80">        String response = restTemplate.postForObject(url, entity, String.class);</span>
+<span class="pc bpc" id="L81" title="1 of 4 branches missed.">        if (response == null || &quot;&quot;.equals(response)) {</span>
+<span class="fc" id="L82">            throw new InteropException(InteropResponseCodes.FAILURE_RESPONSE_FROM_BROKER.getStatusCode(),</span>
+<span class="fc" id="L83">                    InteropResponseCodes.FAILURE_RESPONSE_FROM_BROKER.getEntity().toString());</span>
+        }
+<span class="fc" id="L85">        brokerResponse = StringUtils.xmlToModel(response);</span>
+<span class="pc bpc" id="L86" title="1 of 4 branches missed.">        if(isNonFinancialService(useCase) &amp;&amp; null != brokerNonFinServiceDetails) {</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        	updateBrokerNonFinServiceDetails(brokerNonFinServiceDetails, brokerResponse.getMappingResponse() != null ? brokerResponse.getMappingResponse().getMappingCode() : &quot;&quot;,</span>
+<span class="pc bpc" id="L88" title="2 of 4 branches missed.">        			brokerResponse.getWalletResponse() != null ? brokerResponse.getWalletResponse().getTxnstatus() : &quot;&quot;, brokerResponse.getWalletResponse() != null ? brokerResponse.getWalletResponse().getMessage() : &quot;&quot;);</span>
+        }
+<span class="fc" id="L90">        String responseMessage = LoggerUtil.prepareLogDetailForBrokerResponse(request, brokerServiceURLProperties.getUrlCountryIdValue(), interOpRefId, LogConstants.INCOMING_RESPONSE_EVENT_TYPE.getValue(), brokerResponse, useCase);</span>
+<span class="fc" id="L91">        LOGGER.info(&quot;Broker response: {}&quot;, responseMessage);</span>
+<span class="fc" id="L92">        return brokerResponse;</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public Map&lt;String, String&gt; getDefaultWalletStatusFromNonFinancialService(String url, String apiKeyName,
+            String apiKeyValue, String payerMSISDN, String payeeMSISDN, String interopRefId) {
+<span class="fc" id="L98">    	NonFinancialServiceDetails nonFinancialDetails = prepareNonFinancialDetails(payerMSISDN, payeeMSISDN, NonFinancialServiceTypes.GET_DEFAULT_WALLET_STATUS.toString(), interopRefId);</span>
+<span class="fc" id="L99">    	nonFinancialServiceDetailsRepository.save(nonFinancialDetails);</span>
+<span class="fc" id="L100">        HttpHeaders headers = new HttpHeaders();</span>
+<span class="fc" id="L101">        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));</span>
+<span class="pc bpc" id="L102" title="4 of 8 branches missed.">        if (apiKeyName != null &amp;&amp; !&quot;&quot;.equals(apiKeyName) &amp;&amp; apiKeyValue != null &amp;&amp; !&quot;&quot;.equals(apiKeyValue)) {</span>
+<span class="fc" id="L103">            headers.add(apiKeyName, apiKeyValue);</span>
+        }
+<span class="fc" id="L105">        HttpEntity&lt;String&gt; entity = new HttpEntity&lt;&gt;(headers);</span>
+<span class="fc" id="L106">        Map&lt;String, String&gt; response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class).getBody();</span>
+<span class="pc bpc" id="L107" title="2 of 4 branches missed.">        if(null != response &amp;&amp; !response.isEmpty()) {</span>
+<span class="fc" id="L108">        	updateNonFinDetails(nonFinancialDetails, response.get(nonFinancialServerProperties.getMappedCodeTag()), </span>
+<span class="fc" id="L109">        			response.get(nonFinancialServerProperties.getCodeTag()), &quot;&quot;, response.get(nonFinancialServerProperties.getDefaultWalletStatusTag()));</span>
+        }
+<span class="fc" id="L111">        return response; </span>
+    }
+
+    public Map&lt;String, String&gt; postRequestMapResponse(Map&lt;String, String&gt; request, String requestTemplateName,
+            String url, String responseTemplateName, String interopReferenceId, String useCase) {
+
+<span class="fc" id="L117">        String payload = velocityTemplateMaker.getTemplatefromMapInput(requestTemplateName, request);</span>
+<span class="fc" id="L118">        String message = LoggerUtil.prepareLogDetailForHPSRequest(request.get(eigTags.getMsisdnTag()),</span>
+<span class="fc" id="L119">                brokerServiceURLProperties.getUrlCountryIdValue(), interopReferenceId,</span>
+<span class="fc" id="L120">                LogConstants.OUTGOING_REQUEST_EVENT_TYPE.getValue(), payload, request.get(eigTags.getUserLanguageTag()));</span>
+<span class="fc" id="L121">        LOGGER.info(&quot;HPS request: {}&quot;, message);</span>
+<span class="fc" id="L122">        HttpEntity&lt;String&gt; eigRequestPost = new HttpEntity&lt;&gt;(payload);</span>
+<span class="fc" id="L123">        String response = restTemplate.postForObject(url, eigRequestPost, String.class);</span>
+
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">        if (&quot;&quot;.equals(response)) {</span>
+<span class="nc" id="L126">            throw new InteropException(ValidationErrors.NO_RESPONSE_FROM_EIG.getStatusCode(),</span>
+<span class="nc" id="L127">                    ValidationErrors.NO_RESPONSE_FROM_EIG.getEntity().toString());</span>
+        }
+
+<span class="fc" id="L130">        String templateResponse = velocityTemplateMaker.getTemplatefromStringInput(responseTemplateName, response);</span>
+<span class="fc" id="L131">        String responseMessage = LoggerUtil.prepareLogDetailForHPSResponse(request.get(eigTags.getUserLanguageTag()), brokerServiceURLProperties.getUrlCountryIdValue(),</span>
+<span class="fc" id="L132">                interopReferenceId, LogConstants.INCOMING_RESPONSE_EVENT_TYPE.getValue(), templateResponse, useCase);</span>
+<span class="fc" id="L133">       LOGGER.info(&quot;HPS response: {}&quot;, responseMessage);</span>
+<span class="fc" id="L134">        return CastUtils.stringToMap(templateResponse);</span>
+    }
+    
+    private NonFinancialServiceDetails prepareNonFinancialDetails(String payerMsisdn, String payeeMsisdn, String serviceType, String interopTxnId) {
+<span class="fc" id="L138">    	NonFinancialServiceDetails nonFinancialDetails = new NonFinancialServiceDetails();</span>
+<span class="fc" id="L139">    	nonFinancialDetails.setCreatedDate(new Date());</span>
+<span class="fc" id="L140">    	nonFinancialDetails.setPayeeMsisdn(payeeMsisdn);</span>
+<span class="fc" id="L141">    	nonFinancialDetails.setPayerMsisdn(payerMsisdn);</span>
+<span class="fc" id="L142">    	nonFinancialDetails.setServiceType(serviceType);</span>
+<span class="fc" id="L143">    	nonFinancialDetails.setUpdatedDate(new Date());</span>
+<span class="fc" id="L144">    	nonFinancialDetails.setInteropTxnId(interopTxnId);</span>
+<span class="fc" id="L145">    	return nonFinancialDetails;</span>
+    }
+    
+    private NonFinancialServiceDetails updateNonFinDetails(NonFinancialServiceDetails nonFinancialDetails, String mappingCode, String responseCode, String responseMessage, String defaultWalletStatus) {
+<span class="fc" id="L149">    	nonFinancialDetails.setMappingCode(mappingCode);</span>
+<span class="fc" id="L150">    	nonFinancialDetails.setResponseCode(responseCode);</span>
+<span class="fc" id="L151">    	nonFinancialDetails.setResponseMessage(responseMessage);</span>
+<span class="fc" id="L152">    	nonFinancialDetails.setUpdatedDate(new Date());</span>
+<span class="fc" id="L153">    	nonFinancialDetails.setOptional(defaultWalletStatus);</span>
+<span class="fc" id="L154">    	nonFinancialServiceDetailsRepository.save(nonFinancialDetails);</span>
+<span class="fc" id="L155">    	return nonFinancialDetails;</span>
+    }
+    
+    private BrokerNonFinServiceDetails prepareBrokerNonFinServiceDetails(String payerMsisdn, String payeeMsisdn, String serviceType, String interopTxnId) {
+<span class="fc" id="L159">    	BrokerNonFinServiceDetails nonFinancialDetails = new BrokerNonFinServiceDetails();</span>
+<span class="fc" id="L160">    	nonFinancialDetails.setCreatedDate(new Date());</span>
+<span class="fc" id="L161">    	nonFinancialDetails.setPayeeMsisdn(payeeMsisdn);</span>
+<span class="fc" id="L162">    	nonFinancialDetails.setPayerMsisdn(payerMsisdn);</span>
+<span class="fc" id="L163">    	nonFinancialDetails.setServiceType(serviceType);</span>
+<span class="fc" id="L164">    	nonFinancialDetails.setUpdatedDate(new Date());</span>
+<span class="fc" id="L165">    	nonFinancialDetails.setInteropTxnId(interopTxnId);</span>
+<span class="fc" id="L166">    	return nonFinancialDetails;</span>
+    }
+    
+    private BrokerNonFinServiceDetails updateBrokerNonFinServiceDetails(BrokerNonFinServiceDetails nonFinancialDetails, String mappingCode, String responseCode, String responseMessage) {
+<span class="fc" id="L170">    	nonFinancialDetails.setMappingCode(mappingCode);</span>
+<span class="fc" id="L171">    	nonFinancialDetails.setResponseCode(responseCode);</span>
+<span class="fc" id="L172">    	nonFinancialDetails.setResponseMessage(responseMessage);</span>
+<span class="fc" id="L173">    	nonFinancialDetails.setUpdatedDate(new Date());</span>
+<span class="fc" id="L174">    	brokerNonFinServiceDetailsRepository.save(nonFinancialDetails);</span>
+<span class="fc" id="L175">    	return nonFinancialDetails;</span>
+    }
+    
+    private boolean isNonFinancialService(String serviceName) {
+<span class="fc bfc" id="L179" title="All 2 branches covered.">    	 for (NonFinancialServiceTypes type : NonFinancialServiceTypes.values()) {</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">             if (type.getServiceType().equals(serviceName)) {</span>
+<span class="fc" id="L181">                 return true;</span>
+             }
+         }
+
+<span class="fc" id="L185">         return false;</span>
+    }
+    
+    private BrokerNonFinServiceDetails saveNonfinacialService(String useCase, Map&lt;String, String&gt; request, String interOpRefId) {
+<span class="pc bpc" id="L189" title="1 of 4 branches missed.">    	if(null != request &amp;&amp; isNonFinancialService(useCase)) {</span>
+<span class="fc" id="L190">        	String payerMSISDN = request.get(MobiquityConst.MSISDN.getValue());</span>
+<span class="fc" id="L191">        	String payeeMSISDN = request.get(MobiquityConst.MSISDN2.getValue());</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">        	if(null == payerMSISDN) {</span>
+<span class="fc" id="L193">        		payerMSISDN = request.get(MobiquityConst.PAYER_ACCOUNT_ID.getValue());</span>
+        	}
+<span class="fc bfc" id="L195" title="All 2 branches covered.">        	if(null == payeeMSISDN) {</span>
+<span class="fc" id="L196">        		payeeMSISDN = request.get(MobiquityConst.PAYEE_ACCOUNT_ID.getValue());</span>
+        	}
+<span class="fc" id="L198">        	return brokerNonFinServiceDetailsRepository.save(prepareBrokerNonFinServiceDetails(payerMSISDN , payeeMSISDN , useCase, interOpRefId));</span>
+        }
+<span class="fc" id="L200">    	return null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

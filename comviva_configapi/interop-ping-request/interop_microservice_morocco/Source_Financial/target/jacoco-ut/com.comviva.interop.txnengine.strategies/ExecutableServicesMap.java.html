@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExecutableServicesMap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.strategies</a> &gt; <span class="el_source">ExecutableServicesMap.java</span></div><h1>ExecutableServicesMap.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.strategies;
+
+import java.util.EnumMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+
+import com.comviva.interop.txnengine.enums.ServiceCategories;
+import com.comviva.interop.txnengine.enums.ServiceTypes;
+import com.comviva.interop.txnengine.services.ExecutableServices;
+
+/**
+ * class contains map of key: service categories - value: map of services they
+ * contain. add an entry here when implementing an service map for any service
+ * category
+ */
+@Component(&quot;ExecutableServicesMap&quot;)
+public class ExecutableServicesMap {
+    private EnumMap&lt;ServiceCategories, Map&lt;ServiceTypes, ExecutableServices&gt;&gt; servicesMap;
+
+    @Autowired
+<span class="fc" id="L24">    public ExecutableServicesMap(@Qualifier(&quot;FinancialServicesMap&quot;) FinancialServicesMap financialServicesMap) {</span>
+<span class="fc" id="L25">        servicesMap = new EnumMap&lt;&gt;(ServiceCategories.class);</span>
+<span class="fc" id="L26">        servicesMap.put(ServiceCategories.FINANCIAL, financialServicesMap.getServiceMap());</span>
+<span class="fc" id="L27">    }</span>
+
+    public Map&lt;ServiceTypes, ExecutableServices&gt; getServicesMap(ServiceCategories serviceCategories) {
+<span class="fc" id="L30">        return servicesMap.get(serviceCategories);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserAuthenticationHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.mobiquity.service.handlers</a> &gt; <span class="el_source">UserAuthenticationHandler.java</span></div><h1>UserAuthenticationHandler.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.mobiquity.service.handlers;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.comviva.interop.txnengine.configuration.BrokerServiceProperties;
+import com.comviva.interop.txnengine.configuration.BrokerServiceURLProperties;
+import com.comviva.interop.txnengine.configuration.Resource;
+import com.comviva.interop.txnengine.configuration.ServiceTemplateNames;
+import com.comviva.interop.txnengine.entities.ChannelUserDetails;
+import com.comviva.interop.txnengine.entities.InteropTransactionDetails;
+import com.comviva.interop.txnengine.entities.InteropTransactions;
+import com.comviva.interop.txnengine.enums.Constants;
+import com.comviva.interop.txnengine.enums.NonFinancialServiceTypes;
+import com.comviva.interop.txnengine.enums.RequestType;
+import com.comviva.interop.txnengine.enums.ThirdPartyResponseCodes;
+import com.comviva.interop.txnengine.enums.TransactionStatus;
+import com.comviva.interop.txnengine.model.Response;
+import com.comviva.interop.txnengine.repositories.InteropTransactionDetailsRepository;
+import com.comviva.interop.txnengine.repositories.InteropTransactionsRepository;
+import com.comviva.interop.txnengine.util.MobiquityConst;
+import com.comviva.interop.txnengine.util.StringUtils;
+import com.comviva.interop.txnengine.util.ThirdPartyCaller;
+import com.comviva.interop.txnengine.util.TransactionDataPreparationUtil;
+
+@Service
+<span class="fc" id="L31">public class UserAuthenticationHandler {</span>
+	
+    
+    @Autowired
+    private BrokerServiceProperties thirdPartyProperties;
+    
+    @Autowired
+    private ThirdPartyCaller thirdPartyCaller;
+
+    @Autowired
+    private InteropTransactionDetailsRepository interopTransactionDetailsRepository;
+
+    @Autowired
+    private InteropTransactionsRepository interOpTransactionRepository;
+
+    @Autowired
+    private TxnCorrectionInitHandler txnCorrectionInitHandler;
+    
+    @Autowired
+    private ServiceTemplateNames serviceTemplateNames;
+    
+    @Autowired
+    private BrokerServiceURLProperties brokerServiceURLProperties;
+    
+    @Autowired
+    private Resource resource;
+
+    public void doTxnCorrection(InteropTransactions interopTransaction, String pin, String lang,
+            String interOpRefId, String txnId, ChannelUserDetails channelUserDetails,String txnMode, String em) {
+<span class="fc" id="L60">    	InteropTransactionDetails txnDetails= TransactionDataPreparationUtil</span>
+<span class="fc" id="L61">                .prepareRequestTransactionDetails(interopTransaction, RequestType.REQUSERAUTH.toString(),thirdPartyProperties,Constants.ZERO.getValue(), Constants.ONE.getValue());</span>
+<span class="fc" id="L62">    	txnDetails.setTxnMode(txnMode);</span>
+<span class="fc" id="L63">        interopTransactionDetailsRepository.save(txnDetails);</span>
+<span class="fc" id="L64">        Response authenticationResponse = execute(thirdPartyProperties.getAuthorizationUserName(),thirdPartyProperties.getAuthorizationPassword(), interOpRefId,txnMode);</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (!Optional.ofNullable(authenticationResponse.getMappingResponse()).isPresent()) {</span>
+<span class="fc" id="L66">            interOpTransactionRepository.save(TransactionDataPreparationUtil.updateTransactionStatus(interopTransaction,</span>
+<span class="fc" id="L67">                    TransactionStatus.TRANSACTION_AMBIGUOUS_AT_HPS.getStatus()));</span>
+<span class="fc" id="L68">            interopTransactionDetailsRepository.save(TransactionDataPreparationUtil.prepareResponseTransactionDetails(</span>
+<span class="fc" id="L69">                    interopTransaction, RequestType.RESUSERAUTH.toString(), authenticationResponse,thirdPartyProperties,Constants.ZERO.getValue(), Constants.ONE.getValue()));</span>
+<span class="fc" id="L70">        } else if (ThirdPartyResponseCodes.SUCCESS.getMappedCode()</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">                .equals(authenticationResponse.getMappingResponse().getMappingCode())) {</span>
+<span class="fc" id="L72">        	interOpTransactionRepository.save(TransactionDataPreparationUtil.updateTransactionStatus(interopTransaction,</span>
+<span class="fc" id="L73">                    TransactionStatus.TRANSACTION_FAIL_AT_HPS.getStatus()));</span>
+<span class="fc" id="L74">            interopTransactionDetailsRepository.save(TransactionDataPreparationUtil.prepareResponseTransactionDetails(</span>
+<span class="fc" id="L75">                    interopTransaction, RequestType.RESUSERAUTH.toString(), authenticationResponse,thirdPartyProperties,Constants.ZERO.getValue(), Constants.ONE.getValue()));</span>
+<span class="fc" id="L76">            txnCorrectionInitHandler.doTxnCorrectionInitiation(interopTransaction, pin, lang, interOpRefId, txnId,channelUserDetails,txnMode, em);</span>
+        } else {
+<span class="fc" id="L78">        	interOpTransactionRepository.save(TransactionDataPreparationUtil.updateTransactionStatus(interopTransaction,</span>
+<span class="fc" id="L79">                    TransactionStatus.TRANSACTION_FAIL_AT_HPS.getStatus()));</span>
+<span class="fc" id="L80">            interopTransactionDetailsRepository.save(TransactionDataPreparationUtil.prepareResponseTransactionDetails(</span>
+<span class="fc" id="L81">                    interopTransaction, RequestType.RESUSERAUTH.toString(), authenticationResponse,thirdPartyProperties,Constants.ZERO.getValue(), Constants.ONE.getValue()));</span>
+        }
+<span class="fc" id="L83">    }</span>
+
+    public Response execute(String loginId, String password, String interopReferenceId,String txnMode) {
+<span class="fc" id="L86">        Map&lt;String, String&gt; userAuth = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L87">        userAuth.put(MobiquityConst.SESSION_ID.getValue(), interopReferenceId);</span>
+<span class="fc" id="L88">        userAuth.put(MobiquityConst.TXNMODE.getValue(), txnMode);</span>
+<span class="fc" id="L89">        userAuth.put(MobiquityConst.LOGIN_ID.getValue(), loginId);</span>
+<span class="fc" id="L90">        userAuth.put(MobiquityConst.PASSWORD.getValue(), password);</span>
+<span class="fc" id="L91">        return thirdPartyCaller.postMobiquityServiceRequest(userAuth, serviceTemplateNames.getUserAuthRequestTemplate(),</span>
+<span class="fc" id="L92">                getWalletUserAuthUrl(), interopReferenceId, NonFinancialServiceTypes.USER_AUTHENTICATION.getServiceType());</span>
+    }
+
+    private String getWalletUserAuthUrl() {
+<span class="fc" id="L96">        Object[] urlArgs = { resource.getWalletBaseUrl(), brokerServiceURLProperties.getUrlAddonIdValue(),</span>
+<span class="fc" id="L97">                brokerServiceURLProperties.getUrlCountryIdValue(), brokerServiceURLProperties.getUrlCurrencyValue() };</span>
+<span class="fc" id="L98">        return StringUtils.msgFormat(brokerServiceURLProperties.getUserAuthUrl(), urlArgs);</span>
+    }    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

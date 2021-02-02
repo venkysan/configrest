@@ -1,0 +1,16 @@
+{
+  "groups": [
+    {
+      "name": "",
+      "type": "com.comviva.interop.txnengine.configuration.ServiceResources",
+      "sourceType": "com.comviva.interop.txnengine.configuration.ServiceResources"
+    },
+    {
+      "name": "",
+      "type": "com.comviva.interop.txnengine.configuration.Resource",
+      "sourceType": "com.comviva.interop.txnengine.configuration.Resource"
+    }
+  ],
+  "properties": [],
+  "hints": []
+}

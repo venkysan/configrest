@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MerchantPaymentInitHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.mobiquity.service.handlers</a> &gt; <span class="el_source">MerchantPaymentInitHandler.java</span></div><h1>MerchantPaymentInitHandler.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.mobiquity.service.handlers;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import com.comviva.interop.txnengine.configuration.BrokerServiceURLProperties;
+import com.comviva.interop.txnengine.configuration.Resource;
+import com.comviva.interop.txnengine.configuration.ServiceTemplateNames;
+import com.comviva.interop.txnengine.configuration.BrokerServiceProperties;
+import com.comviva.interop.txnengine.entities.InteropTransactionDetails;
+import com.comviva.interop.txnengine.entities.InteropTransactions;
+import com.comviva.interop.txnengine.enums.Constants;
+import com.comviva.interop.txnengine.enums.InteropResponseCodes;
+import com.comviva.interop.txnengine.enums.LogConstants;
+import com.comviva.interop.txnengine.enums.RequestType;
+import com.comviva.interop.txnengine.enums.Sources;
+import com.comviva.interop.txnengine.enums.ThirdPartyResponseCodes;
+import com.comviva.interop.txnengine.enums.TransactionStatus;
+import com.comviva.interop.txnengine.enums.TransactionSubTypes;
+import com.comviva.interop.txnengine.enums.UnicId;
+import com.comviva.interop.txnengine.events.CreateTransactionResponseEvent;
+import com.comviva.interop.txnengine.model.Request;
+import com.comviva.interop.txnengine.model.Response;
+import com.comviva.interop.txnengine.model.TransactionRequest;
+import com.comviva.interop.txnengine.model.TransactionResponse;
+import com.comviva.interop.txnengine.model.TxnMode;
+import com.comviva.interop.txnengine.repositories.InteropTransactionDetailsRepository;
+import com.comviva.interop.txnengine.repositories.InteropTransactionsRepository;
+import com.comviva.interop.txnengine.request.validations.GetDescriptionForCode;
+import com.comviva.interop.txnengine.util.LoggerUtil;
+import com.comviva.interop.txnengine.util.MobiquityConst;
+import com.comviva.interop.txnengine.util.StringUtils;
+import com.comviva.interop.txnengine.util.ThirdPartyCaller;
+import com.comviva.interop.txnengine.util.TransactionDataPreparationUtil;
+
+@Service
+<span class="fc" id="L44">public class MerchantPaymentInitHandler {</span>
+
+<span class="fc" id="L46">	private static final Logger LOGGER = LoggerFactory.getLogger(MerchantPaymentInitHandler.class);</span>
+	
+	@Autowired
+	private BrokerServiceProperties thirdPartyProperties;
+		
+	@Autowired
+    private GetDescriptionForCode getDescriptionForCode;
+    
+	@Autowired
+	private ThirdPartyCaller thirdPartyCaller;
+	
+	@Autowired
+	private InteropTransactionsRepository interOpTransactionRepository;
+	
+	@Autowired
+	private ApplicationEventPublisher applicationEventPublisher;
+	
+	@Autowired
+	private InteropTransactionDetailsRepository interopTransactionDetailsRepository;
+	
+	@Autowired
+	private MerchantPaymentConfirmHandler merchantPaymentConfirmHandler;
+	
+	@Autowired
+	private ServiceTemplateNames serviceTemplateNames;
+	
+	@Autowired
+    private BrokerServiceURLProperties brokerServiceURLProperties;
+	
+	@Autowired
+	private Resource resource;
+
+    public void callBrokerForMerchantPaymentInit(Request request, InteropTransactions interopTransaction, TransactionRequest requestBody) {
+<span class="fc" id="L79">        InteropTransactionDetails txnDetails = TransactionDataPreparationUtil</span>
+<span class="fc" id="L80">                .prepareRequestTransactionDetails(interopTransaction, RequestType.RMPREQ.toString(),thirdPartyProperties, Constants.ZERO.getValue(), Constants.ZERO.getValue());</span>
+<span class="fc" id="L81">        TxnMode txnMode= new TxnMode(TransactionSubTypes.MP_ON_US.toString(),brokerServiceURLProperties.getUrlCountryIdValue(),brokerServiceURLProperties.getUrlCurrencyValue(),</span>
+<span class="fc" id="L82">                brokerServiceURLProperties.getUrlAddonIdValue(),request.getInteropReferenceId(),UnicId.ONE.getVal());</span>
+<span class="fc" id="L83">        txnDetails.setTxnMode(txnMode.toString());</span>
+<span class="fc" id="L84">        interopTransactionDetailsRepository.save(txnDetails);</span>
+<span class="fc" id="L85">        Response merchantPaymentInitResponse = execute(requestBody,request.getInteropReferenceId(),txnMode.toString());</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">        if (!Optional.ofNullable(merchantPaymentInitResponse.getMappingResponse()).isPresent()) {</span>
+<span class="nc" id="L87">            interOpTransactionRepository.save(TransactionDataPreparationUtil.updateTransactionStatus(</span>
+<span class="nc" id="L88">                    interopTransaction, TransactionStatus.TRANSACTION_FAIL.getStatus()));</span>
+<span class="nc" id="L89">            interopTransactionDetailsRepository.save(TransactionDataPreparationUtil.prepareResponseTransactionDetails(</span>
+<span class="nc" id="L90">                    interopTransaction, RequestType.RMRESP.toString(), merchantPaymentInitResponse,thirdPartyProperties, Constants.ZERO.getValue(), Constants.ZERO.getValue()));</span>
+<span class="nc" id="L91">            this.publishResponseEvent(TransactionDataPreparationUtil.prepareTransactionResponse(interopTransaction,</span>
+<span class="nc" id="L92">                    InteropResponseCodes.READ_TIMEOUT_FROM_BROKER.getStatusCode(),</span>
+                    getDescriptionForCode
+<span class="nc" id="L94">                            .getMappingCode(InteropResponseCodes.READ_TIMEOUT_FROM_BROKER.getStatusCode()),</span>
+<span class="nc" id="L95">                    getDescriptionForCode.getDescription(Sources.BROKER.toString(),</span>
+<span class="nc" id="L96">                            InteropResponseCodes.READ_TIMEOUT_FROM_BROKER.getStatusCode(), requestBody.getLang())),</span>
+<span class="nc" id="L97">                    request.getInteropReferenceId(), requestBody, null);</span>
+<span class="fc" id="L98">        } else if (ThirdPartyResponseCodes.SUCCESS.getMappedCode()</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">                .equals(merchantPaymentInitResponse.getMappingResponse().getMappingCode())) {</span>
+<span class="fc" id="L100">            interopTransactionDetailsRepository.save(TransactionDataPreparationUtil.prepareResponseTransactionDetails(</span>
+<span class="fc" id="L101">                    interopTransaction, RequestType.RMRESP.toString(), merchantPaymentInitResponse,thirdPartyProperties, Constants.ZERO.getValue(), Constants.ZERO.getValue()));</span>
+<span class="fc" id="L102">            merchantPaymentConfirmHandler.callBrokerForMerchantPaymentConfirm(request, interopTransaction, requestBody, merchantPaymentInitResponse.getWalletResponse().getTxnid());</span>
+        } else {
+<span class="nc" id="L104">            interOpTransactionRepository.save(TransactionDataPreparationUtil.updateTransactionStatus(interopTransaction, TransactionStatus.TRANSACTION_FAIL.getStatus()));</span>
+<span class="nc" id="L105">            interopTransactionDetailsRepository.save(TransactionDataPreparationUtil.prepareResponseTransactionDetails(</span>
+<span class="nc" id="L106">                    interopTransaction, RequestType.RMRESP.toString(), merchantPaymentInitResponse,thirdPartyProperties, Constants.ZERO.getValue(), Constants.ZERO.getValue()));</span>
+<span class="nc" id="L107">            this.publishResponseEvent(TransactionDataPreparationUtil.prepareTransactionResponse(interopTransaction,</span>
+<span class="nc" id="L108">                    merchantPaymentInitResponse.getBrokerResponse().getBrokerCode(), merchantPaymentInitResponse.getMappingResponse().getMappingCode(),</span>
+<span class="nc" id="L109">                    merchantPaymentInitResponse.getWalletResponse().getMessage()), request.getInteropReferenceId(), requestBody, null);</span>
+        }
+<span class="fc" id="L111">    }</span>
+    
+    public Response execute(TransactionRequest req, String interopReferenceId,String txnMode) {
+<span class="fc" id="L114">        Map&lt;String, String&gt; request = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L115">        request.put(MobiquityConst.SESSION_ID.getValue(), interopReferenceId);</span>
+<span class="fc" id="L116">        request.put(MobiquityConst.TXNMODE.getValue(), txnMode);</span>
+<span class="fc" id="L117">        request.put(MobiquityConst.MSISDN.getValue(), req.getDebitParty().get(0).getValue());</span>
+<span class="fc" id="L118">        request.put(MobiquityConst.MSISDN2.getValue(), req.getCreditParty().get(0).getValue());</span>
+<span class="fc" id="L119">        request.put(MobiquityConst.AMOUNT.getValue(), req.getAmount());</span>
+<span class="fc" id="L120">        request.put(MobiquityConst.PROVIDER.getValue(), thirdPartyProperties.getPayeeProviderId());</span>
+<span class="fc" id="L121">        request.put(MobiquityConst.PROVIDER2.getValue(), thirdPartyProperties.getPayerProviderId());</span>
+<span class="fc" id="L122">        request.put(MobiquityConst.PAYID.getValue(), thirdPartyProperties.getPayerPayId());</span>
+<span class="fc" id="L123">        request.put(MobiquityConst.PAYID2.getValue(), thirdPartyProperties.getPayeePayId());</span>
+<span class="fc" id="L124">        request.put(MobiquityConst.CONNECTOR.getValue(), thirdPartyProperties.getConnector());</span>
+<span class="fc" id="L125">        return thirdPartyCaller.postMobiquityServiceRequest(request,</span>
+<span class="fc" id="L126">                serviceTemplateNames.getMerchantPaymentInitRequestTemplate(), getMerchantPaymentInitUrl(), interopReferenceId, LogConstants.MERCHANT_PAYMENT_INIT.getValue());</span>
+    }
+
+    private String getMerchantPaymentInitUrl() {
+<span class="fc" id="L130">        Object[] urlArgs = { resource.getWalletBaseUrl(), brokerServiceURLProperties.getUrlAddonIdValue(),</span>
+<span class="fc" id="L131">                brokerServiceURLProperties.getUrlCountryIdValue(), brokerServiceURLProperties.getUrlCurrencyValue() };</span>
+<span class="fc" id="L132">        return StringUtils.msgFormat(brokerServiceURLProperties.getMerchantPaymentInitURL(), urlArgs);</span>
+    }
+
+    private void publishResponseEvent(TransactionResponse transactionResponse, String reqId, TransactionRequest req, Exception ex) {
+<span class="nc" id="L136">        CreateTransactionResponseEvent createTransactionResponseEvent = new CreateTransactionResponseEvent(this,</span>
+                transactionResponse, reqId);
+<span class="nc" id="L138">        String message = LoggerUtil.prepareLogDetailForCreateTransactionResponse(req, brokerServiceURLProperties.getUrlCountryIdValue(),</span>
+<span class="nc" id="L139">                reqId, LogConstants.OUTGOING_RESPONSE_EVENT_TYPE.getValue(),  transactionResponse, ex);</span>
+<span class="nc" id="L140">        LOGGER.info(&quot;Create Transaction  service response: {}&quot;, message);</span>
+<span class="nc" id="L141">        applicationEventPublisher.publishEvent(createTransactionResponseEvent);</span>
+<span class="nc" id="L142">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

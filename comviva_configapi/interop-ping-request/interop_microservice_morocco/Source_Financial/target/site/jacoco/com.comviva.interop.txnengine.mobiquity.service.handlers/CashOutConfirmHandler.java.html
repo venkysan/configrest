@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CashOutConfirmHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.mobiquity.service.handlers</a> &gt; <span class="el_source">CashOutConfirmHandler.java</span></div><h1>CashOutConfirmHandler.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.mobiquity.service.handlers;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
+import com.comviva.interop.txnengine.configuration.BrokerServiceProperties;
+import com.comviva.interop.txnengine.configuration.BrokerServiceURLProperties;
+import com.comviva.interop.txnengine.configuration.Resource;
+import com.comviva.interop.txnengine.configuration.SMSServerProperties;
+import com.comviva.interop.txnengine.configuration.ServiceTemplateNames;
+import com.comviva.interop.txnengine.entities.InteropTransactionDetails;
+import com.comviva.interop.txnengine.entities.InteropTransactions;
+import com.comviva.interop.txnengine.entities.SmsTemplates;
+import com.comviva.interop.txnengine.enums.Constants;
+import com.comviva.interop.txnengine.enums.InteropResponseCodes;
+import com.comviva.interop.txnengine.enums.LogConstants;
+import com.comviva.interop.txnengine.enums.RequestType;
+import com.comviva.interop.txnengine.enums.SMSNotificationCodes;
+import com.comviva.interop.txnengine.enums.Sources;
+import com.comviva.interop.txnengine.enums.ThirdPartyResponseCodes;
+import com.comviva.interop.txnengine.enums.TransactionStatus;
+import com.comviva.interop.txnengine.events.CreateTransactionResponseEvent;
+import com.comviva.interop.txnengine.model.Request;
+import com.comviva.interop.txnengine.model.Response;
+import com.comviva.interop.txnengine.model.TransactionRequest;
+import com.comviva.interop.txnengine.model.TransactionResponse;
+import com.comviva.interop.txnengine.repositories.InteropTransactionDetailsRepository;
+import com.comviva.interop.txnengine.repositories.InteropTransactionsRepository;
+import com.comviva.interop.txnengine.repositories.SmsDeliveryRepository;
+import com.comviva.interop.txnengine.repositories.SmsTemplatesRepository;
+import com.comviva.interop.txnengine.request.validations.GetDescriptionForCode;
+import com.comviva.interop.txnengine.services.OffUsTransactionHPSHandler;
+import com.comviva.interop.txnengine.util.CastUtils;
+import com.comviva.interop.txnengine.util.LoggerUtil;
+import com.comviva.interop.txnengine.util.MobiquityConst;
+import com.comviva.interop.txnengine.util.SMSUtility;
+import com.comviva.interop.txnengine.util.StringUtils;
+import com.comviva.interop.txnengine.util.ThirdPartyCaller;
+import com.comviva.interop.txnengine.util.TransactionDataPreparationUtil;
+
+@Service
+<span class="fc" id="L49">public class CashOutConfirmHandler {</span>
+
+<span class="fc" id="L51">    private static final Logger LOGGER = LoggerFactory.getLogger(CashOutConfirmHandler.class);</span>
+    
+    @Autowired
+    private BrokerServiceProperties thirdPartyProperties;
+
+    @Autowired
+    private ThirdPartyCaller thirdPartyCaller;
+
+    @Autowired
+    private GetDescriptionForCode getDescriptionForCode;
+
+    @Autowired
+    private InteropTransactionDetailsRepository interopTransactionDetailsRepository;
+
+    @Autowired
+    private InteropTransactionsRepository interOpTransactionRepository;
+
+    @Autowired
+    private SmsTemplatesRepository smsTemplatesRepository;
+
+    @Autowired
+    private SmsDeliveryRepository smsDeliveryRepository;
+
+    @Autowired
+    private SMSServerProperties smsServerProperties;
+
+    @Autowired
+    private OffUsTransactionHPSHandler transactionRequestHPSHandler;
+    
+    @Autowired
+    private BrokerServiceURLProperties brokerServiceURLProperties;
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
+    
+    @Autowired
+    private ServiceTemplateNames serviceTemplateNames;
+    
+    @Autowired
+    private Resource resource;
+    
+    
+    public void doCashOutConfirm(InteropTransactions interopTransaction, TransactionRequest requestBody,Request request, String txnId,String txnMode) {
+<span class="fc" id="L94">    	InteropTransactionDetails txnDetails=TransactionDataPreparationUtil.prepareRequestTransactionDetails(interopTransaction, RequestType.RCORREQ.toString(),thirdPartyProperties,Constants.ZERO.getValue(), Constants.ONE.getValue());</span>
+<span class="fc" id="L95">    	txnDetails.setTxnMode(txnMode);</span>
+<span class="fc" id="L96">        interopTransactionDetailsRepository.save(txnDetails);</span>
+<span class="fc" id="L97">        Response cashOutConfirmResponse = execute(requestBody.getAmount(), txnId,</span>
+<span class="fc" id="L98">        		thirdPartyProperties.getConfirmStatus(), request.getInteropReferenceId(),txnMode,</span>
+<span class="fc" id="L99">        		requestBody.getDebitPartyCredentials().getPin(), requestBody.getDebitPartyCredentials().getEm(), interopTransaction.getPayerMsisdn());</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (!Optional.ofNullable(cashOutConfirmResponse.getMappingResponse()).isPresent()) {</span>
+<span class="fc" id="L101">            interOpTransactionRepository.save(TransactionDataPreparationUtil.updateTransactionStatus(interopTransaction,</span>
+<span class="fc" id="L102">                    TransactionStatus.TRANSACTION_AMBIGUOUS.getStatus()));</span>
+<span class="fc" id="L103">            interopTransactionDetailsRepository.save(TransactionDataPreparationUtil.prepareResponseTransactionDetails(</span>
+<span class="fc" id="L104">                    interopTransaction, RequestType.RCORESP.toString(), cashOutConfirmResponse,thirdPartyProperties,Constants.ZERO.getValue(), Constants.ONE.getValue()));</span>
+<span class="fc" id="L105">            this.publishResponseEvent(TransactionDataPreparationUtil.prepareTransactionResponse(interopTransaction,</span>
+<span class="fc" id="L106">                    InteropResponseCodes.READ_TIMEOUT_FROM_BROKER.getStatusCode(),</span>
+<span class="fc" id="L107">                    getDescriptionForCode.getMappingCode(InteropResponseCodes.READ_TIMEOUT_FROM_BROKER.getStatusCode()),</span>
+<span class="fc" id="L108">                    getDescriptionForCode.getDescription(Sources.BROKER.toString(),</span>
+<span class="fc" id="L109">                            InteropResponseCodes.READ_TIMEOUT_FROM_BROKER.getStatusCode(), requestBody.getLang())),</span>
+<span class="fc" id="L110">                    request.getInteropReferenceId(), requestBody, null);            </span>
+<span class="fc" id="L111">        } else if (ThirdPartyResponseCodes.SUCCESS.getMappedCode()</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">                .equals(cashOutConfirmResponse.getMappingResponse().getMappingCode())) {</span>
+<span class="fc" id="L113">            interOpTransactionRepository.save(TransactionDataPreparationUtil.updateTransactionStatus(interopTransaction,</span>
+<span class="fc" id="L114">                    TransactionStatus.TRANSACTION_SUCCESS_AT_MOBIQUITY.getStatus()));</span>
+<span class="fc" id="L115">            interopTransactionDetailsRepository.save(TransactionDataPreparationUtil.prepareResponseTransactionDetails(</span>
+<span class="fc" id="L116">                    interopTransaction, RequestType.RCORESP.toString(), cashOutConfirmResponse,thirdPartyProperties,Constants.ZERO.getValue(), Constants.ONE.getValue()));</span>
+<span class="fc" id="L117">            transactionRequestHPSHandler.execute(request, txnId,txnMode, interopTransaction);</span>
+<span class="fc" id="L118">            TransactionResponse transactionResponse = TransactionDataPreparationUtil.prepareTransactionResponse(interopTransaction,&quot;&quot;,&quot;&quot;,&quot;&quot;);</span>
+<span class="fc" id="L119">            transactionResponse.setCode(CastUtils.joinStatusCode(InteropResponseCodes.TXN_INITIATED_SUCCESSFULLY.getEntity().toString(), InteropResponseCodes.TXN_INITIATED_SUCCESSFULLY.getStatusCode()));</span>
+<span class="fc" id="L120">            transactionResponse.setMappedCode( getDescriptionForCode.getMappingCode(InteropResponseCodes.TXN_INITIATED_SUCCESSFULLY.getStatusCode()));</span>
+<span class="fc" id="L121">            transactionResponse.setMessage(getDescriptionForCode.getDescription(InteropResponseCodes.TXN_INITIATED_SUCCESSFULLY.getEntity().toString(),</span>
+<span class="fc" id="L122">            		InteropResponseCodes.TXN_INITIATED_SUCCESSFULLY.getStatusCode(), requestBody.getLang()));</span>
+<span class="fc" id="L123">            this.publishResponseEvent(transactionResponse, request.getInteropReferenceId(), requestBody, null);</span>
+<span class="fc" id="L124">        } else {</span>
+<span class="fc" id="L125">            interOpTransactionRepository.save(TransactionDataPreparationUtil.updateTransactionStatus(interopTransaction,</span>
+<span class="fc" id="L126">                    TransactionStatus.TRANSACTION_FAIL.getStatus()));</span>
+<span class="fc" id="L127">            interopTransactionDetailsRepository.save(TransactionDataPreparationUtil.prepareResponseTransactionDetails(</span>
+<span class="fc" id="L128">                    interopTransaction, RequestType.RCORESP.toString(), cashOutConfirmResponse,thirdPartyProperties,Constants.ZERO.getValue(), Constants.ONE.getValue()));</span>
+<span class="fc" id="L129">            addSmsDelivery(requestBody.getDebitParty().get(0).getValue(),</span>
+<span class="fc" id="L130">                    SMSNotificationCodes.OFF_US_CASH_OUT_CONFIRM_FAIL.toString(), requestBody.getLang()); </span>
+<span class="fc" id="L131">            this.publishResponseEvent(TransactionDataPreparationUtil.prepareTransactionResponse(interopTransaction,</span>
+<span class="fc" id="L132">                    cashOutConfirmResponse.getBrokerResponse().getBrokerCode(),</span>
+<span class="fc" id="L133">                    cashOutConfirmResponse.getMappingResponse().getMappingCode(),</span>
+<span class="fc" id="L134">                    cashOutConfirmResponse.getWalletResponse().getMessage()), request.getInteropReferenceId(), requestBody, null);</span>
+        }
+<span class="fc" id="L136">    }</span>
+
+    public Response execute(String amount, String txnid, String status, String interopReferenceId,String txnMode,
+    		String pin, String em, String msisdn) {
+<span class="fc" id="L140">        Map&lt;String, String&gt; cashOutConfirmRequest = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L141">        cashOutConfirmRequest.put(MobiquityConst.SESSION_ID.getValue(), interopReferenceId);</span>
+<span class="fc" id="L142">        cashOutConfirmRequest.put(MobiquityConst.TXNMODE.getValue(), txnMode);</span>
+<span class="fc" id="L143">        cashOutConfirmRequest.put(MobiquityConst.MSISDN.getValue(), msisdn);</span>
+<span class="fc" id="L144">        cashOutConfirmRequest.put(MobiquityConst.PIN.getValue(), pin );</span>
+<span class="fc" id="L145">        cashOutConfirmRequest.put(MobiquityConst.AMOUNT.getValue(), amount);</span>
+<span class="fc" id="L146">        cashOutConfirmRequest.put(MobiquityConst.PROVIDER.getValue(), thirdPartyProperties.getPayeeProviderId());</span>
+<span class="fc" id="L147">        cashOutConfirmRequest.put(MobiquityConst.TXNID.getValue(), txnid);</span>
+<span class="fc" id="L148">        cashOutConfirmRequest.put(MobiquityConst.STATUS.getValue(), status);</span>
+<span class="fc" id="L149">        cashOutConfirmRequest.put(MobiquityConst.EM.getValue(), em);</span>
+<span class="fc" id="L150">        return thirdPartyCaller.postMobiquityServiceRequest(cashOutConfirmRequest,</span>
+<span class="fc" id="L151">                serviceTemplateNames.getCashOutConfirmRequestTemplate(), getWalletCashOutCofirmUrl(), interopReferenceId, LogConstants.CASHOUT_CONFIRM.getValue());</span>
+    }
+
+    private String getWalletCashOutCofirmUrl() {
+<span class="fc" id="L155">        Object[] urlArgs = { resource.getWalletBaseUrl(), brokerServiceURLProperties.getUrlAddonIdValue(),</span>
+<span class="fc" id="L156">                brokerServiceURLProperties.getUrlCountryIdValue(), brokerServiceURLProperties.getUrlCurrencyValue() };</span>
+<span class="fc" id="L157">        return StringUtils.msgFormat(brokerServiceURLProperties.getCashOutConfirmUrl(), urlArgs);</span>
+    }
+
+
+    private void addSmsDelivery(String msisdn, String serviceType, String languageCode) {
+<span class="fc" id="L162">        SmsTemplates smsTemplates = smsTemplatesRepository.findSmsTemplateByTypeAndLang(serviceType, languageCode);</span>
+<span class="fc" id="L163">        smsDeliveryRepository.save(SMSUtility.prepareSMSDelivery(smsTemplates.getDescription(), msisdn, languageCode,</span>
+<span class="fc" id="L164">                serviceType, smsServerProperties.getNodeName()));</span>
+<span class="fc" id="L165">    }</span>
+
+    private void publishResponseEvent(TransactionResponse transactionResponse, String reqId, TransactionRequest req, Exception ex) {
+<span class="fc" id="L168">        CreateTransactionResponseEvent createTransactionResponseEvent = new CreateTransactionResponseEvent(this,</span>
+                transactionResponse, reqId);
+<span class="fc" id="L170">        String message = LoggerUtil.prepareLogDetailForCreateTransactionResponse(req, brokerServiceURLProperties.getUrlCountryIdValue(),</span>
+<span class="fc" id="L171">                reqId, LogConstants.OUTGOING_RESPONSE_EVENT_TYPE.getValue(),  transactionResponse, ex);</span>
+<span class="fc" id="L172">        LOGGER.info(&quot;Create Transaction  service response: {}&quot;, message);</span>
+<span class="fc" id="L173">        applicationEventPublisher.publishEvent(createTransactionResponseEvent);</span>
+<span class="fc" id="L174">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

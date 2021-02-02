@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuotationResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.model</a> &gt; <span class="el_source">QuotationResponse.java</span></div><h1>QuotationResponse.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.model;
+
+import javax.annotation.Generated;
+
+import org.joda.time.DateTime;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+/**
+ * QuotationResponse
+ */
+@Generated(value = &quot;class io.swagger.codegen.languages.SpringCodegen&quot;, date = &quot;2019-03-05T10:52:25.503+05:30&quot;)
+<span class="fc" id="L19">@Setter</span>
+@Getter
+<span class="nc" id="L21">@ToString</span>
+public class QuotationResponse {
+
+<span class="fc" id="L24">    private String extOrgRefId = null;</span>
+<span class="fc" id="L25">    private String interopRefId = null;</span>
+<span class="fc" id="L26">    private DateTime transactionSubmitTime = null;</span>
+<span class="fc" id="L27">    private String feesPayerPaid = null;</span>
+<span class="fc" id="L28">    private String feesPayeePaid = null;</span>
+<span class="fc" id="L29">    private String commissionPayerPaid = null;</span>
+<span class="fc" id="L30">    private String commissionPayerReceived = null;</span>
+<span class="fc" id="L31">    private String commissionPayeePaid = null;</span>
+<span class="fc" id="L32">    private String commissionPayeeReceived = null;</span>
+<span class="fc" id="L33">    private String taxPayerPaid = null;</span>
+<span class="fc" id="L34">    private String taxPayeePaid = null;</span>
+<span class="fc" id="L35">    private String message = null;</span>
+<span class="fc" id="L36">    private String code = null;</span>
+<span class="fc" id="L37">    private String mappedCode = null;</span>
+
+    public QuotationResponse(String message, String code, String mappedCode) {
+<span class="fc" id="L40">        super();</span>
+<span class="fc" id="L41">        this.message = message;</span>
+<span class="fc" id="L42">        this.code = code;</span>
+<span class="fc" id="L43">        this.mappedCode = mappedCode;</span>
+<span class="fc" id="L44">    }</span>
+
+<span class="fc" id="L46">    public QuotationResponse() {</span>
+<span class="fc" id="L47">    }</span>
+    
+    public String convertToJSON(QuotationResponse quotationResponse) throws JsonProcessingException {
+<span class="fc" id="L50">        return new ObjectMapper().writer(new DefaultPrettyPrinter()).writeValueAsString(quotationResponse);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SmsExecutoerService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.sms</a> &gt; <span class="el_source">SmsExecutoerService.java</span></div><h1>SmsExecutoerService.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.sms;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.comviva.interop.txnengine.configuration.SMSServerProperties;
+
+@Service
+public class SmsExecutoerService {
+
+    @Autowired
+    private SMSFetchingThread smsFetchingThread;
+
+    @Autowired
+    private SMSServerProperties resource;
+
+<span class="fc" id="L23">    public SmsExecutoerService(SMSServerProperties resource) {</span>
+<span class="fc" id="L24">        this.resource = resource;</span>
+<span class="fc" id="L25">    }</span>
+
+    @PostConstruct
+    public void init() {
+<span class="fc" id="L29">        ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();</span>
+<span class="fc" id="L30">        scheduledExecutorService.scheduleAtFixedRate(smsFetchingThread, resource.getInitialDelay(),</span>
+<span class="fc" id="L31">                resource.getPeriodTime(), TimeUnit.SECONDS);</span>
+<span class="fc" id="L32">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

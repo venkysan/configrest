@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NetworkMessageHPSHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.services</a> &gt; <span class="el_source">NetworkMessageHPSHandler.java</span></div><h1>NetworkMessageHPSHandler.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.services;
+
+import java.math.BigDecimal;
+import java.util.Map;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+
+import com.comviva.interop.txnengine.configuration.EigTags;
+import com.comviva.interop.txnengine.enums.InteropResponseCodes;
+import com.comviva.interop.txnengine.enums.LogConstants;
+import com.comviva.interop.txnengine.enums.Sources;
+import com.comviva.interop.txnengine.enums.ThirdPartyResponseCodes;
+import com.comviva.interop.txnengine.enums.ValidationErrors;
+import com.comviva.interop.txnengine.exception.InteropException;
+import com.comviva.interop.txnengine.model.NetworkMessageRequest;
+import com.comviva.interop.txnengine.model.NetworkMessageResponse;
+import com.comviva.interop.txnengine.request.validations.GetDescriptionForCode;
+import com.comviva.interop.txnengine.util.CastUtils;
+import com.comviva.interop.txnengine.util.LoggerUtil;
+import com.comviva.interop.txnengine.util.StringUtils;
+
+@Service
+<span class="fc" id="L30">public class NetworkMessageHPSHandler {</span>
+
+<span class="fc" id="L32">	private static final Logger LOGGER = LoggerFactory.getLogger(NetworkMessageHPSHandler.class);</span>
+
+	@Autowired
+	private NetworkMessageHPS networkMessageHPS;
+
+	@Autowired
+	private GetDescriptionForCode getDescriptionForCode;
+
+	@PersistenceContext
+	@Autowired
+	private EntityManager entityManager;
+
+	@Autowired
+	private EigTags eigTags;
+
+	public NetworkMessageResponse execute(NetworkMessageRequest networkMessageRequest, String language) {
+		try {
+			
+<span class="nc" id="L50">			  BigDecimal stan = (BigDecimal)</span>
+<span class="nc" id="L51">			  entityManager.createNativeQuery(&quot;select STAN_SEQID.nextval from dual&quot;)</span>
+<span class="nc" id="L52">			  .getSingleResult();</span>
+			 
+<span class="nc" id="L54">			String retriveRecoveryNumber = StringUtils.generateRRN();</span>
+<span class="nc" id="L55">			String stanStr = StringUtils.prepareSTAN(stan.toString());</span>
+<span class="nc" id="L56">			Map&lt;String, String&gt; eigResponse = networkMessageHPS.execute(networkMessageRequest, stanStr,</span>
+					retriveRecoveryNumber, language);
+<span class="nc" id="L58">			String actionCode = eigResponse.get(eigTags.getActionCodeTag());</span>
+<span class="nc bnc" id="L59" title="All 4 branches missed.">			if (null == actionCode || &quot;&quot;.equals(actionCode)) {</span>
+<span class="nc" id="L60">				throw new InteropException(ValidationErrors.THIRD_PARTY_STATUS_CODE_MISSING.getStatusCode(),</span>
+<span class="nc" id="L61">						ValidationErrors.THIRD_PARTY_STATUS_CODE_MISSING.getEntity().toString());</span>
+			}
+<span class="nc bnc" id="L63" title="All 2 branches missed.">			if (InteropResponseCodes.HPS_TXN_NETWORK_MESSAGE_SUCCESS_ACTION_CODE.getStatusCode().equals(actionCode)) {</span>
+<span class="nc" id="L64">				String thirdPartyCode = InteropResponseCodes.SUCCESS.getStatusCode();</span>
+<span class="nc" id="L65">				return new NetworkMessageResponse(getDescriptionForCode.getMappingCode(thirdPartyCode),</span>
+<span class="nc" id="L66">						CastUtils.joinStatusCode(ThirdPartyResponseCodes.HPS_SUCCESS.getEntity().toString(),</span>
+								thirdPartyCode),
+<span class="nc" id="L68">						getDescriptionForCode.getDescription(ThirdPartyResponseCodes.HPS_SUCCESS.getEntity().toString(),</span>
+								thirdPartyCode, language));
+			} else {
+<span class="nc" id="L71">				throw new InteropException(actionCode, Sources.HPS.toString());</span>
+			}
+<span class="nc" id="L73">		} catch (InteropException | RestClientException exception) {</span>
+<span class="nc" id="L74">			String message = LoggerUtil.prepareLogDetailForNetworkMessageResponse(language, null, null,</span>
+<span class="nc" id="L75">					LogConstants.INTERNAL_ERROR.getValue(), null, exception);</span>
+<span class="nc" id="L76">			LOGGER.info(&quot;InteropException/RestClientException in NetworkMessageHPSHandler: Message: {}&quot;, message);</span>
+<span class="nc" id="L77">		} catch (Exception e) {</span>
+<span class="nc" id="L78">			String message = LoggerUtil.prepareLogDetailForNetworkMessageResponse(language, null, null,</span>
+<span class="nc" id="L79">					LogConstants.INTERNAL_ERROR.getValue(), null, e);</span>
+<span class="nc" id="L80">			LOGGER.info(&quot;Exception in NetworkMessageHPSHandler: Message: {}&quot;, message);</span>
+<span class="nc" id="L81">		}</span>
+<span class="nc" id="L82">		return null;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

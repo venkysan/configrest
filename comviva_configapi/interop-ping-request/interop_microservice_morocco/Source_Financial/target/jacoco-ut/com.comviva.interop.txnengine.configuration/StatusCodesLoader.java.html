@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StatusCodesLoader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.configuration</a> &gt; <span class="el_source">StatusCodesLoader.java</span></div><h1>StatusCodesLoader.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.configuration;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.comviva.interop.txnengine.entities.StatusCodes;
+import com.comviva.interop.txnengine.enums.LogConstants;
+import com.comviva.interop.txnengine.model.CodeDescriptionMap;
+import com.comviva.interop.txnengine.model.EntityCodeMap;
+import com.comviva.interop.txnengine.model.StatusCodeMap;
+import com.comviva.interop.txnengine.repositories.StatusCodesRepository;
+import com.comviva.interop.txnengine.util.LoggerUtil;
+
+@Service
+public class StatusCodesLoader {
+
+    private StatusCodesRepository statusCodesRepository;
+
+<span class="fc" id="L23">    private static final Logger LOGGER = LoggerFactory.getLogger(StatusCodesLoader.class);</span>
+
+    @Autowired
+<span class="fc" id="L26">    public StatusCodesLoader(StatusCodesRepository statusCodesRepository) {</span>
+<span class="fc" id="L27">        this.statusCodesRepository = statusCodesRepository;</span>
+<span class="fc" id="L28">    }</span>
+
+    public EntityCodeMap loadStatusCodes() {
+<span class="fc" id="L31">        List&lt;StatusCodes&gt; list = statusCodesRepository.getAllCodes();</span>
+<span class="fc" id="L32">        EntityCodeMap codeMap = new EntityCodeMap();</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">        for (StatusCodes statusCode : list) {</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">            if (!codeMap.getEntityMap().containsKey(statusCode.getEntity())) {</span>
+<span class="fc" id="L35">                codeMap.getEntityMap().put(statusCode.getEntity(), new StatusCodeMap());</span>
+            }
+<span class="fc" id="L37">            if (!codeMap.getEntityMap().get(statusCode.getEntity()).getStatusCodeMap()</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">                    .containsKey(statusCode.getStatuscode())) {</span>
+<span class="fc" id="L39">                codeMap.getEntityMap().get(statusCode.getEntity()).getStatusCodeMap().put(statusCode.getStatuscode(),</span>
+                        new CodeDescriptionMap());
+            }
+
+<span class="fc" id="L43">            codeMap.getEntityMap().get(statusCode.getEntity()).getStatusCodeMap().get(statusCode.getStatuscode())</span>
+<span class="fc" id="L44">                    .getDescriptionMap().put(statusCode.getLangCode(), statusCode.getDescription());</span>
+<span class="fc" id="L45">            codeMap.getMappingCodes().put(statusCode.getStatuscode(), statusCode.getMappingCode());</span>
+<span class="fc" id="L46">        }</span>
+<span class="fc" id="L47">        String message = LoggerUtil.printLog(LogConstants.LOADING_STATUS_CODES_EVENT.getValue(), null, LogConstants.LOADING_STATUS_CODES_COMPLETED_USE_CASE.getValue());</span>
+<span class="fc" id="L48">        LOGGER.info(&quot;Done loading data from StatusCodes table....{}&quot; ,message);</span>
+<span class="fc" id="L49">        return codeMap;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

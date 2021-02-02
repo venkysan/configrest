@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReceiveTransactionResponse.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.model</a> &gt; <span class="el_source">ReceiveTransactionResponse.java</span></div><h1>ReceiveTransactionResponse.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.model;
+
+import javax.annotation.Generated;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.Getter;
+import lombok.Setter;
+
+/**
+ * TransactionResponse
+ */
+<span class="fc" id="L15">@Setter</span>
+@Getter
+@Generated(value = &quot;class io.swagger.codegen.languages.SpringCodegen&quot;, date = &quot;2019-03-05T10:52:25.503+05:30&quot;)
+public class ReceiveTransactionResponse extends BaseReceiveTransaction{
+
+<span class="fc" id="L20">	private String lengthOfTheAuthorizationCode;</span>
+<span class="fc" id="L21">	private String identificationCodeOfTheAcquiringOrganization;</span>
+<span class="fc" id="L22">	private String identificationCodeOfTheSendingOrganization;</span>
+<span class="fc" id="L23">	private String referenceNumberOfTheRecovery;</span>
+<span class="fc" id="L24">	private String authorizationCode;</span>
+<span class="fc" id="L25">	private String actionCode;</span>
+<span class="fc" id="L26">	private String securityCheckInfo;</span>
+<span class="fc" id="L27">	private String currencyCodeOfTheTransaction;</span>
+<span class="fc" id="L28">	private String currencyCodeOfTheConsolidation;</span>
+<span class="fc" id="L29">	private String currencyCodeOfTheCardholderInvoice;</span>
+<span class="fc" id="L30">	private String sourceAccountNumber;</span>
+<span class="fc" id="L31">	private String destinationAccountNumber;</span>
+	
+<span class="fc" id="L33">	public ReceiveTransactionResponse() {</span>
+<span class="fc" id="L34">	}</span>
+	
+	public String convertToJSON(ReceiveTransactionResponse receiveTransactionResponse) throws JsonProcessingException {
+<span class="fc" id="L37">        return new ObjectMapper().writer(new DefaultPrettyPrinter()).writeValueAsString(receiveTransactionResponse);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

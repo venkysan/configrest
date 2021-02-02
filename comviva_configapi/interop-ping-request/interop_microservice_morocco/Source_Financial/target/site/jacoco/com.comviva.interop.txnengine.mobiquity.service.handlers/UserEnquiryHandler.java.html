@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserEnquiryHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.mobiquity.service.handlers</a> &gt; <span class="el_source">UserEnquiryHandler.java</span></div><h1>UserEnquiryHandler.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.mobiquity.service.handlers;
+
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.comviva.interop.txnengine.configuration.BrokerServiceProperties;
+import com.comviva.interop.txnengine.configuration.BrokerServiceURLProperties;
+import com.comviva.interop.txnengine.configuration.Resource;
+import com.comviva.interop.txnengine.configuration.SMSServerProperties;
+import com.comviva.interop.txnengine.configuration.ServiceTemplateNames;
+import com.comviva.interop.txnengine.entities.InteropTransactionDetails;
+import com.comviva.interop.txnengine.entities.InteropTransactions;
+import com.comviva.interop.txnengine.entities.SmsTemplates;
+import com.comviva.interop.txnengine.enums.Constants;
+import com.comviva.interop.txnengine.enums.NonFinancialServiceTypes;
+import com.comviva.interop.txnengine.enums.RequestType;
+import com.comviva.interop.txnengine.enums.ThirdPartyResponseCodes;
+import com.comviva.interop.txnengine.model.Response;
+import com.comviva.interop.txnengine.repositories.InteropTransactionDetailsRepository;
+import com.comviva.interop.txnengine.repositories.SmsDeliveryRepository;
+import com.comviva.interop.txnengine.repositories.SmsTemplatesRepository;
+import com.comviva.interop.txnengine.util.MobiquityConst;
+import com.comviva.interop.txnengine.util.SMSUtility;
+import com.comviva.interop.txnengine.util.StringUtils;
+import com.comviva.interop.txnengine.util.ThirdPartyCaller;
+import com.comviva.interop.txnengine.util.TransactionDataPreparationUtil;
+
+@Service
+public class UserEnquiryHandler {
+    
+    
+    private BrokerServiceProperties thirdPartyProperties;
+    
+    private ThirdPartyCaller thirdPartyCaller;
+
+    @Autowired
+    private SmsDeliveryRepository smsDeliveryRepository;
+    
+    @Autowired
+    private SmsTemplatesRepository smsTemplatesRepository;
+    
+    @Autowired
+    private InteropTransactionDetailsRepository interopTransactionDetailsRepository;
+
+    @Autowired
+    private SMSServerProperties smsServerProperties;
+    
+    @Autowired
+    private ServiceTemplateNames serviceTemplateNames;
+    
+    @Autowired
+    private BrokerServiceURLProperties brokerServiceURLProperties;
+    
+    @Autowired
+    private Resource resource;
+    
+    @Autowired
+<span class="fc" id="L63">    public UserEnquiryHandler(BrokerServiceProperties thirdPartyProperties, ThirdPartyCaller thirdPartyCaller) {</span>
+<span class="fc" id="L64">        this.thirdPartyProperties = thirdPartyProperties;</span>
+<span class="fc" id="L65">        this.thirdPartyCaller = thirdPartyCaller;</span>
+<span class="fc" id="L66">    }</span>
+
+    public void doUserEnquiry(InteropTransactions interopTransaction, String pin, String lang,
+            String interopRefId, String notificationType,String txnMode, String em) {
+<span class="fc" id="L70">    	InteropTransactionDetails txnDetails = TransactionDataPreparationUtil</span>
+<span class="fc" id="L71">                .prepareRequestTransactionDetails(interopTransaction, RequestType.USRENQREQ.toString(),thirdPartyProperties,Constants.ZERO.getValue(), Constants.ONE.getValue());</span>
+<span class="fc" id="L72">    	txnDetails.setTxnMode(txnMode);</span>
+<span class="fc" id="L73">        interopTransactionDetailsRepository.save(txnDetails);</span>
+<span class="fc" id="L74">        Response userEnquiryResponse = execute(interopTransaction.getPayerMsisdn(), interopRefId, pin, txnMode, em);</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        if (!Optional.ofNullable(userEnquiryResponse.getMappingResponse()).isPresent()) {</span>
+<span class="nc" id="L76">            interopTransactionDetailsRepository.save(TransactionDataPreparationUtil.prepareResponseTransactionDetails(</span>
+<span class="nc" id="L77">                    interopTransaction, RequestType.USRENQRESP.toString(), userEnquiryResponse,thirdPartyProperties,Constants.ZERO.getValue(), Constants.ONE.getValue()));</span>
+<span class="fc" id="L78">        } else if (ThirdPartyResponseCodes.SUCCESS.getMappedCode()</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">                .equals(userEnquiryResponse.getMappingResponse().getMappingCode())) {</span>
+<span class="fc" id="L80">            interopTransactionDetailsRepository.save(TransactionDataPreparationUtil.prepareResponseTransactionDetails(</span>
+<span class="fc" id="L81">                    interopTransaction, RequestType.USRENQRESP.toString(), userEnquiryResponse,thirdPartyProperties,Constants.ZERO.getValue(), Constants.ONE.getValue()));</span>
+<span class="fc" id="L82">            addSmsDelivery(interopTransaction.getPayerMsisdn(), notificationType, lang,</span>
+<span class="fc" id="L83">                    userEnquiryResponse.getWalletResponse().getBalance());</span>
+        } else {
+<span class="nc" id="L85">            interopTransactionDetailsRepository.save(TransactionDataPreparationUtil.prepareResponseTransactionDetails(</span>
+<span class="nc" id="L86">                    interopTransaction, RequestType.USRENQRESP.toString(), userEnquiryResponse,thirdPartyProperties,Constants.ZERO.getValue(), Constants.ONE.getValue()));</span>
+        }
+<span class="fc" id="L88">    }</span>
+
+    public Response execute(String msisdn, String interopReferenceId, String pin,String txnMode, String em) {
+<span class="fc" id="L91">        Map&lt;String, String&gt; checkBalance = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L92">        checkBalance.put(MobiquityConst.SESSION_ID.getValue(), interopReferenceId);</span>
+<span class="fc" id="L93">        checkBalance.put(MobiquityConst.TXNMODE.getValue(), txnMode);</span>
+<span class="fc" id="L94">        checkBalance.put(MobiquityConst.MSISDN.getValue(), msisdn);</span>
+<span class="fc" id="L95">        checkBalance.put(MobiquityConst.PROVIDER.getValue(), thirdPartyProperties.getPayerProviderId());</span>
+<span class="fc" id="L96">        checkBalance.put(MobiquityConst.PAYID.getValue(), thirdPartyProperties.getPayerPayId());</span>
+<span class="fc" id="L97">        checkBalance.put(MobiquityConst.USER_TYPE.getValue(), thirdPartyProperties.getSubscriberUserType());</span>
+<span class="fc" id="L98">        checkBalance.put(MobiquityConst.PIN.getValue(), pin);</span>
+<span class="fc" id="L99">        checkBalance.put(MobiquityConst.EM.getValue(), em);</span>
+<span class="fc" id="L100">        return thirdPartyCaller.postMobiquityServiceRequest(checkBalance,</span>
+<span class="fc" id="L101">                serviceTemplateNames.getCheckBalanceRequestTemplate(), getWalletCheckBalanceUrl(), interopReferenceId, NonFinancialServiceTypes.USER_ENQUIRY.getServiceType());</span>
+    }
+
+    private String getWalletCheckBalanceUrl() {
+<span class="fc" id="L105">        Object[] urlArgs = { resource.getWalletBaseUrl(), brokerServiceURLProperties.getUrlAddonIdValue(),</span>
+<span class="fc" id="L106">                brokerServiceURLProperties.getUrlCountryIdValue(), brokerServiceURLProperties.getUrlCurrencyValue() };</span>
+<span class="fc" id="L107">        return StringUtils.msgFormat(brokerServiceURLProperties.getCheckBalanceUrl(), urlArgs);</span>
+    }
+
+    private void addSmsDelivery(String msisdn, String serviceType, String languageCode, String balance) {
+<span class="fc" id="L111">        SmsTemplates smsTemplates = smsTemplatesRepository.findSmsTemplateByTypeAndLang(serviceType, languageCode);</span>
+<span class="fc" id="L112">        Object[] args = { balance };</span>
+<span class="fc" id="L113">        smsDeliveryRepository</span>
+<span class="fc" id="L114">                .save(SMSUtility.prepareSMSDelivery(new MessageFormat(smsTemplates.getDescription()).format(args),</span>
+<span class="fc" id="L115">                        msisdn, languageCode, serviceType, smsServerProperties.getNodeName()));</span>
+<span class="fc" id="L116">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

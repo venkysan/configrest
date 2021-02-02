@@ -1,0 +1,6 @@
+msisdn=$!msisdn&provider=$!provider&payid=$!payid&usertype=$!userType&pin=$!pin&session_id=$!session_id
+#if( $!em )
+  &em=$!em
+#end
+&txnmode=$!txnMode
+

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransactionDataPreparationUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.util</a> &gt; <span class="el_source">TransactionDataPreparationUtil.java</span></div><h1>TransactionDataPreparationUtil.java</h1><pre class="source lang-java linenums">/**
+ * 
+ */
+package com.comviva.interop.txnengine.util;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+import com.comviva.interop.txnengine.configuration.BrokerServiceProperties;
+import com.comviva.interop.txnengine.entities.InteropTransactionDetails;
+import com.comviva.interop.txnengine.entities.InteropTransactions;
+import com.comviva.interop.txnengine.enums.ServiceTypes;
+import com.comviva.interop.txnengine.enums.Sources;
+import com.comviva.interop.txnengine.model.AccountIdentifierBase;
+import com.comviva.interop.txnengine.model.ConfirmTransactionResponse;
+import com.comviva.interop.txnengine.model.ConfirmTransactionResponse.TransactionTypeEnum;
+import com.comviva.interop.txnengine.model.ReceiveTransactionRequest;
+import com.comviva.interop.txnengine.model.Request;
+import com.comviva.interop.txnengine.model.Response;
+import com.comviva.interop.txnengine.model.TransactionRequest;
+import com.comviva.interop.txnengine.model.TransactionResponse;
+
+/**
+ * This class contains the methods to prepare the transaction data
+ * 
+ * @author hemanthk
+ *
+ */
+public class TransactionDataPreparationUtil {
+
+    private static final String HREF_PREFIX = &quot;/v1/transactions/&quot;;
+
+    private TransactionDataPreparationUtil() {
+    }
+
+    public static InteropTransactions prepareInteropTransaction(TransactionRequest transactionRequest, Request request,
+             String transactionSubType, String txnStatus) {
+<span class="fc" id="L41">        InteropTransactions interopTransactions = new InteropTransactions();</span>
+<span class="fc" id="L42">        interopTransactions.setAmount(new BigDecimal(transactionRequest.getAmount()));</span>
+<span class="fc" id="L43">        interopTransactions.setCreatedDate(new Date());</span>
+<span class="fc" id="L44">        interopTransactions.setCurrency(transactionRequest.getCurrency());</span>
+<span class="fc" id="L45">        interopTransactions.setExtOrgRefId(transactionRequest.getExtOrgRefId());</span>
+<span class="fc" id="L46">        interopTransactions.setInteropTxnId(request.getInteropReferenceId());</span>
+<span class="fc" id="L47">        interopTransactions.setPayeeMsisdn(transactionRequest.getCreditParty().get(0).getValue());</span>
+        
+<span class="fc" id="L49">        interopTransactions.setPayerMsisdn(transactionRequest.getDebitParty().get(0).getValue());</span>
+        
+<span class="fc" id="L51">        interopTransactions.setRequestSource(transactionRequest.getRequestSource());</span>
+<span class="fc" id="L52">        interopTransactions.setTransactionType(transactionRequest.getTransactionType());</span>
+<span class="fc" id="L53">        interopTransactions.setTxnStatus(txnStatus);</span>
+<span class="fc" id="L54">        interopTransactions.setUpdatedDate(new Date());</span>
+<span class="fc" id="L55">        interopTransactions.setTransactionSubType(transactionSubType);</span>
+<span class="fc" id="L56">        return interopTransactions;</span>
+    }
+
+    public static InteropTransactionDetails prepareRequestTransactionDetails(InteropTransactions interopTransactions,
+            String type,BrokerServiceProperties thirdPartyProperties,String isPayerTechnical, String isPayeeTechnical) {
+<span class="fc" id="L61">        InteropTransactionDetails interopTransactionDetails = new InteropTransactionDetails();</span>
+<span class="fc" id="L62">        interopTransactionDetails.setAmount(interopTransactions.getAmount());</span>
+<span class="fc" id="L63">        interopTransactionDetails.setCreatedDate(new Date());</span>
+<span class="fc" id="L64">        interopTransactionDetails.setCurrency(interopTransactions.getCurrency());</span>
+<span class="fc" id="L65">        interopTransactionDetails.setInteropTransactions(interopTransactions);</span>
+<span class="fc" id="L66">        interopTransactionDetails.setThirdPartyPayee(interopTransactions.getPayeeMsisdn());</span>
+<span class="fc" id="L67">        interopTransactionDetails.setThirdPartyPayer(interopTransactions.getPayerMsisdn());</span>
+<span class="fc" id="L68">        interopTransactionDetails.setThirdPartyReqType(type);</span>
+<span class="fc" id="L69">        interopTransactionDetails.setThirdPartyTxnType(interopTransactions.getTransactionType());</span>
+<span class="fc" id="L70">        interopTransactionDetails.setUpdatedDate(new Date());</span>
+<span class="fc" id="L71">        interopTransactionDetails.setTxnStatus(interopTransactions.getTxnStatus());</span>
+<span class="fc" id="L72">        interopTransactionDetails.setPayeePayId(thirdPartyProperties.getPayeePayId());</span>
+<span class="fc" id="L73">        interopTransactionDetails.setPayeeProvider(thirdPartyProperties.getPayeeProviderId());</span>
+<span class="fc" id="L74">        interopTransactionDetails.setPayerProvider(thirdPartyProperties.getPayerProviderId());</span>
+<span class="fc" id="L75">        interopTransactionDetails.setPayerPayId(thirdPartyProperties.getPayerPayId());</span>
+<span class="fc" id="L76">        interopTransactionDetails.setIsPayeeTechnical(isPayeeTechnical);</span>
+<span class="fc" id="L77">        interopTransactionDetails.setIsPayerTechnical(isPayerTechnical);</span>
+<span class="fc" id="L78">        return interopTransactionDetails;</span>
+    }
+
+    public static InteropTransactionDetails prepareResponseTransactionDetails(InteropTransactions interopTransactions,
+            String responseType, Response mobiquityResponse,BrokerServiceProperties thirdPartyProperties,String isPayerTechnical, String isPayeeTechnical) {
+<span class="fc" id="L83">        InteropTransactionDetails interopTransactionDetails = prepareRequestTransactionDetails(interopTransactions,</span>
+                responseType,thirdPartyProperties,isPayerTechnical,isPayeeTechnical);
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (Optional.ofNullable(mobiquityResponse.getMappingResponse()).isPresent()) {</span>
+<span class="fc" id="L86">            interopTransactionDetails.setThirdPartyMappingCode(mobiquityResponse.getMappingResponse().getMappingCode());</span>
+<span class="fc" id="L87">            interopTransactionDetails.setThirdPartyRefId(mobiquityResponse.getWalletResponse().getTxnid());</span>
+<span class="fc" id="L88">            interopTransactionDetails.setThirdPartyReponseCode(mobiquityResponse.getWalletResponse().getTxnstatus());</span>
+<span class="fc" id="L89">            interopTransactionDetails.setThirdPartyResponseMessage(mobiquityResponse.getWalletResponse().getMessage());</span>
+<span class="fc" id="L90">            interopTransactionDetails.setTxnMode(mobiquityResponse.getWalletResponse().getTxnmode());</span>
+        }
+<span class="fc" id="L92">        return interopTransactionDetails;</span>
+    }
+
+    public static InteropTransactions updateTransactionStatus(InteropTransactions interopTransactions, String status) {
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">    	if(null != interopTransactions) {</span>
+<span class="fc" id="L97">    		interopTransactions.setTxnStatus(status);</span>
+<span class="fc" id="L98">            interopTransactions.setUpdatedDate(new Date());	</span>
+    	}
+<span class="fc" id="L100">        return interopTransactions;</span>
+    }
+
+    public static TransactionResponse prepareTransactionResponse(InteropTransactions interopTransactions, String code,
+            String mappedCode, String message) {
+<span class="fc" id="L105">        TransactionResponse transactionResponse = new TransactionResponse();</span>
+<span class="fc" id="L106">        transactionResponse.setCode(CastUtils.joinStatusCode(Sources.BROKER.toString(), code));</span>
+<span class="fc" id="L107">        transactionResponse.setMappedCode(mappedCode);</span>
+<span class="fc" id="L108">        transactionResponse.setMessage(message);</span>
+<span class="fc" id="L109">        transactionResponse.setCreditParty(prepareAccountIdentifier(interopTransactions.getPayeeMsisdn()));</span>
+<span class="fc" id="L110">        transactionResponse.setDebitParty(prepareAccountIdentifier(interopTransactions.getPayerMsisdn()));</span>
+<span class="fc" id="L111">        transactionResponse.setExtOrgRefId(interopTransactions.getExtOrgRefId());</span>
+<span class="fc" id="L112">        transactionResponse.setHref(HREF_PREFIX + interopTransactions.getInteropTxnId());</span>
+<span class="fc" id="L113">        transactionResponse.setInteropRefId(interopTransactions.getInteropTxnId());</span>
+<span class="fc" id="L114">        transactionResponse.setStatus(interopTransactions.getTxnStatus());</span>
+<span class="fc" id="L115">        transactionResponse.setTransactionSubmitTime(interopTransactions.getCreatedDate());</span>
+<span class="fc" id="L116">        transactionResponse.setTransactionType(interopTransactions.getTransactionType());</span>
+<span class="fc" id="L117">        return transactionResponse;</span>
+    }
+
+    public static List&lt;AccountIdentifierBase&gt; prepareAccountIdentifier(String msisdn) {
+<span class="fc" id="L121">        List&lt;AccountIdentifierBase&gt; accountIdentifierBases = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L122">        AccountIdentifierBase accountIdentifierBase = new AccountIdentifierBase();</span>
+<span class="fc" id="L123">        accountIdentifierBase.setKey(AccountIdentifierBase.KeyEnum.msisdn);</span>
+<span class="fc" id="L124">        accountIdentifierBase.setValue(msisdn);</span>
+<span class="fc" id="L125">        accountIdentifierBases.add(accountIdentifierBase);</span>
+<span class="fc" id="L126">        return accountIdentifierBases;</span>
+    }
+    
+    public static InteropTransactions prepareInteropReceiveTransaction(ReceiveTransactionRequest receiveTransactionRequest, Request request,
+            String transactionType, String status, boolean isMPPull) {
+<span class="fc" id="L131">        InteropTransactions interopTransactions = new InteropTransactions();</span>
+<span class="fc" id="L132">        interopTransactions.setInteropTxnId(request.getInteropReferenceId());</span>
+<span class="fc" id="L133">        interopTransactions.setTransactionType(transactionType);</span>
+<span class="fc" id="L134">        interopTransactions.setAmount(new BigDecimal(receiveTransactionRequest.getTransactionAmount()));</span>
+<span class="fc" id="L135">        interopTransactions.setCurrency(receiveTransactionRequest.getCurrencyCodeOfTheTransaction());</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">        if(isMPPull) {</span>
+<span class="nc" id="L137">        	 interopTransactions.setPayerMsisdn(receiveTransactionRequest.getDestinationAccountNumber());</span>
+<span class="nc" id="L138">             interopTransactions.setPayeeMsisdn(receiveTransactionRequest.getSourceAccountNumber());</span>
+        }
+        else {
+<span class="fc" id="L141">        	 interopTransactions.setPayerMsisdn(receiveTransactionRequest.getSourceAccountNumber());</span>
+<span class="fc" id="L142">             interopTransactions.setPayeeMsisdn(receiveTransactionRequest.getDestinationAccountNumber());	</span>
+        }
+<span class="fc" id="L144">        interopTransactions.setTxnStatus(status);</span>
+<span class="fc" id="L145">        interopTransactions.setCreatedDate(new Date());</span>
+<span class="fc" id="L146">        interopTransactions.setTransactionSubType(ServiceTypes.RECEIVE_TRANSACTION.toString());</span>
+<span class="fc" id="L147">        interopTransactions.setProcessingCode(receiveTransactionRequest.getProcessingCode());</span>
+<span class="fc" id="L148">        interopTransactions.setSystemTraceAuditNumber(receiveTransactionRequest.getSystemAuditNumber());</span>
+<span class="fc" id="L149">        interopTransactions.setRetrievalReferenceNumber(receiveTransactionRequest.getReferenceNumberOfTheRecovery());</span>
+<span class="fc" id="L150">        return interopTransactions;</span>
+    }
+    
+    public static ConfirmTransactionResponse prepareConfirmTransactionResponse(InteropTransactions interopTransactions, String code,
+            String mappedCode, String message) {
+<span class="fc" id="L155">    	ConfirmTransactionResponse transactionResponse = new ConfirmTransactionResponse();</span>
+<span class="fc" id="L156">        transactionResponse.setMessage(message);</span>
+<span class="fc" id="L157">        transactionResponse.setCreditParty(prepareAccountIdentifier(interopTransactions.getPayeeMsisdn()));</span>
+<span class="fc" id="L158">        transactionResponse.setHref(HREF_PREFIX + interopTransactions.getInteropTxnId());</span>
+<span class="fc" id="L159">        transactionResponse.setInteropRefId(interopTransactions.getInteropTxnId());</span>
+<span class="fc" id="L160">        transactionResponse.setStatus(interopTransactions.getTxnStatus());</span>
+<span class="fc" id="L161">        transactionResponse.setTransactionSubmitTime(interopTransactions.getCreatedDate());</span>
+<span class="fc" id="L162">        transactionResponse.setTransactionType(TransactionTypeEnum.fromValue(interopTransactions.getTransactionType()));</span>
+<span class="fc" id="L163">        transactionResponse.setCode(CastUtils.joinStatusCode(Sources.BROKER.toString(), code));</span>
+<span class="fc" id="L164">        transactionResponse.setMappedCode(mappedCode);</span>
+<span class="fc" id="L165">        transactionResponse.setDebitParty(prepareAccountIdentifier(interopTransactions.getPayerMsisdn()));</span>
+<span class="fc" id="L166">        return transactionResponse;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

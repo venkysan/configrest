@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ServiceTemplateNames.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.configuration</a> &gt; <span class="el_source">ServiceTemplateNames.java</span></div><h1>ServiceTemplateNames.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.configuration;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+
+import lombok.Getter;
+
+@Configuration
+@PropertySource(&quot;classpath:service_template_names.properties&quot;)
+@Getter
+<span class="fc" id="L12">public class ServiceTemplateNames {</span>
+    
+    @Value(&quot;${getfee.request.template:#{null}}&quot;)
+<span class="fc" id="L15">    private String getFeeRequestTemplate;</span>
+
+    @Value(&quot;${p2p.request.template:#{null}}&quot;)
+<span class="fc" id="L18">    private String p2PRequestTemplate;</span>
+
+    @Value(&quot;${cashout.init.request.template:#{null}}&quot;)
+<span class="fc" id="L21">    private String cashOutInitRequestTemplate;</span>
+
+    @Value(&quot;${cashout.confirm.request.template:#{null}}&quot;)
+<span class="fc" id="L24">    private String cashOutConfirmRequestTemplate;</span>
+
+    @Value(&quot;${txn.correction.init.request.template:#{null}}&quot;)
+<span class="fc" id="L27">    private String txnCorrectionInitRequestTemplate;</span>
+
+    @Value(&quot;${txn.correction.approve.request.template:#{null}}&quot;)
+<span class="fc" id="L30">    private String txnCorrectionApproveRequestTemplate;</span>
+
+    @Value(&quot;${user.auth.request.template:#{null}}&quot;)
+<span class="fc" id="L33">    private String userAuthRequestTemplate;</span>
+
+    @Value(&quot;${p2p.cashin.request.template:#{null}}&quot;)
+<span class="fc" id="L36">    private String p2PCashInRequestTemplate;</span>
+
+    @Value(&quot;${check.balance.request.template:#{null}}&quot;)
+<span class="fc" id="L39">    private String checkBalanceRequestTemplate;</span>
+    
+    @Value(&quot;${c2c.request.template:#{null}}&quot;)
+<span class="fc" id="L42">    private String c2CRequestTemplate;</span>
+    
+    @Value(&quot;${merchantPayment.init.request.template:#{null}}&quot;)
+<span class="fc" id="L45">    private String merchantPaymentInitRequestTemplate;</span>
+    
+    @Value(&quot;${merchantPayment.confirm.request.template:#{null}}&quot;)
+<span class="fc" id="L48">    private String merchantPaymentConfirmRequestTemplate;</span>
+    
+    @Value(&quot;${financial.transaction.request.template}&quot;)
+<span class="fc" id="L51">    private String financialTxnRequestTemplate;</span>
+
+    @Value(&quot;${financial.transaction.response.template}&quot;)
+<span class="fc" id="L54">    private String financialTxnResponseTemplate;</span>
+    
+    @Value(&quot;${c2crtm.request.template:#{null}}&quot;)
+<span class="nc" id="L57">    private String c2CRtmRequestTemplate;</span>
+    
+    @Value(&quot;${merchantPayment.onestep.request.template:#{null}}&quot;)
+<span class="fc" id="L60">    private String merchantPaymentOneStepRequestTemplate;</span>
+    
+    @Value(&quot;${network.message.request.template:#{null}}&quot;)
+<span class="nc" id="L63">    private String networkMessageRequestTemplate;</span>
+    
+    @Value(&quot;${network.message.response.template:#{null}}&quot;)
+<span class="nc" id="L66">    private String networkMessageResponseTemplate;</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

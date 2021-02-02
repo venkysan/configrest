@@ -1,0 +1,2 @@
+amount=$!amount&service_type=$!serviceType&payer_user_type=$!payerUserType&payer_account_id=$!payerAccountId&payer_provider_id=$!payerProviderId&payer_pay_id=$!payerPayId&payee_user_type=$!payeeUserType&payee_account_id=$!payeeAccountId&payee_provider_id=$!payeeProviderId&payee_pay_id=$!payeePayId&session_id=$!session_id&txnmode=$!txnMode
+

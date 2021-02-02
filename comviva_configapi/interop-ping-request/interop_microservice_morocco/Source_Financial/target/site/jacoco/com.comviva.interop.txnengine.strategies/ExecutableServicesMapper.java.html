@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExecutableServicesMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.strategies</a> &gt; <span class="el_source">ExecutableServicesMapper.java</span></div><h1>ExecutableServicesMapper.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.strategies;
+
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+
+import com.comviva.interop.txnengine.enums.ServiceTypes;
+import com.comviva.interop.txnengine.model.Request;
+
+/**
+ * Class used to create interopReferenceId and execute the service class based
+ * on serviceType execute method of service class is Async
+ */
+@Component
+public class ExecutableServicesMapper {
+
+    
+    private ExecutableServicesMap executableServicesMap;
+    private static final int INDEX_OF_FIRST_DASH_TO_REMOVE = 13;
+    private static final int INDEX_OF_SECOND_DASH_TO_REMOVE = 22;
+    private static final int INDEX_OF_DASH_TO_INSERT = 26;
+
+    @Autowired
+<span class="fc" id="L26">    public ExecutableServicesMapper(@Qualifier(&quot;ExecutableServicesMap&quot;) ExecutableServicesMap executableServicesMap) {</span>
+<span class="fc" id="L27">        this.executableServicesMap = executableServicesMap;</span>
+<span class="fc" id="L28">    }</span>
+
+    public String executeService(Request request, ServiceTypes serviceType, String interOpReferenceId) {
+<span class="fc" id="L31">        request.setInteropReferenceId(interOpReferenceId);</span>
+
+        // First getting the service map from executableServicesMap based on service
+        // category then getting the service bean from service map based on service type
+        // finally calling execute method (Async call)
+<span class="fc" id="L36">        executableServicesMap.getServicesMap(serviceType.getServiceCategory()).get(serviceType).execute(request);</span>
+<span class="fc" id="L37">        return interOpReferenceId;</span>
+    }
+
+    public String generateInteropReferenceId() {
+<span class="fc" id="L41">        StringBuilder sb = new StringBuilder(UUID.randomUUID().toString());</span>
+<span class="fc" id="L42">        sb.deleteCharAt(INDEX_OF_FIRST_DASH_TO_REMOVE);</span>
+<span class="fc" id="L43">        sb.deleteCharAt(INDEX_OF_SECOND_DASH_TO_REMOVE);</span>
+<span class="fc" id="L44">        sb.insert(INDEX_OF_DASH_TO_INSERT, '-');</span>
+<span class="fc" id="L45">        return sb.toString();</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

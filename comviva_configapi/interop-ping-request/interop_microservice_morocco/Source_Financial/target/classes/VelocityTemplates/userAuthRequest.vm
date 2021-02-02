@@ -1,0 +1,2 @@
+loginid=$!loginId&password=$!password&session_id=$!session_id&txnmode=$!txnMode
+

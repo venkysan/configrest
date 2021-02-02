@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CurrencyLoader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.configuration</a> &gt; <span class="el_source">CurrencyLoader.java</span></div><h1>CurrencyLoader.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.configuration;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.comviva.interop.txnengine.entities.Currency;
+import com.comviva.interop.txnengine.repositories.CurrencyRepository;
+
+@Component
+<span class="fc" id="L14">public class CurrencyLoader {</span>
+
+    @Autowired
+    private CurrencyRepository currencyRepository;
+    
+<span class="fc" id="L19">    private Map&lt;String, String&gt; currencyCodes = new HashMap&lt;&gt;();</span>
+    
+	public Map&lt;String, String&gt; getCurrencyCodes() {
+<span class="nc" id="L22">		return currencyCodes;</span>
+	}
+
+    public String getCurrencyByCode(String code) {
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        if (null != currencyCodes.get(code)) {</span>
+<span class="fc" id="L27">            return currencyCodes.get(code);</span>
+        } else {
+<span class="fc" id="L29">            List&lt;Currency&gt; currency = currencyRepository.getCurrencyByCode(code);</span>
+<span class="pc bpc" id="L30" title="1 of 4 branches missed.">            if (null != currency &amp;&amp; !currency.isEmpty()) {</span>
+<span class="fc" id="L31">                currencyCodes.put(code, currency.get(0).getCurrencyCodeNumeric());</span>
+<span class="fc" id="L32">                return currency.get(0).getCurrencyCodeNumeric();</span>
+            }
+        }
+<span class="fc" id="L35">        return null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ThreadPoolProperties.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.configuration</a> &gt; <span class="el_source">ThreadPoolProperties.java</span></div><h1>ThreadPoolProperties.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.configuration;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+
+@Configuration
+@PropertySource(&quot;classpath:thread_pool.properties&quot;)
+<span class="fc" id="L9">public class ThreadPoolProperties {</span>
+
+    @Value(&quot;${async.threadpool.corePoolSize:50}&quot;)
+    private int corePoolSize;
+
+    @Value(&quot;${async.threadpool.maxPoolSize:1000}&quot;)
+    private int maxPoolSize;
+
+    @Value(&quot;${async.threadpool.queueCapacity:100}&quot;)
+    private int queueCapacity;
+
+    @Value(&quot;${async.threadpool.keepAliveTime:60}&quot;)
+    private int keepAliveTime;
+
+    @Value(&quot;${async.threadpool.waitForJobsToCompleteOnShutdown:false}&quot;)
+    private String waitForJobsToCompleteOnShutdown;
+
+    @Value(&quot;${deferred.result.async.threadpool.corePoolSize:30}&quot;)
+    private int deferredResultCorePoolSize;
+
+    @Value(&quot;${deferred.result.async.threadpool.maxPoolSize:1000}&quot;)
+    private int deferredResultMaxPoolSize;
+
+    @Value(&quot;${deferred.result.async.threadpool.queueCapacity:100}&quot;)
+    private int deferredResultQueueCapacity;
+
+    @Value(&quot;${deferred.result.async.threadpool.keepAliveTime:60}&quot;)
+    private int deferredResultKeepAliveTime;
+
+    @Value(&quot;${deferred.result.async.threadpool.waitForJobsToCompleteOnShutdown:false}&quot;)
+    private String deferredResultWaitForJobsToCompleteOnShutdown;
+
+    @Value(&quot;${third.party.async.threadpool.corePoolSize:50}&quot;)
+    private int thirdPartyCorePoolSize;
+
+    @Value(&quot;${third.party.async.threadpool.maxPoolSize:1000}&quot;)
+    private int thirdPartyMaxPoolSize;
+
+    @Value(&quot;${third.party.async.threadpool.queueCapacity:100}&quot;)
+    private int thirdPartyQueueCapacity;
+
+    @Value(&quot;${third.party.async.threadpool.keepAliveTime:60}&quot;)
+    private int thirdPartyKeepAliveTime;
+
+    @Value(&quot;${third.party.async.threadpool.waitForJobsToCompleteOnShutdown:false}&quot;)
+    private String thirdPartyWaitForJobsToCompleteOnShutdown;
+
+    @Value(&quot;${velocity.parser.pool.size:20}&quot;)
+    private String velocityParserPoolSize;
+
+    public String getVelocityParserPoolSize() {
+<span class="fc" id="L60">        return velocityParserPoolSize;</span>
+    }
+
+    public int getThirdPartyCorePoolSize() {
+<span class="fc" id="L64">        return thirdPartyCorePoolSize;</span>
+    }
+
+    public int getThirdPartyMaxPoolSize() {
+<span class="fc" id="L68">        return thirdPartyMaxPoolSize;</span>
+    }
+
+    public int getThirdPartyQueueCapacity() {
+<span class="fc" id="L72">        return thirdPartyQueueCapacity;</span>
+    }
+
+    public int getThirdPartyKeepAliveTime() {
+<span class="fc" id="L76">        return thirdPartyKeepAliveTime;</span>
+    }
+
+    public boolean isThirdPartyWaitForJobsToCompleteOnShutdown() {
+<span class="fc" id="L80">        return (&quot;true&quot;.equalsIgnoreCase(thirdPartyWaitForJobsToCompleteOnShutdown));</span>
+    }
+
+    public int getDeferredResultCorePoolSize() {
+<span class="fc" id="L84">        return deferredResultCorePoolSize;</span>
+    }
+
+    public int getDeferredResultMaxPoolSize() {
+<span class="fc" id="L88">        return deferredResultMaxPoolSize;</span>
+    }
+
+    public int getDeferredResultQueueCapacity() {
+<span class="fc" id="L92">        return deferredResultQueueCapacity;</span>
+    }
+
+    public int getDeferredResultKeepAliveTime() {
+<span class="fc" id="L96">        return deferredResultKeepAliveTime;</span>
+    }
+
+    public boolean isDeferredResultWaitForJobsToCompleteOnShutdown() {
+<span class="fc" id="L100">        return (&quot;true&quot;.equalsIgnoreCase(deferredResultWaitForJobsToCompleteOnShutdown));</span>
+    }
+
+    public boolean isWaitForJobsToCompleteOnShutdown() {
+<span class="fc" id="L104">        return (&quot;true&quot;.equalsIgnoreCase(waitForJobsToCompleteOnShutdown));</span>
+    }
+
+    public int getKeepAliveTime() {
+<span class="fc" id="L108">        return keepAliveTime;</span>
+    }
+
+    public int getCorePoolSize() {
+<span class="fc" id="L112">        return corePoolSize;</span>
+    }
+
+    public int getMaxPoolSize() {
+<span class="fc" id="L116">        return maxPoolSize;</span>
+    }
+
+    public int getQueueCapacity() {
+<span class="fc" id="L120">        return queueCapacity;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,0 +1,11 @@
+{
+	"RqUID":"$!RqUID",
+	"dateAndTimeOfTransmission":"$!dateAndTimeOfTransmission",
+	"systemAuditNumber":"$!systemAuditNumber",
+    "actionCode":"$!actionCode",
+    "Entity":"$!Entity", 
+    "dateAndTimeOfTheTransaction":"$!dateAndTimeOfTheTransaction",
+    "identificationCodeOfSendingOrganization":"$!identificationCodeOfSendingOrganization",
+    "functionCode":"$!functionCode",
+    "referenceNumberOfTheRecovery":"$!referenceNumberOfTheRecovery"
+}

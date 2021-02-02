@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SMSUtility.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.util</a> &gt; <span class="el_source">SMSUtility.java</span></div><h1>SMSUtility.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.util;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.comviva.interop.txnengine.entities.SmsDelivery;
+import com.comviva.interop.txnengine.enums.LogConstants;
+import com.comviva.interop.txnengine.enums.SMSDeliveryStatus;
+import com.comviva.interop.txnengine.exception.InteropException;
+
+public class SMSUtility {
+
+<span class="fc" id="L22">    private static final Logger LOGGER = LoggerFactory.getLogger(SMSUtility.class);</span>
+<span class="fc" id="L23">    private static int  idGenLen=10000000;</span>
+<span class="fc" id="L24">    private static String  idGenLenStr=&quot;00000000&quot;;</span>
+
+    private SMSUtility() {
+        super();
+    }
+
+    public static String sendSms(String apiKey, String message, String sender, String numbers, String url) {
+<span class="fc" id="L31">        final StringBuilder stringBuilder = new StringBuilder();</span>
+        // Construct data
+<span class="fc" id="L33">        String apiKeyStr = &quot;apikey=&quot; + apiKey;</span>
+<span class="fc" id="L34">        String messageStr = &quot;&amp;message=&quot; + message;</span>
+<span class="fc" id="L35">        String senderStr = &quot;&amp;sender=&quot; + sender;</span>
+<span class="fc" id="L36">        String numbersStr = &quot;&amp;numbers=&quot; + numbers;</span>
+        try {
+            // Send data
+<span class="fc" id="L39">            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();</span>
+<span class="fc" id="L40">            String data = apiKeyStr + numbersStr + messageStr + senderStr;</span>
+<span class="fc" id="L41">            conn.setDoOutput(true);</span>
+<span class="fc" id="L42">            conn.setRequestMethod(&quot;POST&quot;);</span>
+<span class="fc" id="L43">            conn.setRequestProperty(&quot;Content-Length&quot;, Integer.toString(data.length()));</span>
+<span class="fc" id="L44">            conn.getOutputStream().write(data.getBytes(StandardCharsets.UTF_8));</span>
+<span class="fc" id="L45">            final BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));</span>
+
+            String line;
+<span class="fc bfc" id="L48" title="All 2 branches covered.">            while ((line = rd.readLine()) != null) {</span>
+<span class="fc" id="L49">                stringBuilder.append(line);</span>
+            }
+<span class="fc" id="L51">            rd.close();</span>
+
+<span class="fc" id="L53">        } catch (IOException e) {</span>
+<span class="fc" id="L54">            String exceptionMessage = LoggerUtil.printLogForSMS(LogConstants.OUTGOING_REQUEST_EVENT_TYPE.getValue(), numbers, e, message, LogConstants.SMS_NOTIFICATION.getValue());</span>
+<span class="fc" id="L55">			LOGGER.info(&quot;Exception in sms utility..{}&quot;, exceptionMessage);</span>
+<span class="fc" id="L56">			throw new InteropException(&quot;500&quot;, &quot;INTEROP&quot;);</span>
+<span class="fc" id="L57">        }</span>
+<span class="fc" id="L58">        return stringBuilder.toString();</span>
+    }
+
+    public static String generateEightDigitUniqueId() {
+<span class="fc" id="L62">        SecureRandom generator = new SecureRandom();</span>
+<span class="fc" id="L63">        generator.setSeed(System.currentTimeMillis());</span>
+<span class="fc" id="L64">        int i = generator.nextInt(idGenLen) % idGenLen;</span>
+<span class="fc" id="L65">        java.text.DecimalFormat f = new java.text.DecimalFormat(idGenLenStr);</span>
+<span class="fc" id="L66">        return f.format(i);</span>
+    }
+
+    public static SmsDelivery prepareSMSDelivery(String message, String msisdn, String languageCode, String serviceType,
+            String nodeName) {
+<span class="fc" id="L71">        SmsDelivery smsDelivery = new SmsDelivery();</span>
+<span class="fc" id="L72">        smsDelivery.setSmsId(SMSUtility.generateEightDigitUniqueId());</span>
+<span class="fc" id="L73">        smsDelivery.setCreatedon(new Date());</span>
+<span class="fc" id="L74">        smsDelivery.setMessage(message);</span>
+<span class="fc" id="L75">        smsDelivery.setMsisdn(msisdn);</span>
+<span class="fc" id="L76">        smsDelivery.setLanguageCode(languageCode);</span>
+<span class="fc" id="L77">        smsDelivery.setRetryCount(0);</span>
+<span class="fc" id="L78">        smsDelivery.setStatus(SMSDeliveryStatus.N.toString());</span>
+<span class="fc" id="L79">        smsDelivery.setServiceType(serviceType);</span>
+<span class="fc" id="L80">        smsDelivery.setNodeName(nodeName);</span>
+<span class="fc" id="L81">        return smsDelivery;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

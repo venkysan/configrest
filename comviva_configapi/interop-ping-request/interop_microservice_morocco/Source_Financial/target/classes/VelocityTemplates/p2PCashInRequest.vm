@@ -1,0 +1,7 @@
+msisdn=$!msisdn&msisdn2=$!msisdn2&pin=$!pin&amount=$!amount&sndprovider=$!provider&rcvprovider=$!provider2&sndinstrument=$!payId&rcvinstrument=$!payId2&session_id=$!session_id&connector=$!connector
+#if( $!em )
+  &em=$!em
+#end
+&txnmode=$!txnMode
+
+

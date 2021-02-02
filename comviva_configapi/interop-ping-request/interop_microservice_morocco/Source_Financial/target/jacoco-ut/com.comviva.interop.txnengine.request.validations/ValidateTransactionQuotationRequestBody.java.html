@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ValidateTransactionQuotationRequestBody.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">interop-transaction-engine</a> &gt; <a href="index.source.html" class="el_package">com.comviva.interop.txnengine.request.validations</a> &gt; <span class="el_source">ValidateTransactionQuotationRequestBody.java</span></div><h1>ValidateTransactionQuotationRequestBody.java</h1><pre class="source lang-java linenums">package com.comviva.interop.txnengine.request.validations;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.comviva.interop.txnengine.enums.SuccessStatus;
+import com.comviva.interop.txnengine.enums.ValidationErrors;
+import com.comviva.interop.txnengine.model.QuotationRequest;
+import com.comviva.interop.txnengine.model.RequestValidationResponse;
+
+@Service
+<span class="fc" id="L12">public class ValidateTransactionQuotationRequestBody {</span>
+
+    @Autowired
+    private RequestValidations requestValidations;
+
+    public RequestValidationResponse validate(QuotationRequest request) {
+<span class="fc" id="L18">        ValidationErrors code = null;</span>
+<span class="fc" id="L19">        RequestValidationResponse response = null;</span>
+<span class="fc" id="L20">        code = requestValidations.validateLanguage(request.getLang());</span>
+<span class="pc bpc" id="L21" title="1 of 2 branches missed.">        if (!code.equals(ValidationErrors.VALID)) {</span>
+<span class="nc" id="L22">            return requestValidations.createRequestValidationResponse(code);</span>
+        }
+        
+<span class="fc" id="L25">        code = requestValidations.validateTransactionType(request.getTransactionType());</span>
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">        if (!code.equals(ValidationErrors.VALID)) {</span>
+<span class="nc" id="L27">            return requestValidations.createRequestValidationResponse(code);</span>
+        }
+       
+<span class="fc" id="L30">        code = requestValidations.validateCurrency(request.getCurrency());</span>
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">        if (!code.equals(ValidationErrors.VALID)) {</span>
+<span class="nc" id="L32">            return requestValidations.createRequestValidationResponse(code);</span>
+        }
+        
+<span class="fc" id="L35">        code = requestValidations.validateAmount(request.getAmount());</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        if (!code.equals(ValidationErrors.VALID)) {</span>
+<span class="fc" id="L37">            return requestValidations.createRequestValidationResponse(code);</span>
+        }
+        
+        
+<span class="fc" id="L41">        response = requestValidations.partyValidation(request.getDebitParty(), Boolean.TRUE);</span>
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">        if (response != null) {</span>
+<span class="nc" id="L43">            return response;</span>
+        }
+<span class="fc" id="L45">        response = requestValidations.partyValidation(request.getCreditParty(), Boolean.FALSE);</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">        if (response != null) {</span>
+<span class="nc" id="L47">            return response;</span>
+        }
+<span class="fc" id="L49">        return new RequestValidationResponse(SuccessStatus.SUCCESSFUL_REQUEST_VALIDATION.getStatusCode(),</span>
+<span class="fc" id="L50">                SuccessStatus.SUCCESSFUL_REQUEST_VALIDATION.getEntity().toString());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
