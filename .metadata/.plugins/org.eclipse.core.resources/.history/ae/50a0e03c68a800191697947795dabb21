@@ -1,0 +1,83 @@
+package com.comviva.mfs.repository.test;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import com.comviva.mfs.entity.GroupRoles;
+import com.comviva.mfs.repository.GroupRoleCustomRepository;
+import com.comviva.mfs.repository.GroupRolesRepository;
+import com.comviva.mfs.repository.repositoryimpl.GroupRoleRepositoryImpl;
+
+@RunWith(MockitoJUnitRunner.class)
+public class GroupRolesRepositoryTest {
+
+	@Mock
+	private EntityManager entityManager;
+
+	@Mock
+	private Query mockedQuery;
+
+	@Mock
+	private GroupRolesRepository groupRolesRepository;
+
+	@InjectMocks
+	private GroupRoleCustomRepository groupRoleCustomRepository = new GroupRoleRepositoryImpl();
+
+	@Before
+	public void init() {
+		when(entityManager.createQuery(Mockito.anyString())).thenReturn(mockedQuery);
+	}
+
+	@Test
+	public void getGroupRoleByIdTest() {
+		GroupRoles exceptedGroupRoles = getGroupRoles();
+		when(groupRolesRepository.findById(Mockito.anyString())).thenReturn(Optional.of(getGroupRoles()));
+		GroupRoles groupRoles = groupRolesRepository.findById("1").get();
+		assertThat(groupRoles.getGroupRoleCode(), is(exceptedGroupRoles.getGroupRoleCode()));
+		assertThat(groupRoles.getGroupRoleId(), is(exceptedGroupRoles.getGroupRoleId()));
+		assertThat(groupRoles.getRoleCode(), is(exceptedGroupRoles.getRoleCode()));
+	}
+
+	private GroupRoles getGroupRoles() {
+		GroupRoles groupRole = new GroupRoles();
+		groupRole.setGroupRoleCode("ADD_INIT");
+		groupRole.setGroupRoleId("1");
+		groupRole.setRoleCode("ADD");
+		return groupRole;
+	}
+
+	/*
+	 * @Test public void isGroupRoleAssignedTest() {
+	 * when(mockedQuery.getResultList()).thenReturn(getResult());
+	 * groupRoleCustomRepository.isGroupRoleAssigned("AUTNARole"); List<String[]>
+	 * liststr = getResult(); for (String[] str : liststr) { assertThat("aaaa",
+	 * is(str)); }
+	 * 
+	 * }
+	 * 
+	 * @Test public void isGroupRoleNameAssignedTest() {
+	 * when(mockedQuery.getResultList()).thenReturn(getResult()); String
+	 * categoryName =
+	 * groupRoleCustomRepository.isGroupRoleNameAssigned("AUTSUBSSalary");
+	 * List<String[]> liststr = getResult(); for (String[] str : liststr) {
+	 * categoryName.equals(str); } }
+	 * 
+	 * private List<String[]> getResult() { List<String[]> list = new ArrayList<>();
+	 * String[] strArray = new String[3]; strArray[0] = "AUTTRRole"; strArray[1] =
+	 * "AUTTRRole"; strArray[2] = "N"; list.add(strArray); return list; }
+	 */
+}

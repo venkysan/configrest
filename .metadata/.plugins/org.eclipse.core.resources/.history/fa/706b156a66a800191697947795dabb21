@@ -1,0 +1,494 @@
+package com.comviva.mfs.repository.test;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import com.comviva.mfs.common.SupportApiConstants;
+import com.comviva.mfs.model.category.CategoryService;
+import com.comviva.mfs.model.category.ServiceTypesResponse;
+import com.comviva.mfs.repository.SupportApiCustomRepository;
+import com.comviva.mfs.repository.SystemDataRepository;
+import com.comviva.mfs.repository.repositoryimpl.SupportApiCustomRepositoryImpl;
+
+@RunWith(MockitoJUnitRunner.class)
+public class SupportApiCustomRepositoryTest {
+
+	@Mock
+	private EntityManager entityManager;
+
+	@Mock
+	private Query mockedQuery;
+
+	@Mock
+	private SystemDataRepository systemDataRepository;
+
+	@InjectMocks
+	private SupportApiCustomRepository supportApiCustomRepository = new SupportApiCustomRepositoryImpl();
+
+	@Before
+	public void init() {
+		when(entityManager.createQuery(Mockito.anyString())).thenReturn(mockedQuery);
+	}
+
+	@Test
+	public void getBankDetailsTest() {
+		when(mockedQuery.getResultList()).thenReturn(getResult());
+		@SuppressWarnings("rawtypes")
+		List<Map> listMap = supportApiCustomRepository.getWalletOrBankDetails(101l,
+				SupportApiConstants.PAYMENT_METHOD_TYPE_BANK.getStrValue(), "12", "123");
+		for (@SuppressWarnings("rawtypes")
+		Map map : listMap) {
+
+			assertThat(map.get("serviceName"), is(((Object[]) getResult().get(0))[0]));
+			assertThat(map.get("serviceId"), is(((Object[]) getResult().get(0))[1]));
+			assertThat(map.get("serviceType"), is(((Object[]) getResult().get(0))[2]));
+
+		}
+	}
+
+	@Test
+	public void getWalletDetailsTest() {
+		when(mockedQuery.getResultList()).thenReturn(getResult());
+		@SuppressWarnings("rawtypes")
+		List<Map> listMap = supportApiCustomRepository.getWalletOrBankDetails(101l,
+				SupportApiConstants.PAYMENT_METHOD_TYPE_WALLET.getStrValue(), "12", "123");
+		for (@SuppressWarnings("rawtypes")
+		Map map : listMap) {
+			assertThat(map.get("serviceName"), is(((Object[]) getResult().get(0))[0]));
+			assertThat(map.get("serviceId"), is(((Object[]) getResult().get(0))[1]));
+			assertThat(map.get("serviceType"), is(((Object[]) getResult().get(0))[2]));
+		}
+	}
+
+	@Test
+	public void getExceptionDetailsTest() {
+		when(mockedQuery.getResultList()).thenThrow(RuntimeException.class);
+		@SuppressWarnings("rawtypes")
+		List<Map> listMap = supportApiCustomRepository.getWalletOrBankDetails(101l,
+				SupportApiConstants.PAYMENT_METHOD_TYPE_WALLET.getStrValue(), "12", "123");
+		assertTrue(listMap.isEmpty());
+	}
+
+	@Test
+	public void getLoadWalServicesForPayeeBlockTest() {
+		when(mockedQuery.getResultList()).thenReturn(getCategoryService());
+		List<CategoryService> listMap = supportApiCustomRepository.loadWalServicesForPayeeBlock("MER");
+		for (int i = 0; i < listMap.size(); i++) {
+			assertThat(listMap.get(i).getServicePymtId(), is((getCategoryService().get(i))[0]));
+			assertThat(listMap.get(i).getDescription(), is((getCategoryService().get(i))[1]));
+			assertThat(listMap.get(i).getServiceType(), is((getCategoryService().get(i))[2]));
+			assertThat(listMap.get(i).getPayerDomainCode(), is((getCategoryService().get(i))[3]));
+			assertThat(listMap.get(i).getPayeeDomainCode(), is((getCategoryService().get(i))[4]));
+			assertThat(listMap.get(i).getInitiatorDomainCode(), is((getCategoryService().get(i))[5]));
+		}
+
+	}
+
+	@Test
+	public void getLoadWalServicesForPayerBlockTest() {
+		when(mockedQuery.getResultList()).thenReturn(getCategoryService());
+		List<CategoryService> listMap = supportApiCustomRepository.loadWalServicesForPayerBlock("MER");
+		for (int i = 0; i < listMap.size(); i++) {
+			assertThat(listMap.get(i).getServicePymtId(), is((getCategoryService().get(i))[0]));
+			assertThat(listMap.get(i).getDescription(), is((getCategoryService().get(i))[1]));
+			assertThat(listMap.get(i).getServiceType(), is((getCategoryService().get(i))[2]));
+			assertThat(listMap.get(i).getPayerDomainCode(), is((getCategoryService().get(i))[3]));
+			assertThat(listMap.get(i).getPayeeDomainCode(), is((getCategoryService().get(i))[4]));
+			assertThat(listMap.get(i).getInitiatorDomainCode(), is((getCategoryService().get(i))[5]));
+		}
+
+	}
+
+	@Test
+	public void getLoadWalServicesForInitiatorBlockTest() {
+		when(mockedQuery.getResultList()).thenReturn(getCategoryService());
+		List<CategoryService> listMap = supportApiCustomRepository.loadWalServicesForInitiatorBlock("MER");
+		for (int i = 0; i < listMap.size(); i++) {
+			assertThat(listMap.get(i).getServicePymtId(), is((getCategoryService().get(i))[0]));
+			assertThat(listMap.get(i).getDescription(), is((getCategoryService().get(i))[1]));
+			assertThat(listMap.get(i).getServiceType(), is((getCategoryService().get(i))[2]));
+			assertThat(listMap.get(i).getPayerDomainCode(), is((getCategoryService().get(i))[3]));
+			assertThat(listMap.get(i).getPayeeDomainCode(), is((getCategoryService().get(i))[4]));
+			assertThat(listMap.get(i).getInitiatorDomainCode(), is((getCategoryService().get(i))[5]));
+		}
+
+	}
+
+	@Test
+	public void getLoadBankServicesForPayerBlockTest() {
+		when(mockedQuery.getResultList()).thenReturn(getCategoryService());
+		List<CategoryService> listMap = supportApiCustomRepository.loadBankServicesForPayerBlock("MER");
+		for (int i = 0; i < listMap.size(); i++) {
+			assertThat(listMap.get(i).getServicePymtId(), is((getCategoryService().get(i))[0]));
+			assertThat(listMap.get(i).getDescription(), is((getCategoryService().get(i))[1]));
+			assertThat(listMap.get(i).getServiceType(), is((getCategoryService().get(i))[2]));
+			assertThat(listMap.get(i).getPayerDomainCode(), is((getCategoryService().get(i))[3]));
+			assertThat(listMap.get(i).getPayeeDomainCode(), is((getCategoryService().get(i))[4]));
+			assertThat(listMap.get(i).getInitiatorDomainCode(), is((getCategoryService().get(i))[5]));
+		}
+
+	}
+
+	@Test
+	public void getLoadBankServicesForPayeeBlockTest() {
+		when(mockedQuery.getResultList()).thenReturn(getCategoryService());
+		List<CategoryService> listMap = supportApiCustomRepository.loadBankServicesForPayeeBlock("MER");
+		for (int i = 0; i < listMap.size(); i++) {
+			assertThat(listMap.get(i).getServicePymtId(), is((getCategoryService().get(i))[0]));
+			assertThat(listMap.get(i).getDescription(), is((getCategoryService().get(i))[1]));
+			assertThat(listMap.get(i).getServiceType(), is((getCategoryService().get(i))[2]));
+			assertThat(listMap.get(i).getPayerDomainCode(), is((getCategoryService().get(i))[3]));
+			assertThat(listMap.get(i).getPayeeDomainCode(), is((getCategoryService().get(i))[4]));
+			assertThat(listMap.get(i).getInitiatorDomainCode(), is((getCategoryService().get(i))[5]));
+		}
+
+	}
+
+	@Test
+	public void getLoadBankServicesForInitiatorBlockTest() {
+		when(mockedQuery.getResultList()).thenReturn(getCategoryService());
+		List<CategoryService> listMap = supportApiCustomRepository.loadBankServicesForInitiatorBlock("MER");
+		for (int i = 0; i < listMap.size(); i++) {
+			assertThat(listMap.get(i).getServicePymtId(), is((getCategoryService().get(i))[0]));
+			assertThat(listMap.get(i).getDescription(), is((getCategoryService().get(i))[1]));
+			assertThat(listMap.get(i).getServiceType(), is((getCategoryService().get(i))[2]));
+			assertThat(listMap.get(i).getPayerDomainCode(), is((getCategoryService().get(i))[3]));
+			assertThat(listMap.get(i).getPayeeDomainCode(), is((getCategoryService().get(i))[4]));
+			assertThat(listMap.get(i).getInitiatorDomainCode(), is((getCategoryService().get(i))[5]));
+		}
+
+	}
+
+	@Test
+	public void getLoadNonServicesForInitiatorBlockTest() {
+		when(mockedQuery.getResultList()).thenReturn(getCategoryService());
+		List<CategoryService> listMap = supportApiCustomRepository.loadNonServicesForInitiatorBlock("MER");
+		for (int i = 0; i < listMap.size(); i++) {
+			assertThat(listMap.get(i).getServicePymtId(), is((getCategoryService().get(i))[0]));
+			assertThat(listMap.get(i).getDescription(), is((getCategoryService().get(i))[1]));
+			assertThat(listMap.get(i).getServiceType(), is((getCategoryService().get(i))[2]));
+			assertThat(listMap.get(i).getPayerDomainCode(), is((getCategoryService().get(i))[3]));
+			assertThat(listMap.get(i).getPayeeDomainCode(), is((getCategoryService().get(i))[4]));
+			assertThat(listMap.get(i).getInitiatorDomainCode(), is((getCategoryService().get(i))[5]));
+		}
+
+	}
+
+	@Test
+	public void getAllServiceTypesTest() {
+		when(mockedQuery.getResultList()).thenReturn(getServiceTypes());
+		List<ServiceTypesResponse> listMap = supportApiCustomRepository.getAllServiceTypes();
+		for (int i = 0; i < listMap.size(); i++) {
+			assertThat(listMap.get(i).getServiceType(), is((getServiceTypes().get(i))[0]));
+			assertThat(listMap.get(i).getServiceName(), is((getServiceTypes().get(i))[1]));
+		}
+
+	}
+
+	@Test
+	public void getAllServiceTypesExceptionTest() {
+		when(mockedQuery.getResultList()).thenReturn(getServiceTypesException());
+		List<ServiceTypesResponse> listMap = supportApiCustomRepository.getAllServiceTypes();
+		assertTrue(listMap.isEmpty());
+	}
+	
+	
+	@Test
+	public void getBankByDomainCodeDetailsCASHINTest() {
+		when(mockedQuery.getResultList()).thenReturn(getlinkedWalletOrBankList());
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.COMMISSION_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(13));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_COMMISSION_WALLET_REQUIRED.getStrValue())).thenReturn("N");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_REMITTANCE_WALLET_REQUIRED.getStrValue())).thenReturn("TRUE");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(14));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.PROTELECOM_REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(16));
+		@SuppressWarnings("rawtypes")
+		List<Map> listMap = supportApiCustomRepository.getWalletOrBankByDomainCodeDetails("CASHIN", 101l, "BANK", "SUBS");
+		for (@SuppressWarnings("rawtypes") Map map : listMap) {
+			assertThat(map.get("linkedWalletBankId"), is(((Object[]) getlinkedWalletOrBankList().get(0))[0]));
+			assertThat(map.get("linkedWalletBankName"), is(((Object[]) getlinkedWalletOrBankList().get(0))[1]));
+		}
+		
+	}
+	
+	
+	@Test
+	public void getWalletByDomainCodeDetailsCASHINTest() {
+		when(mockedQuery.getResultList()).thenReturn(getlinkedWalletOrBankList());
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.COMMISSION_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(13));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_COMMISSION_WALLET_REQUIRED.getStrValue())).thenReturn("N");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_REMITTANCE_WALLET_REQUIRED.getStrValue())).thenReturn("TRUE");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(14));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.PROTELECOM_REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(16));
+		@SuppressWarnings("rawtypes")
+		List<Map> listMap = supportApiCustomRepository.getWalletOrBankByDomainCodeDetails("CASHIN", 101l, "WALLET", "SUBS");
+		for (@SuppressWarnings("rawtypes") Map map : listMap) {
+			assertThat(map.get("linkedWalletBankId"), is(((Object[]) getlinkedWalletOrBankList().get(0))[0]));
+			assertThat(map.get("linkedWalletBankName"), is(((Object[]) getlinkedWalletOrBankList().get(0))[1]));
+		}
+		
+	}
+	
+	@Test
+	public void getBankByDomainCodeDetailsFTBOATest() {
+		when(mockedQuery.getResultList()).thenReturn(getlinkedWalletOrBankList());
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.COMMISSION_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(13));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_COMMISSION_WALLET_REQUIRED.getStrValue())).thenReturn("Y");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_REMITTANCE_WALLET_REQUIRED.getStrValue())).thenReturn("TRUE");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(14));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.PROTELECOM_REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(16));
+		@SuppressWarnings("rawtypes")
+		List<Map> listMap = supportApiCustomRepository.getWalletOrBankByDomainCodeDetails("FTBOA", 101l, "BANK", "SUBS");
+		for (@SuppressWarnings("rawtypes") Map map : listMap) {
+			assertThat(map.get("linkedWalletBankId"), is(((Object[]) getlinkedWalletOrBankList().get(0))[0]));
+			assertThat(map.get("linkedWalletBankName"), is(((Object[]) getlinkedWalletOrBankList().get(0))[1]));
+		}
+		
+	}
+	
+	
+	@Test
+	public void getWalletByDomainCodeDetailsFTBOATest() {
+		when(mockedQuery.getResultList()).thenReturn(getlinkedWalletOrBankList());
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.COMMISSION_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(13));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_COMMISSION_WALLET_REQUIRED.getStrValue())).thenReturn("Y");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_REMITTANCE_WALLET_REQUIRED.getStrValue())).thenReturn("TRUE");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(14));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.PROTELECOM_REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(16));
+		@SuppressWarnings("rawtypes")
+		List<Map> listMap = supportApiCustomRepository.getWalletOrBankByDomainCodeDetails("FTBOA", 101l, "WALLET", "SUBS");
+		for (@SuppressWarnings("rawtypes") Map map : listMap) {
+			assertThat(map.get("linkedWalletBankId"), is(((Object[]) getlinkedWalletOrBankList().get(0))[0]));
+			assertThat(map.get("linkedWalletBankName"), is(((Object[]) getlinkedWalletOrBankList().get(0))[1]));
+		}
+		
+	}
+	
+	@Test
+	public void getWalletByDomainCodeDetailsCCASHOUTTest() {
+		when(mockedQuery.getResultList()).thenReturn(getlinkedWalletOrBankList());
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.COMMISSION_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(13));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_COMMISSION_WALLET_REQUIRED.getStrValue())).thenReturn("Y");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_REMITTANCE_WALLET_REQUIRED.getStrValue())).thenReturn("TRUE");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(14));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.PROTELECOM_REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(16));
+		@SuppressWarnings("rawtypes")
+		List<Map> listMap = supportApiCustomRepository.getWalletOrBankByDomainCodeDetails("CCASHOUT", 101l, "WALLET", "SUBS");
+		for (@SuppressWarnings("rawtypes") Map map : listMap) {
+			assertThat(map.get("linkedWalletBankId"), is(((Object[]) getlinkedWalletOrBankList().get(0))[0]));
+			assertThat(map.get("linkedWalletBankName"), is(((Object[]) getlinkedWalletOrBankList().get(0))[1]));
+		}
+		
+	}
+	
+	
+	@Test
+	public void getWalletByDomainCodeDetailsCASHTest() {
+		when(mockedQuery.getResultList()).thenReturn(getlinkedWalletOrBankList());
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.COMMISSION_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(13));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_COMMISSION_WALLET_REQUIRED.getStrValue())).thenReturn("N");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_REMITTANCE_WALLET_REQUIRED.getStrValue())).thenReturn("TRUE");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(14));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.PROTELECOM_REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(16));
+		@SuppressWarnings("rawtypes")
+		List<Map> listMap = supportApiCustomRepository.getWalletOrBankByDomainCodeDetails("CCASHOUT", 101l, "WALLET", "SUBS");
+		for (@SuppressWarnings("rawtypes") Map map : listMap) {
+			assertThat(map.get("linkedWalletBankId"), is(((Object[]) getlinkedWalletOrBankList().get(0))[0]));
+			assertThat(map.get("linkedWalletBankName"), is(((Object[]) getlinkedWalletOrBankList().get(0))[1]));
+		}
+		
+	}
+	
+	@Test
+	public void getWalletByDomainCodeDetailsCASHFTest() {
+		when(mockedQuery.getResultList()).thenReturn(getlinkedWalletOrBankList());
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.COMMISSION_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(13));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_COMMISSION_WALLET_REQUIRED.getStrValue())).thenReturn("N");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_REMITTANCE_WALLET_REQUIRED.getStrValue())).thenReturn("FALSE");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(14));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.PROTELECOM_REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(16));
+		@SuppressWarnings("rawtypes")
+		List<Map> listMap = supportApiCustomRepository.getWalletOrBankByDomainCodeDetails("CCASHOUT", 101l, "WALLET", "SUBS");
+		for (@SuppressWarnings("rawtypes") Map map : listMap) {
+			assertThat(map.get("linkedWalletBankId"), is(((Object[]) getlinkedWalletOrBankList().get(0))[0]));
+			assertThat(map.get("linkedWalletBankName"), is(((Object[]) getlinkedWalletOrBankList().get(0))[1]));
+		}
+		
+	}
+	
+	
+	@Test
+	public void getWalletByDomainCodeDetailsMERCHANTTest() {
+		when(mockedQuery.getResultList()).thenReturn(getlinkedWalletOrBankList());
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.COMMISSION_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(13));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_COMMISSION_WALLET_REQUIRED.getStrValue())).thenReturn("Y");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_REMITTANCE_WALLET_REQUIRED.getStrValue())).thenReturn("TRUE");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(14));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.PROTELECOM_REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(16));
+		@SuppressWarnings("rawtypes")
+		List<Map> listMap = supportApiCustomRepository.getWalletOrBankByDomainCodeDetails("CCASHOUT", 101l, "WALLET", "MERCHANT");
+		for (@SuppressWarnings("rawtypes") Map map : listMap) {
+			assertThat(map.get("linkedWalletBankId"), is(((Object[]) getlinkedWalletOrBankList().get(0))[0]));
+			assertThat(map.get("linkedWalletBankName"), is(((Object[]) getlinkedWalletOrBankList().get(0))[1]));
+		}
+		
+	}
+	
+	@Test
+	public void geBankmainCodeDetailsMERCHANTTest() {
+		when(mockedQuery.getResultList()).thenReturn(getlinkedWalletOrBankList());
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.COMMISSION_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(13));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_COMMISSION_WALLET_REQUIRED.getStrValue())).thenReturn("Y");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_REMITTANCE_WALLET_REQUIRED.getStrValue())).thenReturn("TRUE");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(14));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.PROTELECOM_REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(16));
+		@SuppressWarnings("rawtypes")
+		List<Map> listMap = supportApiCustomRepository.getWalletOrBankByDomainCodeDetails("CBWREQ", 101l, "BANK", "MERCHANT");
+		for (@SuppressWarnings("rawtypes") Map map : listMap) {
+			assertThat(map.get("linkedWalletBankId"), is(((Object[]) getlinkedWalletOrBankList().get(0))[0]));
+			assertThat(map.get("linkedWalletBankName"), is(((Object[]) getlinkedWalletOrBankList().get(0))[1]));
+		}
+		
+	}
+	
+	@Test
+	public void geBankmainCodeDetailsMERCHANTSUBSTest() {
+		when(mockedQuery.getResultList()).thenReturn(getlinkedWalletOrBankList());
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.COMMISSION_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(13));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_COMMISSION_WALLET_REQUIRED.getStrValue())).thenReturn("Y");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_REMITTANCE_WALLET_REQUIRED.getStrValue())).thenReturn("TRUE");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(14));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.PROTELECOM_REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(16));
+		@SuppressWarnings("rawtypes")
+		List<Map> listMap = supportApiCustomRepository.getWalletOrBankByDomainCodeDetails("CBWREQ", 101l, "WALLET", "SUBS");
+		for (@SuppressWarnings("rawtypes") Map map : listMap) {
+			assertThat(map.get("linkedWalletBankId"), is(((Object[]) getlinkedWalletOrBankList().get(0))[0]));
+			assertThat(map.get("linkedWalletBankName"), is(((Object[]) getlinkedWalletOrBankList().get(0))[1]));
+		}
+		
+	}
+	
+	
+	@Test
+	public void geBankmainCodeDetailsMERCHANTSUBSRTest() {
+		when(mockedQuery.getResultList()).thenReturn(getlinkedWalletOrBankList());
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.COMMISSION_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(13));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_COMMISSION_WALLET_REQUIRED.getStrValue())).thenReturn("Y");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_REMITTANCE_WALLET_REQUIRED.getStrValue())).thenReturn("TRUE");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(14));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.PROTELECOM_REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(16));
+		@SuppressWarnings("rawtypes")
+		List<Map> listMap = supportApiCustomRepository.getWalletOrBankByDomainCodeDetails("CBWREQ", 101l, "WALLET", "SUBS");
+		for (@SuppressWarnings("rawtypes") Map map : listMap) {
+			assertThat(map.get("linkedWalletBankId"), is(((Object[]) getlinkedWalletOrBankList().get(0))[0]));
+			assertThat(map.get("linkedWalletBankName"), is(((Object[]) getlinkedWalletOrBankList().get(0))[1]));
+		}
+		
+	}
+	
+	
+	@Test
+	public void geBankmainCodeDetailsMERCHANTSUBSNTest() {
+		when(mockedQuery.getResultList()).thenReturn(getlinkedWalletOrBankList());
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.COMMISSION_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(13));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_COMMISSION_WALLET_REQUIRED.getStrValue())).thenReturn("N");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_REMITTANCE_WALLET_REQUIRED.getStrValue())).thenReturn("TRUE");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(14));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.PROTELECOM_REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(16));
+		@SuppressWarnings("rawtypes")
+		List<Map> listMap = supportApiCustomRepository.getWalletOrBankByDomainCodeDetails("CBWREQ", 101l, "WALLET", "SUBS");
+		for (@SuppressWarnings("rawtypes") Map map : listMap) {
+			assertThat(map.get("linkedWalletBankId"), is(((Object[]) getlinkedWalletOrBankList().get(0))[0]));
+			assertThat(map.get("linkedWalletBankName"), is(((Object[]) getlinkedWalletOrBankList().get(0))[1]));
+		}
+		
+	}
+	
+	@Test
+	public void getBankByDomainCodeDetailsFTBOAfalseTest() {
+		when(mockedQuery.getResultList()).thenReturn(getlinkedWalletOrBankList());
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.COMMISSION_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(13));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_COMMISSION_WALLET_REQUIRED.getStrValue())).thenReturn("N");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.IS_REMITTANCE_WALLET_REQUIRED.getStrValue())).thenReturn("FALSE");
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(14));
+		when(systemDataRepository.getSystemPreferenceValue(SupportApiConstants.PROTELECOM_REMITTANCE_WALLET_IDENTIFIER.getStrValue())).thenReturn(String.valueOf(16));
+		@SuppressWarnings("rawtypes")
+		List<Map> listMap = supportApiCustomRepository.getWalletOrBankByDomainCodeDetails("FTBOA", 101l, "BANK", "SUBS");
+		for (@SuppressWarnings("rawtypes") Map map : listMap) {
+			assertThat(map.get("linkedWalletBankId"), is(((Object[]) getlinkedWalletOrBankList().get(0))[0]));
+			assertThat(map.get("linkedWalletBankName"), is(((Object[]) getlinkedWalletOrBankList().get(0))[1]));
+		}
+		
+	}
+	
+	
+	
+
+	private List<Object[]> getServiceTypes() {
+		List<Object[]> list = new ArrayList<>();
+		Object[] objArray = new Object[2];
+		objArray[0] = "VIEWBILL";
+		objArray[1] = "View Bill";
+		list.add(objArray);
+		return list;
+	}
+
+	private List<Object[]> getServiceTypesException() {
+		List<Object[]> list = new ArrayList<>();
+		Object[] objArray = new Object[2];
+		objArray[0] = "VIEWBILL";
+		objArray[1] = 102l;
+		list.add(objArray);
+		return list;
+	}
+
+	private List<Object[]> getResult() {
+		List<Object[]> list = new ArrayList<>();
+		Object[] objArray = new Object[3];
+		objArray[0] = "Cash In";
+		objArray[1] = "1";
+		objArray[2] = 60l;
+		list.add(objArray);
+		return list;
+
+	}
+
+	private List<Object[]> getCategoryService() {
+		List<Object[]> list = new ArrayList<>();
+		Object[] objArray = new Object[6];
+		objArray[0] = 201l;
+		objArray[1] = "IMT Stock Creation";
+		objArray[2] = "CWBOTHREQ";
+		objArray[3] = "MER";
+		objArray[4] = "MERCHANT";
+		objArray[5] = "MER";
+		list.add(objArray);
+		return list;
+	}
+	
+	private List<Object[]> getlinkedWalletOrBankList() {
+		List<Object[]> list = new ArrayList<>();
+		Object[] objArray = new Object[2];
+		objArray[0] = 40l;
+		objArray[1] = "primary";
+		list.add(objArray);
+		return list;
+	}
+
+}

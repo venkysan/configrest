@@ -1,0 +1,81 @@
+package com.comviva.mfs.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Service;
+import com.comviva.mfs.common.ApplicationException;
+import com.comviva.mfs.common.Constants;
+import com.comviva.mfs.common.ErrorCodes;
+import com.comviva.mfs.common.MessageCodes;
+import com.comviva.mfs.common.ServiceRoleCodes;
+import com.comviva.mfs.entity.MdsRequestResponseHist;
+import com.comviva.mfs.model.BaseRequest;
+import com.comviva.mfs.model.EnquiryResponse;
+import com.comviva.mfs.repository.MdsRequestResponseHistRepository;
+
+@Service
+@Scope(scopeName=ConfigurableBeanFactory.SCOPE_PROTOTYPE,proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class GetAllEnquiryService extends CommonService {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(GetAllEnquiryService.class);
+	private String origExtRefId;
+	private MdsRequestResponseHistRepository enquiryRepository;
+	private List<MdsRequestResponseHist> mdsRequestResponseHist;
+
+	@Autowired
+	public GetAllEnquiryService(MdsRequestResponseHistRepository enquiryRepository) {
+		this.enquiryRepository = enquiryRepository;
+	}
+
+	public EnquiryResponse execute(String origExtRefId, String identifierType, String identifierValue,
+			String bearerCode) {
+		List<String> params = new ArrayList<>();
+		try {
+			BaseRequest request = new BaseRequest();
+			this.origExtRefId = origExtRefId;
+			request.setIdentifierType(identifierType);
+			request.setIdentifierValue(identifierValue);
+			request.setBearerCode(bearerCode);
+			serviceRoleCode = ServiceRoleCodes.VIEW_GRADE_ROLE.getStrValue();
+			super.execute(request, serviceRoleCode);
+			validateInputs();
+			responseMessageCode = MessageCodes.SUCCESS.getStrValue();
+			responseStatus = Constants.SUCCESS_RESPONSE.getStrValue();
+		} catch (ApplicationException e) {
+			LOGGER.error("ApplicationException in GetAllEnquiryService {}",e);
+			responseStatus = e.getErrorCode();
+			responseMessageCode = e.getErrorCode();
+		} catch (Exception e) {
+			LOGGER.error("Exception in GetAllEnquiryService {}",e);
+			responseStatus = ErrorCodes.GENERIC_ERROR.getErrorCode();
+			responseMessageCode = ErrorCodes.GENERIC_ERROR.getErrorCode();
+		}
+		generateReponseMessage(params);
+		return createResponse();
+	}
+
+	@Override
+	public void validateInputs() throws ApplicationException {
+		mdsRequestResponseHist = enquiryRepository.getEnqiryDetails(origExtRefId);
+		if (mdsRequestResponseHist.isEmpty()) {
+			throw new ApplicationException(ErrorCodes.EXTERNALID_EXCEPTION.getErrorCode());
+		}
+	}
+
+	@Override
+	public EnquiryResponse createResponse() {
+		EnquiryResponse enquiryResponse = new EnquiryResponse();
+		enquiryResponse.setStatus(responseStatus);
+		enquiryResponse.setMessage(responseMessage);
+		enquiryResponse.setTransationDetails(mdsRequestResponseHist);
+		enquiryResponse.setReferenceId(referenceId);
+		return enquiryResponse;
+	}
+}

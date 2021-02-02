@@ -1,0 +1,113 @@
+package com.comviva.mfs.integration.test;
+
+import static io.restassured.RestAssured.with;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpStatus;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import com.comviva.mfs.constant.test.CategoryTestConstants;
+import com.comviva.mfs.constant.test.DomainTestConstants;
+import com.comviva.mfs.constant.test.TestBaseConstants;
+import com.comviva.mfs.entity.DomainChecker;
+import com.comviva.mfs.model.category.AddCategoryInitiateRequest;
+import com.comviva.mfs.model.domain.AddDomainInitiateRequest;
+import com.comviva.mfs.util.AppProperties;
+import com.comviva.mfs.util.CategoryDataPreparationUtil;
+import com.comviva.mfs.util.CommonUtilTest;
+import com.comviva.mfs.util.DomainDataPreparationUtil;
+
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+
+@RunWith(SpringRunner.class)
+@PropertySource("classpath:application-test.properties")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class DomainIntegrationTest {
+
+	@LocalServerPort
+	private int port;
+
+	@Autowired
+	private AppProperties appProps;
+
+	@Before
+	public void setup() {
+		RestAssured.baseURI = "http://localhost";
+		RestAssured.port = port;
+	}
+
+	@Test
+	public void domainTest() {
+
+		String status;
+
+		// Returns list of domain in the system
+		status = with().accept(ContentType.JSON).given().when().get(DomainDataPreparationUtil.getAllDomainsUrl()).then()
+				.assertThat().statusCode(HttpStatus.OK.value()).extract().path(TestBaseConstants.STATUS.getValue());
+		assertEquals(TestBaseConstants.SUCCESS_STATUS.getValue(), status);
+
+		// Add Initiate Domain
+		status = with().contentType(ContentType.JSON).accept(ContentType.JSON)
+				.body(DomainDataPreparationUtil.addDomainInitiateRequest()).given().when()
+				.post(DomainDataPreparationUtil.addDomainInitiateUrl()).then().assertThat()
+				.statusCode(HttpStatus.OK.value()).extract().path(TestBaseConstants.STATUS.getValue());
+		assertEquals(TestBaseConstants.SUCCESS_STATUS.getValue(), status);
+
+		// Add Approve Domain
+
+		status = with().contentType(ContentType.JSON).accept(ContentType.JSON)
+				.body(DomainDataPreparationUtil.addDomainApproveRequest()).given().when()
+				.post(DomainDataPreparationUtil.addDomainApprovalUrl()).then().assertThat()
+				.statusCode(HttpStatus.OK.value()).extract().path(TestBaseConstants.STATUS.getValue());
+		assertEquals(TestBaseConstants.SUCCESS_STATUS.getValue(), status);
+
+		// Returns details of a domain based on specific Domain Code
+
+		status = with().contentType(ContentType.JSON).accept(ContentType.JSON).given().when()
+				.get(DomainDataPreparationUtil.getSingleDomainUrl()).then().assertThat()
+				.statusCode(HttpStatus.OK.value()).extract().path(TestBaseConstants.STATUS.getValue());
+		assertEquals(TestBaseConstants.SUCCESS_STATUS.getValue(), status);
+
+		// Update Initiate Domain
+
+		status = with().contentType(ContentType.JSON).accept(ContentType.JSON)
+				.body(DomainDataPreparationUtil.updateDomainInitiateRequest()).given().when()
+				.put(DomainDataPreparationUtil.updateDomainInitiateUrl()).then().assertThat()
+				.statusCode(HttpStatus.OK.value()).extract().path(TestBaseConstants.STATUS.getValue());
+		assertEquals(TestBaseConstants.SUCCESS_STATUS.getValue(), status);
+
+		// Update Approve Domain
+
+		status = with().contentType(ContentType.JSON).accept(ContentType.JSON)
+				.body(DomainDataPreparationUtil.updateDomainApproveRequest()).given().when()
+				.put(DomainDataPreparationUtil.updateDomainApprovalUrl()).then().assertThat()
+				.statusCode(HttpStatus.OK.value()).extract().path(TestBaseConstants.STATUS.getValue());
+		assertEquals(TestBaseConstants.SUCCESS_STATUS.getValue(), status);
+
+		// Delete Initiate Domain
+
+		status = with().contentType(ContentType.JSON).accept(ContentType.JSON)
+				.body(DomainDataPreparationUtil.deleteDomainInitiateRequest()).given().when()
+				.delete(DomainDataPreparationUtil.deleteDomainInitiateUrl()).then().assertThat()
+				.statusCode(HttpStatus.OK.value()).extract().path(TestBaseConstants.STATUS.getValue());
+		assertEquals(TestBaseConstants.SUCCESS_STATUS.getValue(), status);
+
+		// Delete Approve Domain
+		status = with().contentType(ContentType.JSON).accept(ContentType.JSON)
+				.body(DomainDataPreparationUtil.deleteDomainApproveRequest()).given().when()
+				.delete(DomainDataPreparationUtil.deleteDomainApprovalUrl()).then().assertThat()
+				.statusCode(HttpStatus.OK.value()).extract().path(TestBaseConstants.STATUS.getValue());
+		assertEquals(TestBaseConstants.SUCCESS_STATUS.getValue(), status);
+
+	}
+
+}

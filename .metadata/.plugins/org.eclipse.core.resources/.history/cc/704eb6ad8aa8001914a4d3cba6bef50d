@@ -1,0 +1,104 @@
+package com.comviva.mfs.entity;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import lombok.EqualsAndHashCode;
+
+@Entity
+@Table(name = "SYS_SERVICE_DOMAIN_MAP")
+@EqualsAndHashCode
+public class SysServiceDomainMap {
+
+	@Id
+	@Column(name = "SERVICE_DOMAIN_ID")
+	private Long serviceDomainId;
+
+	@Column(name = "SERVICE_PYMT_ID")
+	private Long servicePymtId;
+
+	@Column(name = "DESCRIPTION")
+	private String description;
+
+	@Column(name = "PAYER_DOMAIN_CODE")
+	private String payerDomainCode;
+
+	@Column(name = "PAYEE_DOMAIN_CODE")
+	private String payeeDomainCode;
+
+	@Column(name = "INITIATOR_DOMAIN_CODE")
+	private String initiatorDomainCode;
+
+	@Column(name = "STATUS")
+	private String status;
+
+	@Column(name = "SERVICE_TYPE")
+	private String serviceType;
+
+	public Long getServiceDomainId() {
+		return serviceDomainId;
+	}
+	
+	public void setInitiatorDomainCode(String initiatorDomainCode) {
+		this.initiatorDomainCode = initiatorDomainCode;
+	}
+
+	public void setServiceDomainId(Long serviceDomainId) {
+		this.serviceDomainId = serviceDomainId;
+	}
+
+	public Long getServicePymtId() {
+		return servicePymtId;
+	}
+
+	public void setServicePymtId(Long servicePymtId) {
+		this.servicePymtId = servicePymtId;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getPayerDomainCode() {
+		return payerDomainCode;
+	}
+
+	public void setPayerDomainCode(String payerDomainCode) {
+		this.payerDomainCode = payerDomainCode;
+	}
+
+	public String getPayeeDomainCode() {
+		return payeeDomainCode;
+	}
+
+	public void setPayeeDomainCode(String payeeDomainCode) {
+		this.payeeDomainCode = payeeDomainCode;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+
+	public String getInitiatorDomainCode() {
+		return initiatorDomainCode;
+	}
+	
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getServiceType() {
+		return serviceType;
+	}
+
+	public void setServiceType(String serviceType) {
+		this.serviceType = serviceType;
+	}
+
+}
