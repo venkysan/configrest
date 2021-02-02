@@ -1,0 +1,74 @@
+package com.comviva.mfs.common;
+
+
+import java.util.Arrays;
+import java.util.List;
+
+import lombok.Getter;
+
+@Getter
+public enum SupportApiConstants {
+
+	ALLOWED_SPECIAL_CHARS_DOMAINANDCAT_NAME("ALLOWED_SPECIAL_CHARS_DOMAINANDCAT_NAME"),
+	EMPRTY_STRING(""),
+	 PROVIDERID("Provider Id"),
+	 PAYMENT_INSTRUMENT("Payment Instrument"),
+	 WALLET_OR_BANK("Wallet Or Bank ID"),
+	 PAYMENT_METHOD_TYPE_BANK("BANK"),
+	 PAYMENT_METHOD_TYPE_WALLET("WALLET"),
+	 USER_TYPE_INITIATOR("INITIATOR"),
+	 // don't change these enum value's
+	 ACTIVE("Y"),
+	 SERVICENAME("serviceName"),
+	 SERVICEID("serviceId"),
+	 SERVICETYPE("serviceType"),
+	 DOMAIN_CODE("domainCode"),
+	 DESCRIPTION("description"),
+	 SERVICEPYMTID("servicePymtId"),
+	 INITIATOR_DOMAINCODE("initiatorDomainCode"),
+	 PAYER_DOMAINCODE("payerDomainCode"),
+	 PAYEE_DOMAINCODE("payeeDomainCode"),
+	 INITIATOR_PAYMENT_INSTRUMENT("initiatorPaymentInstrument"),
+	 LINKEDWALLETBANKNAME("linkedWalletBankName"),
+	 LINKEDWALLETBANKID("linkedWalletBankId"),
+	 YES("Y"),
+	 TRUE("TRUE"),
+	 DOMAIN_SUBSCRIBER("SUBS"),
+	 SERVICE_TYPE_CCASHOUT("CCASHOUT"),
+	 MER_DOMAIN("MERCHANT"),
+	 ENTERPRISE_DOMAIN("Enterprise"),
+	 USER_TYPE_OPERATOR_CODE("OPT"),
+	 TRANSFER_FUNDS_BETWEEN_SELF_WALLETS_SERVICE_TYPE("FTBOA"),
+	 TRANSFER_FUNDS_BETWEEN_RELATED_PARTIES_SERVICE_TYPE("FTBRP"),
+	 
+	 IS_COMMISSION_WALLET_REQUIRED("IS_COMMISSION_WALLET_REQUIRED"),
+	 IS_COMMISSION_APPROVAL_BASED ("IS_COMMISSION_APPROVAL_BASED"),
+	 COMMISSION_WALLET_IDENTIFIER ("COMMISSION_WALLET_IDENTIFIER"),
+	IS_REMITTANCE_WALLET_REQUIRED ("IS_REMITTANCE_WALLET_REQUIRED"),
+	REMITTANCE_WALLET_IDENTIFIER ("REMITTANCE_WALLET_IDENTIFIER"),
+   DOMESTIC_REMIT_WALLET_PAYID("DOMESTIC_REMIT_WALLET_PAYID"),
+	IS_PROTELECOM_REMITTANCE_WALLET_REQUIRED ("IS_PROTELECOM_REMITTANCE_WALLET_REQUIRED"),
+   PROTELECOM_REMITTANCE_WALLET_IDENTIFIER ("PROTELECOM_REMITTANCE_WALLET_IDENTIFIER"),
+   PAYMENT_INSTRUMENT_ID("Payment Instrument ID"),
+   // dont change with out knowledge 
+   BANKING_SERVICES("CBWREQ,CWBOTHREQ,CWBREQ,CATMOTPREQ,USVABREQ,BSVABREQ,DRSVA,RWBREQ,STKLIQREQ,BIWBREQ,BIBWREQ,CWAREQ"),
+	NO("N"),
+	;
+
+	private String strValue;
+
+	SupportApiConstants(String strValue) {
+		this.strValue = strValue;
+	}
+	
+	protected static List<String> bankingServicesList;
+	public static List<String> getConfiguredBankingServices() {
+		if (bankingServicesList == null || bankingServicesList.isEmpty()) {
+			{
+				bankingServicesList = Arrays.asList(BANKING_SERVICES.strValue.split(","));
+			}
+		}
+		return bankingServicesList;
+	}
+
+}

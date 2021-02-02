@@ -1,0 +1,42 @@
+package com.comviva.mfs.model.category;
+
+import com.comviva.mfs.model.BaseRequest;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class AddCategoryInitiateRequest extends BaseRequest {
+
+	@ApiModelProperty(notes = "The category Name", required = true, position = 4, example = "wholesaler")
+	private String categoryName;
+
+	@ApiModelProperty(notes = "The category Code", required = true, position = 5, example = "retailer")
+	private String categoryCode;
+
+	@ApiModelProperty(notes = "The domain Code", required = true, position = 6, example = "DISTWS")
+	private String domainCode;
+
+	@ApiModelProperty(notes = "The parent category Code", required = true, position = 7, example = "WHS")
+	private String parentCategoryCode;
+
+	@ApiModelProperty(notes = "category Type", required = true, position = 8, example = "WHS")
+	private String categoryType;
+
+	@ApiModelProperty(notes = "graphDomainType", required = true, position = 9, example = "WHS")
+	private String graphDomainType;
+
+	@ApiModelProperty(notes = "Is approval required Y/N", position = 10, example = "Y")
+	private String isApprovalRequired;
+
+	@Override
+	public String toString() {
+		return "AddCategoryInitiateRequest [identifierType=" + identifierType + ", identifierValue=" + identifierValue
+				+ ", bearerCode=" + bearerCode + ", externalRefId=" + externalRefId + ", categoryName=" + categoryName
+				+ ", categoryCode=" + categoryCode + ", domainCode=" + domainCode + ", parentCategoryCode="
+				+ parentCategoryCode + ", categoryType=" + categoryType + ", graphDomainType=" + graphDomainType
+				+ ", isApprovalRequired=" + isApprovalRequired + "]";
+	}
+
+}

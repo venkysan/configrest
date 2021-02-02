@@ -1,0 +1,151 @@
+/** 
+ * COPYRIGHT: Comviva Technologies Pvt. Ltd.
+ * This software is the sole property of Comviva
+ * and is protected by copyright law and international
+ * treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of
+ * it may result in severe civil and criminal penalties
+ * and will be prosecuted to the maximum extent possible
+ * under the law. Comviva reserves all rights not
+ * expressly granted. You may not reverse engineer, decompile,
+ * or disassemble the software, except and only to the
+ * extent that such activity is expressly permitted
+ * by applicable law notwithstanding this limitation.
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT
+ * WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY
+ * AND THE USE OF THIS SOFTWARE. Comviva SHALL NOT BE LIABLE FOR
+ * ANY DAMAGES WHATSOEVER ARISING OUT OF THE USE OF OR INABILITY TO
+ * USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ **/
+package com.comviva.mfs.common.utils;
+
+import java.util.Collection;
+
+import com.comviva.mfs.common.Constants;
+
+/**
+ * This final class used for common utilities methods.
+ * 
+ * @author sudharshans
+ */
+public final class CommonUtils {
+
+    private CommonUtils() {
+    }
+
+    /**
+     * Validate the null check
+     * 
+     * @param collection
+     *            - collection
+     * @return boolean
+     */
+    public static boolean isNullorEmpty(Collection<?> collection) {
+        return (null == collection || collection.isEmpty());
+    }
+
+    /**
+     * Validate the null check for Object super class
+     * 
+     * @param str
+     *            - input
+     * @return boolean
+     */
+    public static boolean isNullorEmpty(Object str) {
+        return (null == str || "".equals(str) || "null".equals(str));
+    }
+
+    /**
+     * Validate the Numeric or not
+     * 
+     * @param str
+     *            - input
+     * @return boolean
+     */
+    public static boolean isNumeric(String str) {
+        return (!isNullorEmpty(str) && str.chars().allMatch(Character::isDigit));
+    }
+
+    /**
+     * Validate the Alpha Numeric or not
+     * 
+     * @param str
+     *            - input
+     * @return boolean
+     */
+    public static boolean isAlphaNumeric(String str) {
+        return (!isNullorEmpty(str) && (str.chars().allMatch(Character::isLetterOrDigit)));
+    }
+
+    /**
+     * Validate the AlphaNumeric and lenght check
+     * 
+     * @param str
+     *            - input
+     * @param dataLenght
+     *            - dataLenght
+     * @param actualLenght
+     *            - actualLenght
+     * @return boolean
+     */
+    public static boolean isAlphaNumericAndLenghtCheck(String str, Integer dataLenght, Integer actualLenght) {
+        return (!isNullorEmpty(str) && (str.chars().allMatch(Character::isLetterOrDigit) && dataLenght < actualLenght));
+
+    }
+
+    /**
+     * Validate the Boolean string
+     * 
+     * @param str
+     *            - input
+     * @return boolean
+     */
+    public static boolean isYesOrNo(String str) {
+        return (!isNullorEmpty(str)
+                && (str.equals(Constants.YES.getStrValue()) || str.equals(Constants.NO.getStrValue())));
+
+    }
+
+    /**
+     * Validate the role type
+     * 
+     * @param str
+     *            - input
+     * @return boolean
+     */
+    public static boolean isRoleType(String str) {
+        return (!isNullorEmpty(str) && (str.equals(Constants.WEB.getStrValue())
+                || str.equals(Constants.WALLET.getStrValue()) || str.equals(Constants.BANK.getStrValue())));
+    }
+
+    /**
+     * Validate the null and zero
+     * 
+     * @param input
+     *            -- input
+     * @return boolean
+     */
+    public static boolean isNullorZero(Long input) {
+        return 0 == (input == null ? 0 : input);
+    }
+
+    /**
+     * Validate the Y and N
+     * 
+     * @param input
+     *            -- input
+     * @return boolean
+     */
+    public static boolean isApprovalRequired(String input) {
+        boolean status;
+        if (input.equalsIgnoreCase(Constants.YES.getStrValue()) || input.equalsIgnoreCase(Constants.NO.getStrValue())) {
+            status = true;
+        } else {
+            status = false;
+        }
+        return status;
+    }
+}

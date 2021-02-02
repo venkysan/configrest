@@ -1,0 +1,326 @@
+package com.comviva.mfs.entity;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import lombok.EqualsAndHashCode;
+
+@Entity
+@Table(name = "MTX_CATEGORIES_M")
+@EqualsAndHashCode
+public class CategoryMaker {
+
+	@Id
+	@Column(name = "CATEGORY_CODE")
+	private String categoryCode;
+
+	@Column(name = "DOMAIN_CODE")
+	private String domainCode;
+
+	@Column(name = "CATEGORY_NAME")
+	private String categoryName;
+
+	@Column(name = "PARENT_CATEGORY_CODE")
+	private String parentCategoryCode;
+
+	@Column(name = "STATUS")
+	private String status;
+
+	@Column(name = "CATEGORY_TYPE")
+	private String categoryType;
+
+	@Column(name = "GRPH_DOMAIN_TYPE")
+	private String grphDomainType;
+
+	@Column(name = "SEQUENCE_NO")
+	private Integer sequenceNo;
+
+	@Column(name = "MULTIPLE_GRPH_DOMAINS")
+	private String multipleGrphDomains;
+
+	@Column(name = "FIXED_ROLES")
+	private String fixedRoles;
+
+	@Column(name = "MULTIPLE_LOGIN_ALLOWED")
+	private String multipleLoginAllowed;
+
+	@Column(name = "VIEW_ON_NETWORK_BLOCK")
+	private String viewOnNetworkBlock;
+
+	@Column(name = "MAX_LOGIN_COUNT")
+	private Long maxLoginCount;
+
+	@Column(name = "MODIFY_ALLOWED")
+	private String modifiedAllowed;
+
+	@Column(name = "MAX_TXN_MSISDN")
+	private Long maxTxnMsisdn;
+
+	@Column(name = "UNCNTRL_TRANSFER_ALLOWED")
+	private String uncontrolTransferAllowed;
+
+	@Column(name = "SCHEDULED_TRANSFER_ALLOWED")
+	private String scheduleTransferAllowed;
+
+	@Column(name = "RESTRICTED_MSISDNS")
+	private String restrictedMsisdnAllowed;
+
+	@Column(name = "FIXED_DOMAINS")
+	private String fixedDomains;
+
+	@Column(name = "PRODUCT_TYPES_ALLOWED")
+	private String productTypeAllowed;
+
+	@Column(name = "DOMAIN_ALLOWED")
+	private String domainAllowed;
+
+	@Column(name = "AGENT_ALLOWED")
+	private String agentAllowed;
+
+	@Column(name = "OUTLETS_ALLOWED")
+	private String outletAllowed;
+
+	@Column(name = "DISPLAY_ALLOWED")
+	private String displayAllowed;
+
+	@Column(name = "HIERARCHY_ALLOWED")
+	private String hierarchyAllowed;
+
+	@Column(name = "TRANSFERTOLISTONLY")
+	private String transferToListOnly;
+
+	@Column(name = "REG_CHARGES_APPLICABLE")
+	private String regChargesApplicable;
+
+	@Column(name = "FIXED_PROFILE_ALLOWED")
+	private String fixedProfileAllowed;
+
+	public String getCategoryCode() {
+		return categoryCode;
+	}
+
+	public void setCategoryCode(String categoryCode) {
+		this.categoryCode = categoryCode;
+	}
+
+	public String getDomainCode() {
+		return domainCode;
+	}
+
+	public void setDomainCode(String domainCode) {
+		this.domainCode = domainCode;
+	}
+
+	public String getCategoryName() {
+		return categoryName;
+	}
+
+	public void setCategoryName(String categoryName) {
+		this.categoryName = categoryName;
+	}
+
+	public String getParentCategoryCode() {
+		return parentCategoryCode;
+	}
+
+	public void setParentCategoryCode(String parentCategoryCode) {
+		this.parentCategoryCode = parentCategoryCode;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getCategoryType() {
+		return categoryType;
+	}
+
+	public void setCategoryType(String categoryType) {
+		this.categoryType = categoryType;
+	}
+
+	public String getGrphDomainType() {
+		return grphDomainType;
+	}
+
+	public void setGrphDomainType(String grphDomainType) {
+		this.grphDomainType = grphDomainType;
+	}
+
+	public Integer getSequenceNo() {
+		return sequenceNo;
+	}
+
+	public void setSequenceNo(Integer sequenceNo) {
+		this.sequenceNo = sequenceNo;
+	}
+
+	public String getMultipleGrphDomains() {
+		return multipleGrphDomains;
+	}
+
+	public void setMultipleGrphDomains(String multipleGrphDomains) {
+		this.multipleGrphDomains = multipleGrphDomains;
+	}
+
+	public String getFixedRoles() {
+		return fixedRoles;
+	}
+
+	public void setFixedRoles(String fixedRoles) {
+		this.fixedRoles = fixedRoles;
+	}
+	
+	public void setMaxLoginCount(Long maxLoginCount) {
+		this.maxLoginCount = maxLoginCount;
+	}
+
+	public String getMultipleLoginAllowed() {
+		return multipleLoginAllowed;
+	}
+
+	public void setMultipleLoginAllowed(String multipleLoginAllowed) {
+		this.multipleLoginAllowed = multipleLoginAllowed;
+	}
+
+	public String getViewOnNetworkBlock() {
+		return viewOnNetworkBlock;
+	}
+
+	public void setViewOnNetworkBlock(String viewOnNetworkBlock) {
+		this.viewOnNetworkBlock = viewOnNetworkBlock;
+	}
+
+	public Long getMaxLoginCount() {
+		return maxLoginCount;
+	}
+
+	public String getModifiedAllowed() {
+		return modifiedAllowed;
+	}
+
+	public Long getMaxTxnMsisdn() {
+		return maxTxnMsisdn;
+	}
+
+	public void setMaxTxnMsisdn(Long maxTxnMsisdn) {
+		this.maxTxnMsisdn = maxTxnMsisdn;
+	}
+
+	public String getUncontrolTransferAllowed() {
+		return uncontrolTransferAllowed;
+	}
+
+	public void setUncontrolTransferAllowed(String uncontrolTransferAllowed) {
+		this.uncontrolTransferAllowed = uncontrolTransferAllowed;
+	}
+
+	public String getScheduleTransferAllowed() {
+		return scheduleTransferAllowed;
+	}
+
+	public void setScheduleTransferAllowed(String scheduleTransferAllowed) {
+		this.scheduleTransferAllowed = scheduleTransferAllowed;
+	}
+
+	public String getRestrictedMsisdnAllowed() {
+		return restrictedMsisdnAllowed;
+	}
+
+	public void setRestrictedMsisdnAllowed(String restrictedMsisdnAllowed) {
+		this.restrictedMsisdnAllowed = restrictedMsisdnAllowed;
+	}
+
+	public String getFixedDomains() {
+		return fixedDomains;
+	}
+
+	public void setFixedDomains(String fixedDomains) {
+		this.fixedDomains = fixedDomains;
+	}
+
+	public String getProductTypeAllowed() {
+		return productTypeAllowed;
+	}
+
+	public void setProductTypeAllowed(String productTypeAllowed) {
+		this.productTypeAllowed = productTypeAllowed;
+	}
+
+	public String getDomainAllowed() {
+		return domainAllowed;
+	}
+
+	public void setDomainAllowed(String domainAllowed) {
+		this.domainAllowed = domainAllowed;
+	}
+
+	public String getAgentAllowed() {
+		return agentAllowed;
+	}
+
+	public void setAgentAllowed(String agentAllowed) {
+		this.agentAllowed = agentAllowed;
+	}
+
+	public String getOutletAllowed() {
+		return outletAllowed;
+	}
+
+	public void setOutletAllowed(String outletAllowed) {
+		this.outletAllowed = outletAllowed;
+	}
+
+	public String getDisplayAllowed() {
+		return displayAllowed;
+	}
+
+	public void setDisplayAllowed(String displayAllowed) {
+		this.displayAllowed = displayAllowed;
+	}
+
+	
+	public void setModifiedAllowed(String modifiedAllowed) {
+		this.modifiedAllowed = modifiedAllowed;
+	}
+
+	
+	public String getHierarchyAllowed() {
+		return hierarchyAllowed;
+	}
+
+	public void setHierarchyAllowed(String hierarchyAllowed) {
+		this.hierarchyAllowed = hierarchyAllowed;
+	}
+
+	public String getTransferToListOnly() {
+		return transferToListOnly;
+	}
+
+	public void setTransferToListOnly(String transferToListOnly) {
+		this.transferToListOnly = transferToListOnly;
+	}
+
+	public String getRegChargesApplicable() {
+		return regChargesApplicable;
+	}
+
+	public void setRegChargesApplicable(String regChargesApplicable) {
+		this.regChargesApplicable = regChargesApplicable;
+	}
+
+	public String getFixedProfileAllowed() {
+		return fixedProfileAllowed;
+	}
+
+	public void setFixedProfileAllowed(String fixedProfileAllowed) {
+		this.fixedProfileAllowed = fixedProfileAllowed;
+	}
+
+}

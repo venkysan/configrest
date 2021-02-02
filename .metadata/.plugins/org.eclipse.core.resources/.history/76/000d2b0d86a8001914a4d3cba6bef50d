@@ -1,0 +1,159 @@
+package com.comviva.mfs.entity;
+
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import lombok.EqualsAndHashCode;
+
+@Entity
+@Table(name = "GEOGRAPHICAL_DOMAINS")
+@EqualsAndHashCode
+public class GeographicalDomains {
+
+	@Id
+	@Column(name = "GRPH_DOMAIN_CODE")
+	private String grphDomainCode;
+
+	@Column(name = "NETWORK_CODE")
+	private String networkCode;
+
+	@Column(name = "GRPH_DOMAIN_NAME")
+	private String grphDomainName;
+
+	@Column(name = "PARENT_GRPH_DOMAIN_CODE")
+	private String parentGrphDomainCode;
+
+	@Column(name = "GRPH_DOMAIN_SHORT_NAME")
+	private String grphDomainShortName;
+
+	@Column(name = "DESCRIPTION")
+	private String description;
+
+	@Column(name = "STATUS")
+	private String status;
+
+	@Column(name = "MESSAGE_CODE")
+	private String messageCode;
+
+	@Column(name = "GRPH_DOMAIN_TYPE")
+	private String grphDomainType;
+
+	@Column(name = "CREATED_BY")
+	private String createdBy;
+
+	@Column(name = "CREATED_ON")
+	private Date createdOn;
+
+	@Column(name = "MODIFIED_BY")
+	private String modifiedBy;
+
+	@Column(name = "MODIFIED_ON")
+	private Date modifiedOn;
+
+	public void setGrphDomainCode(String grphDomainCode) {
+		this.grphDomainCode = grphDomainCode;
+	}
+
+	public String getNetworkCode() {
+		return networkCode;
+	}
+
+	public String getGrphDomainName() {
+		return grphDomainName;
+	}
+
+
+
+	public String getParentGrphDomainCode() {
+		return parentGrphDomainCode;
+	}
+
+	public void setParentGrphDomainCode(String parentGrphDomainCode) {
+		this.parentGrphDomainCode = parentGrphDomainCode;
+	}
+
+	public String getGrphDomainShortName() {
+		return grphDomainShortName;
+	}
+
+	public void setGrphDomainShortName(String grphDomainShortName) {
+		this.grphDomainShortName = grphDomainShortName;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public void setMessageCode(String messageCode) {
+		this.messageCode = messageCode;
+	}
+
+	public String getGrphDomainType() {
+		return grphDomainType;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+	
+	public void setGrphDomainType(String grphDomainType) {
+		this.grphDomainType = grphDomainType;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public Date getCreatedOn() {
+		return createdOn;
+	}
+
+	public void setCreatedOn(Date createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	public String getModifiedBy() {
+		return modifiedBy;
+	}
+	
+	public String getMessageCode() {
+		return messageCode;
+	}
+	
+	public void setNetworkCode(String networkCode) {
+		this.networkCode = networkCode;
+	}
+
+	public void setModifiedBy(String modifiedBy) {
+		this.modifiedBy = modifiedBy;
+	}
+	
+	public String getGrphDomainCode() {
+		return grphDomainCode;
+	}
+
+	public Date getModifiedOn() {
+		return modifiedOn;
+	}
+
+	public void setModifiedOn(Date modifiedOn) {
+		this.modifiedOn = modifiedOn;
+	}
+
+}

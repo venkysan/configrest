@@ -1,0 +1,115 @@
+package com.comviva.mfs.service.domain;
+
+import static com.comviva.mfs.common.Constants.DELETE_INITIATE_STATUS;
+import static org.apache.commons.beanutils.BeanUtils.copyProperties;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+
+import com.comviva.mfs.common.Constants;
+import com.comviva.mfs.common.ErrorCodes;
+import com.comviva.mfs.common.MessageCodes;
+import com.comviva.mfs.common.ServiceRoleCodes;
+import com.comviva.mfs.common.ValidationException;
+import com.comviva.mfs.common.utils.CommonUtils;
+import com.comviva.mfs.entity.CategoryChecker;
+import com.comviva.mfs.entity.DomainChecker;
+import com.comviva.mfs.entity.DomainMaker;
+import com.comviva.mfs.model.domain.DeleteDomainApproveRequest;
+import com.comviva.mfs.model.domain.DeleteDomainApproveResponse;
+import com.comviva.mfs.repository.CategoryCheckerRepository;
+import com.comviva.mfs.repository.DomainCheckerRepository;
+import com.comviva.mfs.repository.DomainMakerRepository;
+import com.comviva.mfs.service.CommonService;
+
+@Service
+@Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class DeleteDomainApproveService extends CommonService {
+
+	private String domainCode;
+	private DomainMaker domainMaker;
+	private DomainMakerRepository domainMakerRepository;
+	private DomainCheckerRepository domainCheckerRepository;
+	private DeleteDomainApproveRequest deleteDomainApproveRequest;
+	private CategoryCheckerRepository categoryCheckerRepository;
+
+	@Autowired
+	private KafkaTemplate<String, Object> kafkaTemplate;
+
+	@Autowired
+	public DeleteDomainApproveService(DomainMakerRepository domainMakerRepository,
+			DomainCheckerRepository domainCheckerRepository, CategoryCheckerRepository categoryCheckerRepository) {
+		this.domainMakerRepository = domainMakerRepository;
+		this.domainCheckerRepository = domainCheckerRepository;
+		this.categoryCheckerRepository = categoryCheckerRepository;
+	}
+
+	public DeleteDomainApproveResponse execute(String domainCode, String action,
+			DeleteDomainApproveRequest deleteApproveDomainRequest) {
+		Map<String, Object> constructAdminMap = new HashMap<>();
+		List<String> params = new ArrayList<>();
+		try {
+			this.domainCode = domainCode;
+			this.deleteDomainApproveRequest = deleteApproveDomainRequest;
+			serviceRoleCode = ServiceRoleCodes.DELETE_DOMAIN_APPR_ROLE.getStrValue();
+			super.execute(deleteApproveDomainRequest, serviceRoleCode);
+			validateInputs();
+			DomainChecker domainChecker = new DomainChecker();
+			copyProperties(domainChecker, domainMaker);
+			if (Constants.ACTION.getStrValue().equals(action)) {
+				domainChecker.setStatus(Constants.INACTIVE_STATUS.getStrValue());
+				domainCheckerRepository.approveDomain(domainChecker);
+				responseMessageCode = MessageCodes.DOMAIN_APPROVE_SUCCESS.getStrValue();
+			} else {
+				responseMessageCode = MessageCodes.DOMAIN_REJECT_SUCCESS.getStrValue();
+			}
+			params.add(domainMaker.getDomainName());
+			domainMakerRepository.delete(domainMaker);
+			responseStatus = Constants.SUCCESS_RESPONSE.getStrValue();
+			createRequestResponseHistObject();
+			constructAdminMap.put(NEW_OBJECT, domainMaker);
+			constructAdminMap.put("oldObject", domainChecker);
+			createAuditLogMap(constructAdminMap);
+			kafkaTemplate.send("domainChecker", domainChecker);
+		} catch (Exception e) {
+			handleException(e, params, this.getClass().getSimpleName());
+		}
+		generateReponseMessage(params);
+		return createResponse();
+	}
+
+	@Override
+	public void validateInputs() {
+		domainMaker = domainMakerRepository.getDomainByDomainCode(domainCode);
+		if (null == domainMaker) {
+			throw new ValidationException(domainCode, ErrorCodes.DOMAIN_CODE_NOT_FOUND.getErrorCode());
+		}
+		if (!DELETE_INITIATE_STATUS.getStrValue().equals(domainMaker.getStatus())) {
+			throw new ValidationException(domainMaker.getDomainCode(), ErrorCodes.DOMAIN_CODE_NOT_DELETE_INITIATED.getErrorCode());
+		}
+		List<CategoryChecker> categoryList = categoryCheckerRepository.findCategoryListByDomainCode(Constants.YES.getStrValue(), domainCode);
+		if (!CommonUtils.isNullorEmpty(categoryList)) {
+			throw new ValidationException(domainMaker.getDomainCode(), ErrorCodes.DOMAIN_HAVE_ASSIGNED_CATEGORIES.getErrorCode());
+		}
+	}
+
+	@Override
+	public DeleteDomainApproveResponse createResponse() {
+		DeleteDomainApproveResponse deleteDomainApproveResponse = new DeleteDomainApproveResponse();
+		deleteDomainApproveResponse.setStatus(responseStatus);
+		deleteDomainApproveResponse.setExternalRefId(deleteDomainApproveRequest.getExternalRefId());
+		deleteDomainApproveResponse.setReferenceId(referenceId);
+		deleteDomainApproveResponse.setMessage(responseMessage);
+		return deleteDomainApproveResponse;
+	}
+
+}

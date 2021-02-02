@@ -1,0 +1,25 @@
+package com.comviva.mfs.repository.repositoryimpl;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
+import org.springframework.stereotype.Component;
+import com.comviva.mfs.repository.SystemDataRepository;
+
+@Component
+public class SystemDataRepositoryImpl implements SystemDataRepository {
+
+	@PersistenceContext
+	private EntityManager entityManager;
+
+	@Override
+	public Object getSystemPreferenceValue(String Value) {
+		Query query = entityManager
+				.createQuery("select defaultValue FROM SystemPreferences where preferenceCode=:preferenceCode");
+		query.setParameter("preferenceCode", Value);
+		Object result = (Object) query.getSingleResult();
+		return result;
+	}
+
+}

@@ -1,0 +1,381 @@
+/** 
+ * COPYRIGHT: Comviva Technologies Pvt. Ltd.
+ * This software is the sole property of Comviva
+ * and is protected by copyright law and international
+ * treaty provisions. Unauthorized reproduction or
+ * redistribution of this program, or any portion of
+ * it may result in severe civil and criminal penalties
+ * and will be prosecuted to the maximum extent possible
+ * under the law. Comviva reserves all rights not
+ * expressly granted. You may not reverse engineer, decompile,
+ * or disassemble the software, except and only to the
+ * extent that such activity is expressly permitted
+ * by applicable law notwithstanding this limitation.
+ * THIS SOFTWARE IS PROVIDED TO YOU "AS IS" WITHOUT
+ * WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ * YOU ASSUME THE ENTIRE RISK AS TO THE ACCURACY
+ * AND THE USE OF THIS SOFTWARE. Comviva SHALL NOT BE LIABLE FOR
+ * ANY DAMAGES WHATSOEVER ARISING OUT OF THE USE OF OR INABILITY TO
+ * USE THIS SOFTWARE, EVEN IF Comviva HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ **/
+package com.comviva.mfs.service.grouprole;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+
+import com.comviva.mfs.common.Constants;
+import com.comviva.mfs.common.MessageCodes;
+import com.comviva.mfs.common.ServiceRoleCodes;
+import com.comviva.mfs.common.ValidationException;
+import com.comviva.mfs.common.utils.CommonUtils;
+import com.comviva.mfs.entity.CategoryChecker;
+import com.comviva.mfs.entity.GradeChecker;
+import com.comviva.mfs.entity.GroupRoleChecker;
+import com.comviva.mfs.entity.GroupRoleMaker;
+import com.comviva.mfs.entity.SysGroupRoleChecker;
+import com.comviva.mfs.entity.SysGroupRoleMaker;
+import com.comviva.mfs.model.grouprole.AddGroupRoleInitiateRequest;
+import com.comviva.mfs.model.grouprole.AddGroupRoleInitiateResponse;
+import com.comviva.mfs.model.grouprole.ServiceRole;
+import com.comviva.mfs.repository.CategoryCheckerRepository;
+import com.comviva.mfs.repository.GradeCheckerRepository;
+import com.comviva.mfs.repository.GroupRoleCheckerRepository;
+import com.comviva.mfs.repository.GroupRoleCustomRepository;
+import com.comviva.mfs.repository.GroupRoleMakerRepository;
+import com.comviva.mfs.repository.SysGroupRoleCheckerRepository;
+import com.comviva.mfs.repository.SysGroupRoleMakerRepository;
+import com.comviva.mfs.service.CommonService;
+
+/**
+ * This service used for Add GroupRole Initiate
+ * 
+ * @author sudharshans
+ */
+@Service
+@Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE, proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class AddGroupRoleInitiateService extends CommonService {
+
+    private GroupRoleCheckerRepository groupRolesCheckerRepository;
+    private GroupRoleMakerRepository groupRolesMakerRepository;
+    private SysGroupRoleCheckerRepository sysGroupRolesCheckerRepository;
+    private SysGroupRoleMakerRepository sysGroupRolesMakerRepository;
+    private GroupRoleChecker groupRoleChecker;
+    private GroupRoleMaker groupRoleMaker;
+    private SysGroupRoleChecker sysGroupRoleChecker;
+    private SysGroupRoleMaker sysGroupRoleMaker;
+    private AddGroupRoleInitiateRequest addGroupRoleInitiateRequest;
+    private List<GroupRoleMaker> groupRoleMakerList;
+    private List<GroupRoleChecker> groupRoleCheckerList;
+    private CategoryCheckerRepository categoryCheckerRepository;
+    private GradeCheckerRepository gradeCheckerRepository;
+    private GroupRoleCustomRepository groupRoleCustomRepository;
+
+    @Autowired
+    private KafkaTemplate<String, Object> kafkaTemplate;
+
+    /**
+     * Construct AddGroupRoleInitiateService
+     * 
+     * @param groupRolesCheckerRepository
+     *            - groupRolesCheckerRepository
+     * @param groupRolesMakerRepository
+     *            - groupRolesMakerRepository
+     * @param sysGroupRolesCheckerRepository
+     *            - sysGroupRolesCheckerRepository
+     * @param sysGroupRolesMakerRepository
+     *            - sysGroupRolesMakerRepository
+     * @param categoryCheckerRepository
+     *            - categoryCheckerRepository
+     * @param gradeCheckerRepository
+     *            - gradeCheckerRepository
+     * @param groupRoleCustomRepository
+     *            - groupRoleCustomRepository
+     */
+    @Autowired
+    public AddGroupRoleInitiateService(GroupRoleCheckerRepository groupRolesCheckerRepository,
+            GroupRoleMakerRepository groupRolesMakerRepository,
+            SysGroupRoleCheckerRepository sysGroupRolesCheckerRepository,
+            SysGroupRoleMakerRepository sysGroupRolesMakerRepository,
+            CategoryCheckerRepository categoryCheckerRepository, GradeCheckerRepository gradeCheckerRepository,
+            GroupRoleCustomRepository groupRoleCustomRepository) {
+        this.groupRolesCheckerRepository = groupRolesCheckerRepository;
+        this.groupRolesMakerRepository = groupRolesMakerRepository;
+        this.sysGroupRolesCheckerRepository = sysGroupRolesCheckerRepository;
+        this.sysGroupRolesMakerRepository = sysGroupRolesMakerRepository;
+        this.categoryCheckerRepository = categoryCheckerRepository;
+        this.gradeCheckerRepository = gradeCheckerRepository;
+        this.groupRoleCustomRepository = groupRoleCustomRepository;
+    }
+
+    /**
+     * Add GroupRoleInitiate
+     * 
+     * @param addGroupRoleInitiateRequest
+     *            -addGroupRoleInitiateRequest
+     * @return AddGroupRoleInitiateResponse
+     */
+    public AddGroupRoleInitiateResponse execute(AddGroupRoleInitiateRequest addGroupRoleInitiateRequest) {
+        Map<String, Object> constructAdminMap = new HashMap<>();
+        List<String> params = new ArrayList<>();
+        String isApprovalRequired;
+        this.addGroupRoleInitiateRequest = addGroupRoleInitiateRequest;
+        serviceRoleCode = ServiceRoleCodes.GROUP_ROLE_CURD_ROLE.getStrValue();
+        super.initiate(addGroupRoleInitiateRequest, serviceRoleCode);
+        validateInputs();
+        isApprovalRequired = addGroupRoleInitiateRequest.getIsApprovalRequired();
+        if (null != isApprovalRequired && Constants.ACTIVE_STATUS.getStrValue().equals(isApprovalRequired)) {
+            populateSysGroupRoleMakerDetials();
+            populateGroupRoleMakerDetials();
+            groupRolesMakerRepository.saveAll(groupRoleMakerList);
+            sysGroupRoleMaker.setStatus(Constants.ADD_INITIATE_STATUS.getStrValue());
+            sysGroupRolesMakerRepository.save(sysGroupRoleMaker);
+            params.add(sysGroupRoleMaker.getGroupRoleCode());
+            params.add(sysGroupRoleMaker.getGroupRoleName());
+            constructAdminMap.put(NEW_OBJECT, sysGroupRoleMaker);
+            responseMessageCode = MessageCodes.GROUP_ROLE_INIT_SUCCESS.getStrValue();
+        } else {
+            populateSysGroupRoleCheckerDetials();
+            populateGroupRoleCheckerDetials();
+            groupRolesCheckerRepository.saveAll(groupRoleCheckerList);
+            sysGroupRoleChecker.setStatus(Constants.ACTIVE_STATUS.getStrValue());
+            sysGroupRolesCheckerRepository.save(sysGroupRoleChecker);
+            params.add(sysGroupRoleChecker.getGroupRoleCode());
+            params.add(sysGroupRoleChecker.getGroupRoleName());
+            constructAdminMap.put("newObject", groupRoleChecker);
+            responseMessageCode = MessageCodes.GROUP_ROLE_ADD_APPR_SUCCESS.getStrValue();
+            kafkaTemplate.send("sysGroupRoleChecker", sysGroupRoleChecker);
+            if (!groupRoleCheckerList.isEmpty()) {
+                for (GroupRoleChecker grpRoleChecker : groupRoleCheckerList) {
+                    kafkaTemplate.send("groupRoleChecker", grpRoleChecker);
+                }
+            }
+        }
+        responseStatus = Constants.SUCCESS_RESPONSE.getStrValue();
+        createRequestResponseHistObject();
+        createAuditLogMap(constructAdminMap);
+        generateReponseMessage(params);
+        return createResponse();
+    }
+
+    private void populateSysGroupRoleCheckerDetials() {
+        sysGroupRoleChecker = new SysGroupRoleChecker();
+        sysGroupRoleChecker.setGroupRoleCode(addGroupRoleInitiateRequest.getGroupRoleCode());
+        sysGroupRoleChecker.setGroupRoleName(addGroupRoleInitiateRequest.getGroupRoleName());
+        sysGroupRoleChecker.setGradeCode(addGroupRoleInitiateRequest.getGradeCode());
+        sysGroupRoleChecker.setCategoryCode(addGroupRoleInitiateRequest.getCategoryCode());
+        sysGroupRoleChecker.setProviderId(addGroupRoleInitiateRequest.getProviderId());
+        sysGroupRoleChecker.setPaymentTypeId(addGroupRoleInitiateRequest.getPaymentTypeId());
+        sysGroupRoleChecker.setGroupRoleType(Constants.WALLET.getStrValue());
+        sysGroupRoleChecker.setBankId(null);
+        sysGroupRoleChecker.setDeFault(Constants.NO.getStrValue());
+    }
+
+    private void populateGroupRoleCheckerDetials() {
+        groupRoleCheckerList = new ArrayList<>();
+        for (ServiceRole reqService : addGroupRoleInitiateRequest.getAllServiceList()) {
+            if (reqService.getServiceStatus().equalsIgnoreCase(Constants.ACTIVE_STATUS.getStrValue())) {
+                groupRoleChecker = new GroupRoleChecker();
+                groupRoleChecker.setGroupRoleCode(addGroupRoleInitiateRequest.getGroupRoleCode());
+                groupRoleChecker.setRoleCode(reqService.getServiceType());
+                groupRoleChecker.setServicePymtId(Long.valueOf(reqService.getServiceType()));
+                groupRoleCheckerList.add(groupRoleChecker);
+            }
+
+        }
+    }
+
+    private void populateSysGroupRoleMakerDetials() {
+        sysGroupRoleMaker = new SysGroupRoleMaker();
+        sysGroupRoleMaker.setGroupRoleCode(addGroupRoleInitiateRequest.getGroupRoleCode());
+        sysGroupRoleMaker.setGroupRoleName(addGroupRoleInitiateRequest.getGroupRoleName());
+        sysGroupRoleMaker.setGradeCode(addGroupRoleInitiateRequest.getGradeCode());
+        sysGroupRoleMaker.setCategoryCode(addGroupRoleInitiateRequest.getCategoryCode());
+        sysGroupRoleMaker.setProviderId(addGroupRoleInitiateRequest.getProviderId());
+        if (addGroupRoleInitiateRequest.getGroupRoleType() == 1) {
+            sysGroupRoleMaker.setGroupRoleType(Constants.WEB.getStrValue());
+        } else {
+            if (addGroupRoleInitiateRequest.getPaymentType().equalsIgnoreCase(Constants.WALLET.getStrValue())) {
+                sysGroupRoleMaker.setGroupRoleType(Constants.WALLET.getStrValue());
+                sysGroupRoleMaker.setPaymentTypeId(addGroupRoleInitiateRequest.getPaymentTypeId());
+                sysGroupRoleMaker.setBankId(null);
+            }
+            if (addGroupRoleInitiateRequest.getPaymentType().equalsIgnoreCase(Constants.BANK.getStrValue())) {
+                sysGroupRoleMaker.setGroupRoleType(Constants.BANK.getStrValue());
+                sysGroupRoleMaker.setBankId(addGroupRoleInitiateRequest.getLinkedbanks());
+            }
+
+        }
+        sysGroupRoleMaker.setDeFault(Constants.NO.getStrValue());
+    }
+
+    private void populateGroupRoleMakerDetials() {
+        groupRoleMakerList = new ArrayList<>();
+
+        for (ServiceRole groupRoleServiceRequest : addGroupRoleInitiateRequest.getAllServiceList()) {
+            if (groupRoleServiceRequest.getServiceStatus().equalsIgnoreCase(Constants.ACTIVE_STATUS.getStrValue())) {
+                groupRoleMaker = new GroupRoleMaker();
+                if (addGroupRoleInitiateRequest.getGroupRoleType() == 1) {
+                    groupRoleMaker.setRoleCode(groupRoleServiceRequest.getServiceType());
+                    groupRoleMaker.setServicePymtId(0L);
+                } else {
+                    groupRoleMaker.setRoleCode(groupRoleServiceRequest.getServiceType());
+                    groupRoleMaker.setServicePymtId(Long.parseLong(groupRoleServiceRequest.getServiceType()));
+                }
+                groupRoleMaker.setGroupRoleCode(addGroupRoleInitiateRequest.getGroupRoleCode());
+                groupRoleMakerList.add(groupRoleMaker);
+            }
+        }
+
+    }
+
+    /**
+     * Validate the request parameters
+     */
+    public void validateInputs() {
+        
+        
+        groupRoleCodeCheck();
+        groupRoleNameCheck();
+        categoryCodeAndGradeCodeCheck();
+        if (addGroupRoleInitiateRequest.getAllServiceList() == null) {
+            throw new ValidationException(Constants.SERVICE_LIST.getStrValue(),
+                    MessageCodes.FIELD_MANDATORY.getStrValue());
+        } else {
+
+            for (ServiceRole reqService : addGroupRoleInitiateRequest.getAllServiceList()) {
+                if (CommonUtils.isNullorEmpty(reqService.getServiceName())) {
+                    throw new ValidationException(Constants.SERVIE_NAME.getStrValue(),
+                            MessageCodes.FIELD_MANDATORY.getStrValue());
+                } else if (CommonUtils.isNullorEmpty(reqService.getServiceType())) {
+                    throw new ValidationException(Constants.SERVICE_TYPE.getStrValue(),
+                            MessageCodes.FIELD_MANDATORY.getStrValue());
+                } else if (CommonUtils.isNullorEmpty(reqService.getServiceStatus())) {
+                    throw new ValidationException(Constants.SERVICE_STATUS.getStrValue(),
+                            MessageCodes.FIELD_MANDATORY.getStrValue());
+                }
+            }
+
+        }
+        groupRoleMaker = groupRolesMakerRepository
+                .getGroupRoleByGroupRoleCode(addGroupRoleInitiateRequest.getGroupRoleCode());
+        if (groupRoleMaker != null) {
+            throw new ValidationException(addGroupRoleInitiateRequest.getGroupRoleCode(),
+                    MessageCodes.GROUP_ROLE_UNDER_APROVAL.getStrValue());
+        }
+
+        isGroupRoleDataExists();
+    }
+
+    /**
+     * Construct the AddGroupRoleInitiateResponse
+     * 
+     * @return AddGroupRoleInitiateResponse
+     */
+    @Override
+    public AddGroupRoleInitiateResponse createResponse() {
+        AddGroupRoleInitiateResponse groupRoleResponse = new AddGroupRoleInitiateResponse();
+        groupRoleResponse.setStatus(responseStatus);
+        groupRoleResponse.setExternalRefId(addGroupRoleInitiateRequest.getExternalRefId());
+        groupRoleResponse.setReferenceId(referenceId);
+        groupRoleResponse.setMessage(responseMessage);
+        return groupRoleResponse;
+    }
+
+    private void groupRoleCodeCheck() {
+        if (CommonUtils.isNullorEmpty(addGroupRoleInitiateRequest.getGroupRoleCode())) {
+            throw new ValidationException(Constants.GROUP_ROLE_CODE.getStrValue(),
+                    MessageCodes.FIELD_MANDATORY.getStrValue());
+        } else if (!CommonUtils.isAlphaNumericAndLenghtCheck(addGroupRoleInitiateRequest.getGroupRoleCode(),
+                addGroupRoleInitiateRequest.getGroupRoleCode().length(),
+                Constants.GROUPROLE_CODE_LENGTH.getIntValue())) {
+            throw new ValidationException(Constants.GROUP_ROLE_CODE.getStrValue(),
+                    MessageCodes.FIELD_ALPHANUMERIC.getStrValue());
+        } else if (sysGroupRolesMakerRepository
+                .getGroupRoleByGroupRoleCode(addGroupRoleInitiateRequest.getGroupRoleCode()) != null) {
+            throw new ValidationException(addGroupRoleInitiateRequest.getGroupRoleCode(),
+                    MessageCodes.GROUP_ROLE_UNDER_APROVAL.getStrValue());
+        } else if (sysGroupRolesCheckerRepository
+                .getGroupRoleByGroupRoleCode(addGroupRoleInitiateRequest.getGroupRoleCode()) != null) {
+            throw new ValidationException(addGroupRoleInitiateRequest.getGradeCode(),
+                    MessageCodes.GROUP_ROLE_ALREADY_EXISTS.getStrValue());
+        }
+    }
+
+    private void groupRoleNameCheck() {
+        if (CommonUtils.isNullorEmpty(addGroupRoleInitiateRequest.getGroupRoleName())) {
+            throw new ValidationException(Constants.GROUP_ROLE_NAME.getStrValue(),
+                    MessageCodes.FIELD_MANDATORY.getStrValue());
+        } else if (!CommonUtils.isAlphaNumericAndLenghtCheck(addGroupRoleInitiateRequest.getGroupRoleName(),
+                addGroupRoleInitiateRequest.getGroupRoleName().length(),
+                Constants.GROUPROLE_NAME_LENGTH.getIntValue())) {
+            throw new ValidationException(Constants.GROUP_ROLE_NAME.getStrValue(),
+                    MessageCodes.FIELD_ALPHANUMERIC.getStrValue());
+        }
+    }
+
+    private void categoryCodeAndGradeCodeCheck() {
+        if (CommonUtils.isNullorEmpty(addGroupRoleInitiateRequest.getCategoryCode())) {
+            throw new ValidationException(Constants.CATEGORY_CODE.getStrValue(),
+                    MessageCodes.FIELD_MANDATORY.getStrValue());
+        } else if (!CommonUtils.isAlphaNumericAndLenghtCheck(addGroupRoleInitiateRequest.getCategoryCode(),
+                addGroupRoleInitiateRequest.getCategoryCode().length(), Constants.CATEGORY_CODE_LENGTH.getIntValue())) {
+            throw new ValidationException(Constants.CATEGORY_CODE.getStrValue(),
+                    MessageCodes.FIELD_ALPHANUMERIC.getStrValue());
+        }
+
+        // category code check
+        CategoryChecker categoryChecker = categoryCheckerRepository.getCategoryByCategoryCode(
+                Constants.ACTIVE_STATUS.getStrValue(), addGroupRoleInitiateRequest.getCategoryCode());
+        if (categoryChecker == null) {
+            throw new ValidationException(addGroupRoleInitiateRequest.getCategoryCode(),
+                    MessageCodes.CATEGORY_CODE_NOT_FOUND.getStrValue());
+        }
+        if (CommonUtils.isNullorEmpty(addGroupRoleInitiateRequest.getGradeCode())) {
+            throw new ValidationException(Constants.GRADE_CODE.getStrValue(),
+                    MessageCodes.FIELD_MANDATORY.getStrValue());
+        } else if (!CommonUtils.isAlphaNumericAndLenghtCheck(addGroupRoleInitiateRequest.getGradeCode(),
+                addGroupRoleInitiateRequest.getGradeCode().length(), Constants.GRADE_CODE_LENGTH.getIntValue())) {
+            throw new ValidationException(Constants.GRADE_CODE.getStrValue(),
+                    MessageCodes.FIELD_ALPHANUMERIC.getStrValue());
+        }
+
+        GradeChecker gradeChecker = gradeCheckerRepository.getGradeByGradeCode(Constants.ACTIVE_STATUS.getStrValue(),
+                addGroupRoleInitiateRequest.getGradeCode());
+        if (gradeChecker == null) {
+            throw new ValidationException(addGroupRoleInitiateRequest.getGradeCode(),
+                    MessageCodes.GRADE_CODE_NOT_FOUND.getStrValue());
+        } else if (!gradeChecker.getCategoryCode().equalsIgnoreCase(categoryChecker.getCategoryCode())) {
+            throw new ValidationException(addGroupRoleInitiateRequest.getGradeCode(),
+                    MessageCodes.GRADECODE_CATEGORYCODE_NOT_MATCH.getStrValue());
+        }
+    }
+
+    private void isGroupRoleDataExists() {
+        String categoryName = groupRoleCustomRepository
+                .isGroupRoleAssigned(addGroupRoleInitiateRequest.getGroupRoleCode());
+        if (!CommonUtils.isNullorEmpty(categoryName)) {
+            throw new ValidationException(addGroupRoleInitiateRequest.getGroupRoleCode(),
+                    MessageCodes.GROUP_ROLE_ALREADY_EXISTS.getStrValue());
+
+        }
+        categoryName = groupRoleCustomRepository
+                .isGroupRoleNameAssigned(addGroupRoleInitiateRequest.getGroupRoleName());
+        if (!CommonUtils.isNullorEmpty(categoryName)) {
+            throw new ValidationException(addGroupRoleInitiateRequest.getGroupRoleCode(),
+                    MessageCodes.GROUP_ROLE_ALREADY_EXISTS.getStrValue());
+        }
+
+    }
+
+}
